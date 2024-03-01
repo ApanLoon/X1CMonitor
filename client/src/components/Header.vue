@@ -11,6 +11,6 @@ if (x1Client === undefined)
 
 <template>
     <div>
-        <span>Backend is {{ x1Client.IsConnected ? "" : "not" }} connected</span>
+        <span>Backend is {{ x1Client.IsConnected.value === true ? "" : "not" }} connected</span>
     </div>
 </template>
