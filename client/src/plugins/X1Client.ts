@@ -1,0 +1,58 @@
+
+import { ref, type Ref } from "vue";
+import type { IX1Client } from "./IX1Client";
+import { Print } from "./X1MsgPrint";
+
+export class X1ClientOptions
+{
+    public Host : string = "localhost";
+    public Port : number = 4000;
+}
+
+export class X1Client implements IX1Client
+{
+    Options: X1ClientOptions;
+    IsConnected: Ref<boolean> = ref(false);
+    Print: Ref<Print> = ref(new Print);
+
+    private _socket? : WebSocket;
+
+    constructor(options : X1ClientOptions)
+    {
+        this.Options = options;
+    }
+
+    public Connect(connectHandler? : () => void) : void
+    {
+        console.log(`X1Client: Connecting to ${this.Options.Host}:${this.Options.Port}...`);
+
+        this._socket = new WebSocket(`ws://${this.Options.Host}:${this.Options.Port}`);
+
+        this._socket.addEventListener("open", () => 
+        {
+            console.log("X1Client: Connected");
+            this.IsConnected.value = true;
+            if (connectHandler)
+            {
+                connectHandler();
+            }
+        });
+        
+        this._socket.addEventListener("message", (event) => 
+        {
+            const msg = JSON.parse(event.data);
+        
+            switch (msg.type)
+            {
+                case "Print":     this.Print.value          = msg.print;  break;
+            }
+        });
+
+        this._socket.onclose = error =>
+        {
+            console.log("X1Client: Connection closed.", error);
+            this.IsConnected.value = false;
+            setTimeout(()=>this.Connect(connectHandler), 1000);
+        }
+    }
+}
