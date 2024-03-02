@@ -40,8 +40,10 @@ const x1Client = new X1Client(
 
 // Set up event routing:
 //
+x1Client.on(X1ClientEvent.ConnectionStatus, isConnected => { api.sendPrinterConnectionStatus(isConnected); });
 x1Client.on(X1ClientEvent.Print, print => { logger.LogChanges(print, "print", x1Client.LogIgnore_print); api.sendPrint(print); });
 
+api.on(ApiEvent.GetState,         sendState);
 api.on(ApiEvent.SetLight,         (isOn)  => console.log(isOn));
 
 
@@ -62,3 +64,8 @@ app.listen(port, () => {
   logger.Log(`[Web] Server is running at http://localhost:${port}`);
 });
 
+function sendState()
+{
+  api.sendPrinterConnectionStatus(x1Client.IsConnected);
+  api.sendPrint(x1Client.Print);
+}

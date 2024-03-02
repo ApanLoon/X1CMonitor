@@ -11,6 +11,7 @@ export class ApiOptions
 
 export const ApiEvent = Object.freeze (
 {
+    GetState:     "getstate",
     SetLight:     "setlight"
 });
     
@@ -34,8 +35,9 @@ export class Api extends EventEmitter
             let connection = new Connection(socket, (data : string) =>
             {
                 const msg = JSON.parse(data);
-                switch (msg.type)
+                switch (msg.Type)
                 {
+                    case "GetState":     this.emit(ApiEvent.GetState);                       break;
                     case "SetLight":     this.emit(ApiEvent.SetLight, msg.isOn);             break;
                 }
             },
@@ -55,8 +57,17 @@ export class Api extends EventEmitter
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            type: "Print",
-            print: print
+            Type: "Print",
+            Print: print
         }));
     }
+
+    sendPrinterConnectionStatus(isConnected : boolean)
+    {
+        this.connections.sendToAll(JSON.stringify(
+        {
+            Type: "PrinterConnectionStatus",
+            IsConnected: isConnected
+        }));
+        }
 }

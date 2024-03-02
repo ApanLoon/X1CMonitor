@@ -13,6 +13,7 @@ export class X1Client implements IX1Client
 {
     Options: X1ClientOptions;
     IsConnected: Ref<boolean> = ref(false);
+    IsPrinterConnected : Ref<boolean> = ref(false);
     Print: Ref<Print> = ref(new Print);
 
     private _socket? : WebSocket;
@@ -42,9 +43,10 @@ export class X1Client implements IX1Client
         {
             const msg = JSON.parse(event.data);
         
-            switch (msg.type)
+            switch (msg.Type)
             {
-                case "Print":     this.Print.value          = msg.print;  break;
+                case "Print":                   this.Print.value              = msg.Print;       break;
+                case "PrinterConnectionStatus": this.IsPrinterConnected.value = msg.IsConnected; break;
             }
         });
 
@@ -54,5 +56,13 @@ export class X1Client implements IX1Client
             this.IsConnected.value = false;
             setTimeout(()=>this.Connect(connectHandler), 1000);
         }
+    }
+
+    GetState(): void
+    {
+        this._socket?.send(JSON.stringify(
+        {
+            Type: "GetState"
+        }));
     }
 }

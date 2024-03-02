@@ -6,8 +6,10 @@ export interface IX1Client
 {
     Options : X1ClientOptions;
     IsConnected : Ref<boolean>;
+    IsPrinterConnected : Ref<boolean>;
 
     Print : Ref<Print>;
 
     Connect(connectHandler? : () => void) : void;
+    GetState() : void;
 }

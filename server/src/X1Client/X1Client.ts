@@ -14,12 +14,15 @@ export class X1Options
 
 export const X1ClientEvent = Object.freeze (
 {
-  Print:     "print"
+  Print:            "print",
+  ConnectionStatus: "connection-status"
 });
 
 export class X1Client extends EventEmitter
 {
   public IsConnected : boolean = false;
+  public Print : any;
+
   private _options : X1Options = new X1Options;
   private _client : MqttClient | null = null;
 
@@ -70,6 +73,7 @@ export class X1Client extends EventEmitter
   {
     this._options.Logger?.Log("[X1Client] OnConnect: Connected to printer.");
     this.IsConnected = true;
+    this.emit(X1ClientEvent.ConnectionStatus, this.IsConnected);
     this._client?.subscribe(`device/${this._options.Serial}/report`, (err) =>
     {
       if (err)
@@ -86,12 +90,14 @@ export class X1Client extends EventEmitter
   {
     this.IsConnected = false;
     this._options.Logger?.Log("[X1Client] Closed");
+    this.emit(X1ClientEvent.ConnectionStatus, this.IsConnected);
   } 
 
   private parseMessage(data : any)
   {
     if (data.print !== undefined)
     {
+      this.Print = data.print;
       this.emit (X1ClientEvent.Print, data.print);
     }
     else
