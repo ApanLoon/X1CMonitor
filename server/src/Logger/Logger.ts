@@ -23,6 +23,19 @@ export class Logger
         Object.assign(this.options, options);
     }
 
+    public Log(message : string, raw? : boolean)
+    {
+        let lines = raw ? message : this.createLine(message);
+        console.log (lines);
+
+        let path = Path.dirname(this.options.fileName);
+        if (fs.existsSync(path) === false)
+        {
+            fs.mkdirSync(path, { recursive : true });
+        }
+        fs.appendFile(this.options.fileName, lines, { flush : true }, err => {if (err !== null) console.log (`Unable to write to "${this.options.fileName}". (${err})`);});
+    }
+
     public LogChanges(data : any, key : string, ignore? : string[])
     {
         if (key in this.store)
@@ -37,20 +50,20 @@ export class Logger
                 {
                     let line = `${timestamp} ${change.path} changed from "${change.oldValue}" to "${change.newValue}".`;
                     lines += `${line}\n`;
-                    console.log (line);
                 }
             });
             if (lines !== "")
             {
-                let path = Path.dirname(this.options.fileName);
-                if (fs.existsSync(path) === false)
-                {
-                    fs.mkdirSync(path, { recursive : true });
-                }
-                fs.appendFile(this.options.fileName, lines, { flush : true }, err => {if (err !== null) console.log (`Unable to write to "${this.options.fileName}". (${err})`);});
+                this.Log(lines, true);
             }
         }
         this.store[key] = data;
+    }
+
+    private createLine(message : string) : string
+    {
+        let timestamp = new Date().toISOString();
+        return `${timestamp} ${message}`;
     }
 
     private findChanges(oldData : any, newData : any, path : string) : Array<{path : string, oldValue : any, newValue : any }>

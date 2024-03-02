@@ -12,10 +12,26 @@ dotenv.config();
 
 const logger = new Logger({ fileName : process.env.LOG_FILE || "./logs/log.txt" });
 
+logger.Log(
+`____  ________________                         
+\\   \\/  /_   \\_   ___ \\                        
+ \\     / |   /    \\  \\/                        
+ /     \\ |   \\     \\____                       
+/___/\\  \\|___|\\______  /                       
+      \\_/            \\/                        
+   _____                .__  __                
+  /     \\   ____   ____ |__|/  |_  ___________ 
+ /  \\ /  \\ /  _ \\ /    \\|  \\   __\\/  _ \\_  __ \\
+/    Y    (  <_> )   |  \\  ||  | (  <_> )  | \\/
+\\____|__  /\\____/|___|  /__||__|  \\____/|__|   
+        \\/            \\/                       `, true);
+logger.Log("Starting up...");
+
 const app: Express = express();
-const api = new Api ({ Port: Number(process.env.API_Port || 4000 ) });
+const api = new Api ({ Logger : logger, Port: Number(process.env.API_Port || 4000 ) });
 const x1Client = new X1Client(
 {
+  Logger:   logger,
   Host:     process.env.X1C_Host     || "",
   Serial:   process.env.X1C_Serial   || "",
   Password: process.env.X1C_Password || ""
@@ -43,6 +59,6 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+  logger.Log(`[Web] Server is running at http://localhost:${port}`);
 });
 
