@@ -5,7 +5,7 @@ import type { IX1Client } from "@/plugins/IX1Client";
 const x1Client = inject<IX1Client>("x1Client");
 if (x1Client === undefined)
 {
-  throw new Error ("Header.setup: No x1Client plugin found.");
+  throw new Error ("[Header] Setup: No x1Client plugin found.");
 }
 </script>
 

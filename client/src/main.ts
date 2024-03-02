@@ -5,7 +5,7 @@ import App from './App.vue'
 
 import X1ClientPlugin from './plugins/X1ClientPlugin'
 
-console.log("main.ts: Getting config...");
+console.log("[main] Getting config...");
 fetch ("config.json")
 .then (response =>
 {
@@ -23,10 +23,10 @@ fetch ("config.json")
     })
     .catch(error =>
     {
-        console.log ("main.ts: Unable to get config. ", error);
+        console.log ("[main] Unable to get config. ", error);
     });
 })
 .catch(error=>
 {
-    console.log ("main.ts: Unable to get config. ", error);
+    console.log ("[main] Unable to get config. ", error);
 });

@@ -5,7 +5,7 @@ import { inject } from 'vue';
 const x1Client = inject<IX1Client>("x1Client");
 if (x1Client === undefined)
 {
-  throw new Error ("Lights.setup: No x1Client plugin found.");
+  throw new Error ("[Lights] Setup: No x1Client plugin found.");
 }
 </script>
 
