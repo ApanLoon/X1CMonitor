@@ -12,6 +12,9 @@
   --vt-c-red-light: #f8a0a0;
   --vt-c-red-dark: #5a0000;
 
+  --vt-c-gray-light: #cccccc;
+  --vt-c-gray-dark: #2e2e2e;
+
   --vt-c-green: #00ff00;
   --vt-c-green-light: #a0f8a0;
   --vt-c-green-dark: #005a00;
@@ -42,7 +45,8 @@
   --color-text: var(--vt-c-text-light-1);
 
   --color-on: var(--vt-c-green-light);
-  --color-off: var(--vt-c-red-light);
+  --color-off: var(--vt-c-gray-light);
+  --color-error: var(--vt-c-red-light);  
 
   --section-gap: 160px;
 }
@@ -60,8 +64,8 @@
     --color-text: var(--vt-c-text-dark-2);
 
     --color-on: var(--vt-c-green-dark);
-    --color-off: var(--vt-c-red-dark);
-  
+    --color-off: var(--vt-c-gray-dark);
+    --color-error: var(--vt-c-red-dark);  
   }
 }
 
@@ -77,9 +81,9 @@ body {
   min-height: 100vh;
   color: var(--color-text);
   background: var(--color-background);
-  transition:
-    color 0.5s,
-    background-color 0.5s;
+  transition:  color 0.5s, background-color 0.5s;
+
+  font-size: 10px;
   line-height: 1.6;
   font-family:
     Inter,
@@ -94,7 +98,7 @@ body {
     'Droid Sans',
     'Helvetica Neue',
     sans-serif;
-  font-size: 15px;
+  
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

@@ -25,9 +25,3 @@ x1Client.Connect(()=>
   <Lights></Lights>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
-
-</style>
