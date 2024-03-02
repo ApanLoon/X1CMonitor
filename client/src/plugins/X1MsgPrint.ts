@@ -176,6 +176,7 @@ export class Print
     public nozzle_temper              : number     = 25.0;             // 25.0
     public nozzle_type                : string     = "hardened_steel"; // "hardened_steel"
     public online                     : OnLine = new OnLine;
+    public param?                     : string;
     public print_error                : number     = 0;                // 0
     public print_gcode_action         : number     = 0;                // 0
     public print_real_action          : number     = 0;                // 0
@@ -186,6 +187,9 @@ export class Print
     public queue_number               : number     = 0;                // 0
     public queue_sts                  : number     = 0;                // 0
     public queue_total                : number     = 0;                // 0
+    public reason?                    : string;
+    public result?                    : string;
+    public return_code?               : number;
     public s_obj                      : Array<any> = [];
     public sdcard                     : boolean    = true;             // true
     public sequence_id                : string     = "2021";           // "2021"
@@ -199,6 +203,7 @@ export class Print
     public total_layer_num            : number     = 0;                // 0
     public upgrade_state              : UpgradeState = new UpgradeState;
     public upload                     : Upload       = new Upload;
+    public user_id?                   : string;
     public vt_tray                    : Tray         = new Tray;
     public wifi_signal                : string       = "";             // "-37dBm"
     public xcam                       : Xcam         = new Xcam;
