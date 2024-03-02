@@ -38,14 +38,14 @@ export class Ams
     public ams_exist_bits      : string = "0";   // "1"
     public insert_flag         : boolean = true; // true
     public power_on_flag       : boolean = true; // true
-    public tray_exist_bits     : string = "f";   // "f"
-    public tray_is_bbl_bits    : string = "f";   // "f"
+    public tray_exist_bits     : string = "0";   // "f"
+    public tray_is_bbl_bits    : string = "0";   // "f"
     public tray_now            : string = "255"; // "255"
     public tray_pre            : string = "255"; // "255"
-    public tray_read_done_bits : string = "f";   // "f"
+    public tray_read_done_bits : string = "0";   // "f"
     public tray_reading_bits   : string = "0";   // "0",
     public tray_tar            : string = "255"; // "255"
-    public version             : number = 420;   // 420
+    public version             : number = 0;     // 420
 }
 
 export class IpCam
