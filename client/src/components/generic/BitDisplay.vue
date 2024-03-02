@@ -5,7 +5,7 @@ const props = defineProps({
   bits:     { type: Number,  required: true },
   lsbFirst: { type: Boolean, required: false, default: false },
   minBits:  { type: Number,  required: false, default: 0     },
-  inline:   { type: Boolean, required: false, default: false }
+  vertical: { type: Boolean, required: false, default: false }
 });
 
 const bitEnabled = computed<Array<boolean>>(()=>
@@ -29,31 +29,27 @@ const bitEnabled = computed<Array<boolean>>(()=>
 </script>
 
 <template>
-    <local-container :class="{ inline: props.inline }">
-        <local-title><slot></slot></local-title>
-        <local-bits><local-bit v-for="bit in bitEnabled" :class="{'enabled': bit}">&nbsp;</local-bit></local-bits>
+    <local-container :class="{ 'vertical' : props.vertical }">
+        <local-bit v-for="bit in bitEnabled" :class="{ 'on': bit }">&nbsp;</local-bit>
     </local-container>
 </template>
 
 <style scoped>
-local-container {
-    display: grid;
-    grid-auto-flow: row;
-    justify-items: center;
+
+local-container
+{
+    display: flex;
+    gap: 0.25rem;
     align-items: center;
 }
 
-.inline {
-    grid-auto-flow: column;
-    justify-items: left;
+.vertical
+{
+    flex-direction: column;
 }
 
-local-bits {
-    display: flex;
-    gap: 0.25rem;
-}
-
-local-bit {
+local-bit
+{
     display: inline-block;
     background-color: var(--color-off);
     width: 0.5rem;
@@ -63,7 +59,8 @@ local-bit {
     box-sizing:content-box;
 }
 
-.enabled {
+.on
+{
     background-color: var(--color-on);
 }
 </style>
