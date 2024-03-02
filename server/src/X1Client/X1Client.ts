@@ -91,7 +91,6 @@ export class X1Client extends EventEmitter
     if (data.print !== undefined)
     {
       this.emit (X1ClientEvent.Print, data.print);
-      //this.parsePrint(data.print);
     }
     else
     {
@@ -99,16 +98,20 @@ export class X1Client extends EventEmitter
     }
   }
 
-  // private parsePrint(print : any)
-  // {
-  //   if (print.ams !== undefined)
-  //   {
-  //     this.parseAms(print.ams);
-  //   }
-  // }
-
-  // private parseAms(ams : any)
-  // {
-  // }
+  public LogIgnore_print =
+  [
+    "print\.ams\.version",
+    "print\.ams\.ams\[[0-9]+\]\.humidity",
+    "print\.ams\.ams\[[0-9]+\]\.temp",
+    "print\.bed_temper",
+    "print\.chamber_temper",
+    "print\.gcode_file_prepare_percent",
+    "print\.layer_num",
+    "print\.mc_percent",
+    "print\.mc_remaining_time",    
+    "print\.nozzle_temper",
+    "print\.queue_est",
+    "print\.user_id",
+    "print\.wifi_signal"
+  ];
 }
-

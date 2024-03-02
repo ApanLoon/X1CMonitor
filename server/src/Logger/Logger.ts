@@ -23,7 +23,7 @@ export class Logger
         Object.assign(this.options, options);
     }
 
-    public Log(data : any, key : string)
+    public LogChanges(data : any, key : string, ignore? : string[])
     {
         if (key in this.store)
         {
@@ -32,9 +32,13 @@ export class Logger
             let lines = "";
             l.forEach(change =>
             {
-               let line = `${timestamp} ${change.path} changed from "${change.oldValue}" to "${change.newValue}".`;
-               lines += `${line}\n`;
-               console.log (line);
+                let skip = ignore?.some(regexp => change.path.match(regexp)) || false;
+                if (skip === false)
+                {
+                    let line = `${timestamp} ${change.path} changed from "${change.oldValue}" to "${change.newValue}".`;
+                    lines += `${line}\n`;
+                    console.log (line);
+                }
             });
             if (lines !== "")
             {

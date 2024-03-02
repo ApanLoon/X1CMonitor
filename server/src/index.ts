@@ -24,7 +24,7 @@ const x1Client = new X1Client(
 
 // Set up event routing:
 //
-x1Client.on(X1ClientEvent.Print, print => { logger.Log(print, "print"); api.sendPrint(print); });
+x1Client.on(X1ClientEvent.Print, print => { logger.LogChanges(print, "print", x1Client.LogIgnore_print); api.sendPrint(print); });
 
 api.on(ApiEvent.SetLight,         (isOn)  => console.log(isOn));
 
