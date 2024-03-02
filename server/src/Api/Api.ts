@@ -1,9 +1,11 @@
 import { WebSocketServer } from "ws";
 import { EventEmitter } from "node:events";
 import { Connection, ConnectionCollection } from "./ConnectionCollection.js";
+import { Logger } from "../Logger/Logger.js";
 
 export class ApiOptions
 {
+    public Logger? : Logger;
     public Port : number = 4000;
 }
 
@@ -39,11 +41,11 @@ export class Api extends EventEmitter
             },
             (_event: any, connection: Connection) =>
             {
-                console.log ("Api: Client disconnected.", connection.id);
+                this.options.Logger?.Log (`[Api] Client disconnected. (${connection.id})`);
                 this.connections.remove(connection);
             });
 
-            console.log("Api: Client connected", connection.id);
+            this.options.Logger?.Log(`[Api] Client connected. (${connection.id})`);
 
             this.connections.add(connection);
         });

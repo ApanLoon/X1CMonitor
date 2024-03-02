@@ -1,8 +1,10 @@
 import { MqttClient, connectAsync } from "mqtt";
 import { EventEmitter } from "node:events";
+import { Logger } from "../Logger/Logger.js";
 
 export class X1Options
 {
+  Logger?  : Logger;
   Host     : string = "localhost";
   Port     : number = 8883;
   Serial   : string = "no-serial";
@@ -32,7 +34,7 @@ export class X1Client extends EventEmitter
     while (this.IsConnected === false)
     try
     {
-      console.log(`X1Client: Connecting to ${this._options.Host}:${this._options.Port}...`);
+      this._options.Logger?.Log(`[X1Client] Connecting to ${this._options.Host}:${this._options.Port}...`);
       this._client = await connectAsync(`mqtts://${this._options.Host}:${this._options.Port}`, 
       {
         username: this._options.UserName,
@@ -41,7 +43,7 @@ export class X1Client extends EventEmitter
         reconnectPeriod: 1000
       });
 
-      console.log("X1Client: Connected.");
+      this._options.Logger?.Log("[X1Client] Connected.");
       this._client.on("connect", this.onConnect);
       this._client.on("close", this.onDisconnect);
       this.onConnect();
@@ -55,7 +57,7 @@ export class X1Client extends EventEmitter
     }
     catch (err)
     {
-      console.log ("X1Client: ", err);
+      this._options.Logger?.Log (`[X1Client] ${err}`);
     }
   }
 
@@ -66,13 +68,13 @@ export class X1Client extends EventEmitter
 
   private onConnect()
   {
-    console.log("X1Client.OnConnect: Connected to printer.");
+    this._options.Logger?.Log("[X1Client] OnConnect: Connected to printer.");
     this.IsConnected = true;
     this._client?.subscribe(`device/${this._options.Serial}/report`, (err) =>
     {
       if (err)
       {
-        console.log(err);
+        this._options.Logger?.Log(`[X1Client] OnConnect: Unable to subscribe, (${err})`);
         return;
       }
 
@@ -83,7 +85,7 @@ export class X1Client extends EventEmitter
   private onDisconnect()
   {
     this.IsConnected = false;
-    console.log("X1Client: Closed");
+    this._options.Logger?.Log("[X1Client] Closed");
   } 
 
   private parseMessage(data : any)
