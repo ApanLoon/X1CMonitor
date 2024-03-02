@@ -27,7 +27,20 @@ x1Client.Connect(()=>
     <Ams></Ams>
     <Lights></Lights>
 
-    <JsonDisplay :data="x1Client.Print.value"></JsonDisplay>
+    <local-box>
+      <h2>Debug area</h2>
+      <JsonDisplay :data="x1Client.Print.value" rootName="print"></JsonDisplay>
+    </local-box>
   </template>
 </template>
+
+<style scoped>
+local-box
+{
+  display: block;
+  border: 1px solid var(--color-border);
+  height: 500px;
+  overflow: auto;
+}
+</style>
 
