@@ -13,6 +13,7 @@ export class X1Client implements IX1Client
 {
     Options: X1ClientOptions;
     IsConnected: Ref<boolean> = ref(false);
+    IsPrinterConnected : Ref<boolean> = ref(false);
     Print: Ref<Print> = ref(new Print);
 
     private _socket? : WebSocket;
@@ -24,13 +25,13 @@ export class X1Client implements IX1Client
 
     public Connect(connectHandler? : () => void) : void
     {
-        console.log(`X1Client: Connecting to ${this.Options.Host}:${this.Options.Port}...`);
+        console.log(`[X1Client] Connecting to ${this.Options.Host}:${this.Options.Port}...`);
 
         this._socket = new WebSocket(`ws://${this.Options.Host}:${this.Options.Port}`);
 
         this._socket.addEventListener("open", () => 
         {
-            console.log("X1Client: Connected");
+            console.log(`[X1Client] Connected to ${this.Options.Host}:${this.Options.Port}`);
             this.IsConnected.value = true;
             if (connectHandler)
             {
@@ -42,17 +43,26 @@ export class X1Client implements IX1Client
         {
             const msg = JSON.parse(event.data);
         
-            switch (msg.type)
+            switch (msg.Type)
             {
-                case "Print":     this.Print.value          = msg.print;  break;
+                case "Print":                   this.Print.value              = msg.Print;       break;
+                case "PrinterConnectionStatus": this.IsPrinterConnected.value = msg.IsConnected; break;
             }
         });
 
         this._socket.onclose = error =>
         {
-            console.log("X1Client: Connection closed.", error);
+            console.log("[X1Client] Connection closed.", error);
             this.IsConnected.value = false;
             setTimeout(()=>this.Connect(connectHandler), 1000);
         }
+    }
+
+    GetState(): void
+    {
+        this._socket?.send(JSON.stringify(
+        {
+            Type: "GetState"
+        }));
     }
 }

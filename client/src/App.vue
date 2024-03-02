@@ -9,11 +9,12 @@ import Lights from "./components/Lights.vue";
 const x1Client = inject<IX1Client>("x1Client");
 if (x1Client === undefined)
 {
-  throw new Error ("App.setup: No x1Client plugin found.");
+  throw new Error ("[App] Setup: No x1Client plugin found.");
 }
 x1Client.Connect(()=>
 {
-  console.log("Connected!");
+  console.log("[App] X1Client connected");
+  x1Client.GetState();
 });
 
 </script>
@@ -21,7 +22,9 @@ x1Client.Connect(()=>
 <template>
   <Header></Header>
 
-  <Ams></Ams>
-  <Lights></Lights>
+  <template v-if="x1Client.IsConnected.value && x1Client.IsPrinterConnected.value && x1Client.Print.value !== undefined">
+    <Ams></Ams>
+    <Lights></Lights>
+  </template>
 </template>
 

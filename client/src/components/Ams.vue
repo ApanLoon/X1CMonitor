@@ -8,7 +8,7 @@ import IconAms from './icons/IconAms.vue';
 const x1Client = inject<IX1Client>("x1Client");
 if (x1Client === undefined)
 {
-  throw new Error ("Ams.setup: No x1Client plugin found.");
+  throw new Error ("[Ams] Setup: No x1Client plugin found.");
 }
 
 const print = computed<Print> (() =>

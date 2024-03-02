@@ -9,7 +9,7 @@ export default
         const opts = new X1ClientOptions;
         Object.assign (opts, options);
 
-        console.log("X1Client.install: ", options);
+        console.log("[X1Client] Install: ", options);
         
         const x1Client : IX1Client = new X1Client(opts);
 
