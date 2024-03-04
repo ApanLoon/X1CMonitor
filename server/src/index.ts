@@ -42,6 +42,7 @@ const x1Client = new X1Client(
 //
 x1Client.on(X1ClientEvent.ConnectionStatus, isConnected => { api.sendPrinterConnectionStatus(isConnected); });
 x1Client.on(X1ClientEvent.Status, status => { logger.LogChanges(status, "status", x1Client.LogIgnore_status); api.sendStatus(status); });
+x1Client.on(X1ClientEvent.LedCtrl, ledCtrl => { console.log(ledCtrl) });
 
 api.on(ApiEvent.GetState,         sendState);
 api.on(ApiEvent.SetLight,         (isOn)  => console.log(isOn));
