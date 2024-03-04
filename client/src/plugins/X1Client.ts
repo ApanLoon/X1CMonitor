@@ -1,7 +1,7 @@
 
 import { ref, type Ref } from "vue";
 import type { IX1Client } from "./IX1Client";
-import { Print } from "./X1MsgPrint";
+import { Status } from "./X1Messages";
 
 export class X1ClientOptions
 {
@@ -14,7 +14,7 @@ export class X1Client implements IX1Client
     Options: X1ClientOptions;
     IsConnected: Ref<boolean> = ref(false);
     IsPrinterConnected : Ref<boolean> = ref(false);
-    Print: Ref<Print> = ref(new Print);
+    Status: Ref<Status> = ref(new Status);
 
     private _socket? : WebSocket;
 
@@ -45,7 +45,7 @@ export class X1Client implements IX1Client
         
             switch (msg.Type)
             {
-                case "Print":                   this.Print.value              = msg.Print;       break;
+                case "Status":                  this.Status.value             = msg.Status;      break;
                 case "PrinterConnectionStatus": this.IsPrinterConnected.value = msg.IsConnected; break;
             }
         });

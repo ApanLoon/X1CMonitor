@@ -24,7 +24,7 @@ logger.Log(
  /  \\ /  \\ /  _ \\ /    \\|  \\   __\\/  _ \\_  __ \\
 /    Y    (  <_> )   |  \\  ||  | (  <_> )  | \\/
 \\____|__  /\\____/|___|  /__||__|  \\____/|__|   
-        \\/            \\/                       `, true);
+        \\/            \\/                       \n`, true);
 logger.Log("Starting up...");
 
 const app: Express = express();
@@ -41,7 +41,7 @@ const x1Client = new X1Client(
 // Set up event routing:
 //
 x1Client.on(X1ClientEvent.ConnectionStatus, isConnected => { api.sendPrinterConnectionStatus(isConnected); });
-x1Client.on(X1ClientEvent.Print, print => { logger.LogChanges(print, "print", x1Client.LogIgnore_print); api.sendPrint(print); });
+x1Client.on(X1ClientEvent.Status, status => { logger.LogChanges(status, "status", x1Client.LogIgnore_status); api.sendStatus(status); });
 
 api.on(ApiEvent.GetState,         sendState);
 api.on(ApiEvent.SetLight,         (isOn)  => console.log(isOn));
@@ -67,5 +67,5 @@ app.listen(port, () => {
 function sendState()
 {
   api.sendPrinterConnectionStatus(x1Client.IsConnected);
-  api.sendPrint(x1Client.Print);
+  api.sendStatus(x1Client.status);
 }

@@ -53,12 +53,12 @@ export class Api extends EventEmitter
         });
     }
 
-    sendPrint (print : any )
+    sendStatus (status : any )
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            Type: "Print",
-            Print: print
+            Type: "Status",
+            Status: status
         }));
     }
 

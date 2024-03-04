@@ -10,7 +10,7 @@ if (x1Client === undefined)
 </script>
 
 <template>
-    <div v-for="light in x1Client.Print.value.lights_report">
+    <div v-for="light in x1Client.Status.value.lights_report">
         {{ light.node }}: {{ light.mode }}
     </div>
 </template>

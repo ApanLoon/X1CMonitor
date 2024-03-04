@@ -23,13 +23,13 @@ x1Client.Connect(()=>
 <template>
   <Header></Header>
 
-  <template v-if="x1Client.IsConnected.value && x1Client.IsPrinterConnected.value && x1Client.Print.value !== undefined">
+  <template v-if="x1Client.IsConnected.value && x1Client.IsPrinterConnected.value && x1Client.Status.value !== undefined">
     <Ams></Ams>
     <Lights></Lights>
 
     <local-box>
       <h2>Debug area</h2>
-      <JsonDisplay :data="x1Client.Print.value" rootName="print"></JsonDisplay>
+      <JsonDisplay :data="x1Client.Status.value" rootName="status"></JsonDisplay>
     </local-box>
   </template>
 </template>
