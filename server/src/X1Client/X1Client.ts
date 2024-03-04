@@ -15,9 +15,16 @@ export class X1Options
 
 export const X1ClientEvent = Object.freeze (
 {
-  Status:            "print",
+  Status:           "status",
+  LedCtrl:          "led-ctrl",
   ConnectionStatus: "connection-status"
 });
+
+interface ICommandParser
+{
+  Command : string;
+  Parser : (message : IMessage, client : X1Client) => void;
+}
 
 export class X1Client extends EventEmitter
 {
@@ -70,6 +77,9 @@ export class X1Client extends EventEmitter
     this._client?.end();
   }
 
+
+
+
   private onConnect()
   {
     this._options.Logger?.Log("[X1Client] OnConnect: Connected to printer.");
@@ -94,158 +104,105 @@ export class X1Client extends EventEmitter
     this.emit(X1ClientEvent.ConnectionStatus, this.IsConnected);
   } 
 
+
+
+  private parsers =
+  [
+    {
+      Section : "print", Commands : 
+      [
+        {Command : "push_status",               Parser : (message : IMessage, client : X1Client) => { client.status = message; client.emit (X1ClientEvent.Status, message); } },
+        // {Command : "ams_change_filament",       Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "ams_control",               Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "ams_filament_setting",      Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "ams_user_setting",          Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "calibration",               Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "clean_print_error",         Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "extrusion_cali",            Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "extrusion_cali_del",        Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "extrusion_cali_get",        Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "extrusion_cali_get_result", Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "extrusion_cali_sel",        Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "extrusion_cali_set",        Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "flowrate_cali",             Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "flowrate_get_result",       Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "gcode_file",                Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "gcode_line",                Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "pause",                     Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "print_option",              Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "print_speed",               Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "push_status",               Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "resume",                    Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "set_ctt",                   Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "stop",                      Parser : (message : IMessage, client : X1Client) => {}  },
+        // {Command : "unload_filament",           Parser : (message : IMessage, client : X1Client) => {}  }
+      ]
+    },
+    {
+      Section : "system", Commands : 
+      [
+        //{Command : "get_access_code",           Parser : (message : IMessage, client : X1Client) => {}  },
+        {Command : "ledctrl",                   Parser : (message : IMessage, client : X1Client) => { client.emit (X1ClientEvent.LedCtrl, message); }        },
+        //{Command : "set_accessories",           Parser : (message : IMessage, client : X1Client) => {} }
+      ]
+    },
+    // {
+    //   Section : "info", Commands : 
+    //   [
+    //     {Command : "get_version",               Parser : (message : IMessage, client : X1Client) => {}  }
+    //   ]
+    // },
+    // {
+    //   Section : "pushing", Commands : 
+    //   [
+    //     {Command : "pushall",                   Parser : (message : IMessage, client : X1Client) => {}  }
+    //   ]
+    // },
+    // {
+    //   Section : "upgrade", Commands : 
+    //   [
+    //     {Command : "upgrade_confirm",           Parser : (message : IMessage, client : X1Client) => {}  },
+    //     {Command : "consistency_confirm",       Parser : (message : IMessage, client : X1Client) => {}  },
+    //     {Command : "start",                     Parser : (message : IMessage, client : X1Client) => {}  }
+    //   ]
+    // },
+    // {
+    //   Section : "camera", Commands : 
+    //   [
+    //     {Command : "ipcam_record_set",          Parser : (message : IMessage, client : X1Client) => {}  },
+    //     {Command :"ipcam_timelapse",            Parser : (message : IMessage, client : X1Client) => {}  },
+    //     {Command :"ipcam_resolution_set",       Parser : (message : IMessage, client : X1Client) => {}  }
+    //   ]
+    // },
+    // {
+    //   Section : "xcam", Commands : 
+    //   [
+    //     {Command : "xcam_control_set",          Parser : (message : IMessage, client : X1Client) => {}  }
+    //   ]
+    // }
+  ];
+
   private parseMessage(data : any)
   {
-    let message = data.print as IMessage;
 
-    if (data.print !== undefined)
+    this.parsers.forEach(section =>
     {
-      switch (message.command)
+      let message = data[section.Section] as IMessage;
+
+      if (Object.hasOwn(data, section.Section))
       {
-        case "push_status":
-          this.status = message;
-          this.emit (X1ClientEvent.Status, message);
-          break;
-        // case "ams_change_filament":
-        //   break;
-        // case "ams_control":
-        //   break;
-        // case "ams_filament_setting":
-        //   break;
-        // case "ams_user_setting":
-        //   break;
-        // case "calibration":
-        //   break;
-        // case "clean_print_error":
-        //   break;
-        // case "extrusion_cali":
-        //   break;
-        // case "extrusion_cali_del":
-        //   break;
-        // case "extrusion_cali_get":
-        //   break;
-        // case "extrusion_cali_get_result":
-        //   break;
-        // case "extrusion_cali_sel":
-        //   break;
-        // case "extrusion_cali_set":
-        //   break;
-        // case "flowrate_cali":
-        //   break;
-        // case "flowrate_get_result":
-        //   break;
-        // case "gcode_file":
-        //   break;
-        // case "gcode_line":
-        //   break;
-        // case "pause":
-        //   break;
-        // case "print_option":
-        //   break;
-        // case "print_speed":
-        //   break;
-        // case "push_status":
-        //   break;
-        // case "resume":
-        //   break;
-        // case "set_ctt":
-        //   break;
-        // case "stop":
-        //   break;
-        // case "unload_filament":
-        //   break;
+        let parser = section.Commands.find((x : ICommandParser) => x.Command === message.command)?.Parser;
 
-        default:
-          console.log ("Unparsed print message:\n", data);
+        if (parser !== undefined)
+        {
+          parser(message, this);
+        }
+        else
+        {
+          console.log (`Unknown command: ${section.Section}.${message.command}: `, message);
+        }
       }
-    }
-/*
-    else if (data.system !== undefined)
-    {
-      switch (message.command)
-      {
-        case "get_access_code":
-          break;
-        case "ledctrl":
-          break;
-        case "set_accessories":
-          break;
-
-          default:
-            console.log ("Unparsed system message:\n", data);
-      }
-    }
-
-    else if (data.info !== undefined)
-    {
-      switch (message.command)
-      {
-        case "get_version":
-          break;
-
-          default:
-            console.log ("Unparsed info message:\n", data);
-      }
-    }
-
-    else if (data.pushing !== undefined)
-    {
-      switch (message.command)
-      {
-        case "pushall":
-          break;
-
-          default:
-            console.log ("Unparsed pushing message:\n", data);
-      }
-    }
-
-    else if (data.upgrade !== undefined)
-    {
-      switch (message.command)
-      {
-        case "upgrade_confirm":
-          break;
-        case "consistency_confirm":
-          break;
-        case "start":
-            break;
-        default:
-          console.log ("Unparsed upgrade message:\n", data);
-      }
-    }
-
-    else if (data.camera !== undefined)
-    {
-      switch (message.command)
-      {
-        case "ipcam_record_set":
-          break;
-        case "ipcam_timelapse":
-          break;
-        case "ipcam_resolution_set":
-            break;
-        default:
-          console.log ("Unparsed camera message:\n", data);
-      }
-    }
-
-    else if (data.xcam !== undefined)
-    {
-      switch (message.command)
-      {
-        case "xcam_control_set":
-          break;
-
-          default:
-            console.log ("Unparsed xcam message:\n", data);
-      }
-    }
-*/
-    else
-    {
-      console.log ("Unknown message:\n", data);
-    }
+    });
   }
 
   public LogIgnore_status =
@@ -275,4 +232,5 @@ export class X1Client extends EventEmitter
     "^status\.user_id$",
     "^status\.wifi_signal$"
   ];
+
 }
