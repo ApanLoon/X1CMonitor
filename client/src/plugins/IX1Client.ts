@@ -1,6 +1,6 @@
 import type { Ref } from "vue";
 import { X1ClientOptions } from "./X1Client";
-import { Print } from "./X1MsgPrint";
+import { Status } from "./X1Messages";
 
 export interface IX1Client
 {
@@ -8,7 +8,7 @@ export interface IX1Client
     IsConnected : Ref<boolean>;
     IsPrinterConnected : Ref<boolean>;
 
-    Print : Ref<Print>;
+    Status : Ref<Status>;
 
     Connect(connectHandler? : () => void) : void;
     GetState() : void;

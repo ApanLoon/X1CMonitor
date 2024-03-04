@@ -130,9 +130,25 @@ export class Xcam
     public spaghetti_detector         : boolean = true;     // true
 }
 
+// Messages:
+//
 
-export class Print
+export interface IPrinterMessage
 {
+    command     : string;
+    reason?     : string;
+    result?     : string;
+    reurn_code? : number;
+    sequence_id : string;
+}
+
+export class Status implements IPrinterMessage
+{
+    public command                    : string     = "";               // "push_status"
+    public reason?                    : string;
+    public result?                    : string;
+    public return_code?               : number;
+
     public ams                        : Ams        = new Ams;
     public ams_rfid_status            : number     = 0;                // 0
     public ams_status                 : number     = 0;                // 0
@@ -143,7 +159,6 @@ export class Print
     public big_fan2_speed             : string     = "0";              // "0"
     public cali_version               : number     = 0;                // 0
     public chamber_temper             : number     = 0;                // 25.0
-    public command                    : string     = "";               // "push_status"
     public cooling_fan_speed          : string     = "0";              // "0"
     public ctt                        : number     = 0;                // 0
     public fail_reason                : string     = "0";              // "0"
@@ -187,9 +202,6 @@ export class Print
     public queue_number               : number     = 0;                // 0
     public queue_sts                  : number     = 0;                // 0
     public queue_total                : number     = 0;                // 0
-    public reason?                    : string;
-    public result?                    : string;
-    public return_code?               : number;
     public s_obj                      : Array<any> = [];
     public sdcard                     : boolean    = true;             // true
     public sequence_id                : string     = "2021";           // "2021"

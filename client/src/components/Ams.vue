@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject, computed } from 'vue';
 import type { IX1Client } from '@/plugins/IX1Client';
-import type { Print } from '@/plugins/X1MsgPrint';
+import type { Status } from '@/plugins/X1Messages';
 import BitDisplay from "./generic/BitDisplay.vue";
 import IconAms from './icons/IconAms.vue';
 
@@ -11,15 +11,15 @@ if (x1Client === undefined)
   throw new Error ("[Ams] Setup: No x1Client plugin found.");
 }
 
-const print = computed<Print> (() =>
+const status = computed<Status> (() =>
 {
-    return x1Client.Print.value;
+    return x1Client.Status.value;
 });
 
 const trayCount = computed<number> (() =>
 {
     let n = 0;
-    x1Client.Print.value.ams.ams.forEach(ams =>
+    x1Client.Status.value.ams.ams.forEach(ams =>
     {
         n += ams.tray.length;
     });
@@ -32,34 +32,34 @@ const trayCount = computed<number> (() =>
         <local-ams-state>
             <IconAms class="icon-ams"></IconAms>
 
-            <local-version>{{ print.ams.version }}</local-version>
+            <local-version>{{ status.ams.version }}</local-version>
 
-            <h2 style="grid-area: units-header;">Units ({{ print.ams.ams.length }})</h2>
-            <BitDisplay style="grid-area: units-exists" :lsbFirst="true" :bits="Number('0x' + print.ams.ams_exist_bits)"></BitDisplay>
+            <h2 style="grid-area: units-header;">Units ({{ status.ams.ams.length }})</h2>
+            <BitDisplay style="grid-area: units-exists" :lsbFirst="true" :bits="Number('0x' + status.ams.ams_exist_bits)"></BitDisplay>
 
             <h2 style="grid-area: trays-header">Trays ({{ trayCount }})</h2>
 
             <h2 style="grid-area: tray-exists-header">Exists:</h2>
-            <BitDisplay style="grid-area: tray-exists" :lsbFirst="true" :bits="Number('0x' + print.ams.tray_exist_bits)"></BitDisplay>
+            <BitDisplay style="grid-area: tray-exists" :lsbFirst="true" :bits="Number('0x' + status.ams.tray_exist_bits)"></BitDisplay>
 
             <h2 style="grid-area: tray-bbl-header">BBL:</h2>
-            <BitDisplay style="grid-area: tray-bbl"     :lsbFirst="true" :bits="Number('0x' + print.ams.tray_is_bbl_bits)"></BitDisplay>
+            <BitDisplay style="grid-area: tray-bbl"     :lsbFirst="true" :bits="Number('0x' + status.ams.tray_is_bbl_bits)"></BitDisplay>
 
             <h2 style="grid-area: tray-reading-header">Reading:</h2>
-            <BitDisplay style="grid-area: tray-reading" :lsbFirst="true" :bits="Number('0x' + print.ams.tray_reading_bits)" :minBits="trayCount">Reading:</BitDisplay>
+            <BitDisplay style="grid-area: tray-reading" :lsbFirst="true" :bits="Number('0x' + status.ams.tray_reading_bits)" :minBits="trayCount">Reading:</BitDisplay>
 
             <h2 style="grid-area: tray-done-header">Done:</h2>
-            <BitDisplay style="grid-area: tray-done"    :lsbFirst="true" :bits="Number('0x' + print.ams.tray_read_done_bits)"></BitDisplay>
+            <BitDisplay style="grid-area: tray-done"    :lsbFirst="true" :bits="Number('0x' + status.ams.tray_read_done_bits)"></BitDisplay>
         </local-ams-state>
         
-        {{ print.ams.insert_flag }}
-        {{ print.ams.power_on_flag }}
-        {{ print.ams.tray_now }}
-        {{ print.ams.tray_pre }}
-        {{ print.ams.tray_tar }}
+        {{ status.ams.insert_flag }}
+        {{ status.ams.power_on_flag }}
+        {{ status.ams.tray_now }}
+        {{ status.ams.tray_pre }}
+        {{ status.ams.tray_tar }}
         
 
-        <local-ams-instance v-for="ams in print.ams.ams">
+        <local-ams-instance v-for="ams in status.ams.ams">
             <div>
                 <local-info><span>Id:</span><span>{{ ams.id }}</span></local-info>
                 <local-info><span>Humidity:</span><span>{{ ams.humidity }}</span></local-info>
@@ -158,4 +158,4 @@ local-tray local-tray-fill
     bottom: 0px;
     z-index: -10;
 }
-</style>
+</style>@/plugins/X1Messages

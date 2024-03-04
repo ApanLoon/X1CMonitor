@@ -1,6 +1,7 @@
 import { MqttClient, connectAsync } from "mqtt";
 import { EventEmitter } from "node:events";
 import { Logger } from "../Logger/Logger.js";
+import { IMessage as IMessage } from "./IMessage.js";
 
 export class X1Options
 {
@@ -14,14 +15,14 @@ export class X1Options
 
 export const X1ClientEvent = Object.freeze (
 {
-  Print:            "print",
+  Status:            "print",
   ConnectionStatus: "connection-status"
 });
 
 export class X1Client extends EventEmitter
 {
   public IsConnected : boolean = false;
-  public Print : any;
+  public status : any;
 
   private _options : X1Options = new X1Options;
   private _client : MqttClient | null = null;
@@ -95,31 +96,183 @@ export class X1Client extends EventEmitter
 
   private parseMessage(data : any)
   {
+    let message = data.print as IMessage;
+
     if (data.print !== undefined)
     {
-      this.Print = data.print;
-      this.emit (X1ClientEvent.Print, data.print);
+      switch (message.command)
+      {
+        case "push_status":
+          this.status = message;
+          this.emit (X1ClientEvent.Status, message);
+          break;
+        // case "ams_change_filament":
+        //   break;
+        // case "ams_control":
+        //   break;
+        // case "ams_filament_setting":
+        //   break;
+        // case "ams_user_setting":
+        //   break;
+        // case "calibration":
+        //   break;
+        // case "clean_print_error":
+        //   break;
+        // case "extrusion_cali":
+        //   break;
+        // case "extrusion_cali_del":
+        //   break;
+        // case "extrusion_cali_get":
+        //   break;
+        // case "extrusion_cali_get_result":
+        //   break;
+        // case "extrusion_cali_sel":
+        //   break;
+        // case "extrusion_cali_set":
+        //   break;
+        // case "flowrate_cali":
+        //   break;
+        // case "flowrate_get_result":
+        //   break;
+        // case "gcode_file":
+        //   break;
+        // case "gcode_line":
+        //   break;
+        // case "pause":
+        //   break;
+        // case "print_option":
+        //   break;
+        // case "print_speed":
+        //   break;
+        // case "push_status":
+        //   break;
+        // case "resume":
+        //   break;
+        // case "set_ctt":
+        //   break;
+        // case "stop":
+        //   break;
+        // case "unload_filament":
+        //   break;
+
+        default:
+          console.log ("Unparsed print message:\n", data);
+      }
     }
+/*
+    else if (data.system !== undefined)
+    {
+      switch (message.command)
+      {
+        case "get_access_code":
+          break;
+        case "ledctrl":
+          break;
+        case "set_accessories":
+          break;
+
+          default:
+            console.log ("Unparsed system message:\n", data);
+      }
+    }
+
+    else if (data.info !== undefined)
+    {
+      switch (message.command)
+      {
+        case "get_version":
+          break;
+
+          default:
+            console.log ("Unparsed info message:\n", data);
+      }
+    }
+
+    else if (data.pushing !== undefined)
+    {
+      switch (message.command)
+      {
+        case "pushall":
+          break;
+
+          default:
+            console.log ("Unparsed pushing message:\n", data);
+      }
+    }
+
+    else if (data.upgrade !== undefined)
+    {
+      switch (message.command)
+      {
+        case "upgrade_confirm":
+          break;
+        case "consistency_confirm":
+          break;
+        case "start":
+            break;
+        default:
+          console.log ("Unparsed upgrade message:\n", data);
+      }
+    }
+
+    else if (data.camera !== undefined)
+    {
+      switch (message.command)
+      {
+        case "ipcam_record_set":
+          break;
+        case "ipcam_timelapse":
+          break;
+        case "ipcam_resolution_set":
+            break;
+        default:
+          console.log ("Unparsed camera message:\n", data);
+      }
+    }
+
+    else if (data.xcam !== undefined)
+    {
+      switch (message.command)
+      {
+        case "xcam_control_set":
+          break;
+
+          default:
+            console.log ("Unparsed xcam message:\n", data);
+      }
+    }
+*/
     else
     {
-      console.log(data);
+      console.log ("Unknown message:\n", data);
     }
   }
 
-  public LogIgnore_print =
+  public LogIgnore_status =
   [
-    "print\.ams\.version",
-    "print\.ams\.ams\[[0-9]+\]\.humidity",
-    "print\.ams\.ams\[[0-9]+\]\.temp",
-    "print\.bed_temper",
-    "print\.chamber_temper",
-    "print\.gcode_file_prepare_percent",
-    "print\.layer_num",
-    "print\.mc_percent",
-    "print\.mc_remaining_time",    
-    "print\.nozzle_temper",
-    "print\.queue_est",
-    "print\.user_id",
-    "print\.wifi_signal"
+    "^print\.ams\.version$",
+    "^print\.ams\.ams\[[0-9]+\]\.humidity$",
+    "^print\.ams\.ams\[[0-9]+\]\.temp$",
+    "^print\.ams\.ams\[[0-9]+\]\.tray\[[0-9]+\]\.remain$",
+    "^print\.bed_temper$",
+    "^print\.big_fan1_speed$",
+    "^print\.big_fan2_speed$",
+    "^print\.chamber_temper$",
+    "^print\.cooling_fan_speed$",
+    "^print\.fan_gear$",
+    "^print\.print_gcode_action$",
+    "^print\.gcode_file_prepare_percent$",
+    "^print\.heatbreak_fan_speed$",
+    "^print\.home_flag$",
+    "^print\.layer_num$",
+    "^print\.mc_percent$",
+    "^print\.mc_remaining_time$",
+    "^print\.net\.conf$",
+    "^print\.nozzle_temper$",
+    "^print\.param$",
+    "^print\.queue_est$",
+    "^print\.subtask_id$",
+    "^print\.user_id$",
+    "^print\.wifi_signal$"
   ];
 }
