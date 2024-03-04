@@ -26,15 +26,17 @@ export class Logger
     public Log(message : string, raw? : boolean)
     {
         let lines = raw ? message : this.createLine(message);
-        console.log (lines);
 
         let path = Path.dirname(this.options.fileName);
         if (fs.existsSync(path) === false)
         {
             fs.mkdirSync(path, { recursive : true });
         }
-        fs.appendFile(this.options.fileName, lines, { flush : true }, err => {if (err !== null) console.log (`Unable to write to "${this.options.fileName}". (${err})`);});
-    }
+        fs.appendFile(this.options.fileName, lines, { flush : true },
+            err => {if (err !== null) console.log (`Unable to write to "${this.options.fileName}". (${err})`);});
+
+        console.log (lines.trimEnd());
+        }
 
     public LogChanges(data : any, key : string, ignore? : string[])
     {
@@ -63,7 +65,7 @@ export class Logger
     private createLine(message : string) : string
     {
         let timestamp = new Date().toISOString();
-        return `${timestamp} ${message}`;
+        return `${timestamp} ${message}\n`;
     }
 
     private findChanges(oldData : any, newData : any, path : string) : Array<{path : string, oldValue : any, newValue : any }>
