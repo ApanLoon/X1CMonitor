@@ -45,7 +45,7 @@ export class X1Client implements IX1Client
         
             switch (msg.Type)
             {
-                case "Status":                  this.Status.value             = msg.Status;      break;
+                case "Status":                  this.Status.value             = msg.Status as Status;      break;
                 case "PrinterConnectionStatus": this.IsPrinterConnected.value = msg.IsConnected; break;
             }
         });

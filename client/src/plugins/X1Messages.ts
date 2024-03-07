@@ -1,52 +1,4 @@
-
-export class Tray
-{
-    public bed_temp        : string = "0"; // "35"
-    public bed_temp_type   : string = "1";
-    public cali_idx        : number = -1;
-    public cols            : Array<string> = []; // RGBA "8E9089FF"
-    public c_type          : number = 0;
-    public drying_temp     : string = "0"; // "55"
-    public drying_time     : string = "0"; // "8"
-    public id              : string = "0"; // "0"
-    public nozzle_temp_max : string = "0"; // "230"
-    public nozzle_temp_min : string = "0"; // "190"
-    public remain          : number = 0;   // 42
-    public tag_uid         : string = "";  // "4CC0983900000100"
-    public tray_color      : string = "";  // RGBA "8E9089FF"
-    public tray_diameter   : string = "0"; // "1.75"
-    public tray_id_name    : string = "";  // "A00-D0"
-    public tray_info_idx   : string = "";  // "GFA00"
-    public tray_sub_brands : string = "";  // "PLA Basic"
-    public tray_type       : string = "";  // "PLA"
-    public tray_uuid       : string = "";  // "D046EF8FB5204757B64FEA3C90357E2C",
-    public tray_weight     : string = "";  // "1000"
-    public xcam_info       : string = "";  // "D007D007E803E8039A99193F"
-}
-
-export class AmsInstance
-{
-    public humidity : string = "";  // "5"
-    public id       : string = "0"; // "0",
-    public temp     : string = "0"; // "26.9"
-    public tray     : Array<Tray> = [];
-}
-
-export class Ams
-{
-    public ams                 : Array<AmsInstance> = [];
-    public ams_exist_bits      : string = "0";   // "1"
-    public insert_flag         : boolean = true; // true
-    public power_on_flag       : boolean = true; // true
-    public tray_exist_bits     : string = "0";   // "f"
-    public tray_is_bbl_bits    : string = "0";   // "f"
-    public tray_now            : string = "255"; // "255"
-    public tray_pre            : string = "255"; // "255"
-    public tray_read_done_bits : string = "0";   // "f"
-    public tray_reading_bits   : string = "0";   // "0",
-    public tray_tar            : string = "255"; // "255"
-    public version             : number = 0;     // 420
-}
+import { Ams, Tray } from "./AmsTypes";
 
 export class IpCam
 {
@@ -130,6 +82,48 @@ export class Xcam
     public spaghetti_detector         : boolean = true;     // true
 }
 
+export enum Stage
+{
+    ""                                                =  0,
+    "Auto bed leveling"                               =  1,
+    "Heatbed preheating"                              =  2,
+    "Sweeping XY mech mode"                           =  3,
+    "Changing filament"                               =  4,
+    "M400 pause"                                      =  5,
+    "Paused due to filament runout"                   =  6,
+    "Heating hotend"                                  =  7,
+    "Calibrating extrusion"                           =  8,
+    "Scanning bed surface"                            =  9,
+    "Inspecting first layer"                          = 10,
+    "Identifying build plate type"                    = 11,
+    "Calibrating Micro Lidar"                         = 12,
+    "Homing toolhead"                                 = 13,
+    "Cleaning nozzle tip"                             = 14,
+    "Checking extruder temperature"                   = 15,
+    "Printing was paused by the user"                 = 16,
+    "Pause of front cover falling"                    = 17,
+    "Calibrating the micro lida"                      = 18,
+    "Calibrating extrusion flow"                      = 19,
+    "Paused due to nozzle temperature malfunction"    = 20,
+    "Paused due to heat bed temperature malfunction"  = 21,
+    "Filament unloading"                              = 22,
+    "Skip step pause"                                 = 23,
+    "Filament loading"                                = 24,
+    "Motor noise calibration"                         = 25,
+    "Paused due to AMS lost"                          = 26,
+    "Paused due to low speed of the heat break fan"   = 27,
+    "Paused due to chamber temperature control error" = 28,
+    "Cooling chamber"                                 = 29,
+    "Paused by the Gcode inserted by user"            = 30,
+    "Motor noise showoff"                             = 31,
+    "Nozzle filament covered detected pause"          = 32,
+    "Cutter error pause"                              = 33,
+    "First layer error pause"                         = 34,
+    "Nozzle clog pause"                               = 35
+}
+
+
+
 // Messages:
 //
 
@@ -187,7 +181,7 @@ export class Status implements IPrinterMessage
     public mess_production_state      : string     = "active";         // "active"
     public net                        : Net        = new Net;
     public nozzle_diameter            : string     = "0.4";            // "0.4"
-    public nozzle_Target_temper       : number     = 0.0;              // 0.0
+    public nozzle_target_temper       : number     = 0.0;              // 0.0
     public nozzle_temper              : number     = 25.0;             // 25.0
     public nozzle_type                : string     = "hardened_steel"; // "hardened_steel"
     public online                     : OnLine = new OnLine;

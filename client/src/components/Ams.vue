@@ -2,6 +2,7 @@
 import { inject, computed } from 'vue';
 import type { IX1Client } from '@/plugins/IX1Client';
 import type { Status } from '@/plugins/X1Messages';
+import { AmsRfidStatus, AmsStatus2String } from "@/plugins/AmsTypes";
 import BitDisplay from "./generic/BitDisplay.vue";
 import IconAms from './icons/IconAms.vue';
 
@@ -15,6 +16,9 @@ const status = computed<Status> (() =>
 {
     return x1Client.Status.value;
 });
+
+const amsStatusString  = computed<string>(() => AmsStatus2String(x1Client.Status.value.ams_status));
+const rfidStatusString = computed<string>(() => AmsRfidStatus[x1Client.Status.value.ams_rfid_status]);
 
 const trayCount = computed<number> (() =>
 {
@@ -30,8 +34,12 @@ const trayCount = computed<number> (() =>
 <template>
     <local-ams>
         <local-ams-state>
-            <IconAms class="icon-ams"></IconAms>
-
+            <local-header>
+                <IconAms class="icon-ams"></IconAms>
+                <h2>Status: {{ amsStatusString }}</h2>
+                <h2>RFID: {{ rfidStatusString }}</h2>
+            </local-header>
+            
             <local-version>{{ status.ams.version }}</local-version>
 
             <h2 style="grid-area: units-header;">Units ({{ status.ams.ams.length }})</h2>
@@ -90,25 +98,32 @@ local-ams-state
 {
     display: grid;
     grid-template-areas:
-      "header       header             header       header              version"
+      "logo         header             header       header              version"
       "units-header trays-header       trays-header trays-header        trays-header"
       "units-exists tray-exists-header tray-exists  tray-reading-header tray-reading"
       ".            tray-bbl-header    tray-bbl     tray-done-header    tray-done"
     ;
     grid-template-columns: 1fr auto 1fr auto 1fr;
-    grid-template-rows: 0.5rem 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
     column-gap: 0.5rem;
     position: relative;
 }
 
 .icon-ams
 {
-    grid-area: header;
+    grid-area: logo;
     position: absolute;
     top: 0;
     left: 0;
     width: auto;
     height: 0.33rem;
+}
+
+local-header
+{
+    grid-area: header;
+    display: flex;
+    gap: 0.5rem;
 }
 
 local-version
