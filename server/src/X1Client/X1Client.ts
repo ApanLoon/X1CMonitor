@@ -33,7 +33,7 @@ export class X1Client extends EventEmitter
 
   private _options : X1Options = new X1Options;
   private _client : MqttClient | null = null;
-
+ 
   public constructor(options : Partial<X1Options>)
   {
     super();
@@ -55,9 +55,9 @@ export class X1Client extends EventEmitter
       });
 
       this._options.Logger?.Log("[X1Client] Connected.");
-      this._client.on("connect", this.onConnect);
-      this._client.on("close", this.onDisconnect);
-      this.onConnect();
+      this._client.on("connect", ()=>this.onConnect(this));
+      this._client.on("close", ()=>this.onClose(this));
+      this.onConnect(this);
       
       this._client.on("message", (topic, message) =>
       {
@@ -77,19 +77,16 @@ export class X1Client extends EventEmitter
     this._client?.end();
   }
 
-
-
-
-  private onConnect()
+  private onConnect(client : X1Client)
   {
-    this._options.Logger?.Log("[X1Client] OnConnect: Connected to printer.");
-    this.IsConnected = true;
-    this.emit(X1ClientEvent.ConnectionStatus, this.IsConnected);
-    this._client?.subscribe(`device/${this._options.Serial}/report`, (err) =>
+    client._options.Logger?.Log("[X1Client] OnConnect: Connected to printer.");
+    client.IsConnected = true;
+    client.emit(X1ClientEvent.ConnectionStatus, this.IsConnected);
+    client._client?.subscribe(`device/${client._options.Serial}/report`, (err) =>
     {
       if (err)
       {
-        this._options.Logger?.Log(`[X1Client] OnConnect: Unable to subscribe, (${err})`);
+        client._options.Logger?.Log(`[X1Client] OnConnect: Unable to subscribe, (${err})`);
         return;
       }
 
@@ -97,14 +94,12 @@ export class X1Client extends EventEmitter
       //this._client?.publish(`device/${this._options.Serial}/request`, JSON.stringify(msg));
     });
   }
-  private onDisconnect()
+  private onClose(client : X1Client)
   {
-    this.IsConnected = false;
-    this._options.Logger?.Log("[X1Client] Closed");
-    this.emit(X1ClientEvent.ConnectionStatus, this.IsConnected);
+    client.IsConnected = false;
+    client._options.Logger?.Log(`[X1Client] OnClose: Disconnected from printer. Trying to re-connect to ${this._options.Host}:${this._options.Port}...`);
+    client.emit(X1ClientEvent.ConnectionStatus, client.IsConnected);
   } 
-
-
 
   private parsers =
   [
@@ -232,5 +227,4 @@ export class X1Client extends EventEmitter
     "^status\.user_id$",
     "^status\.wifi_signal$"
   ];
-
 }
