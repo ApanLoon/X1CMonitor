@@ -7,6 +7,7 @@ import Ams from "./components/Ams.vue"
 import Job from "./components/Job.vue"
 import JsonDisplay from "./components/generic/JsonDisplay.vue";
 import Lights from "./components/Lights.vue";
+import Temperature from "./components/Temperature.vue";
 
 const x1Client = inject<IX1Client>("x1Client");
 if (x1Client === undefined)
@@ -25,6 +26,7 @@ x1Client.Connect(()=>
 
   <template v-if="x1Client.IsConnected.value && x1Client.IsPrinterConnected.value && x1Client.Status.value !== undefined">
     <Job></Job>
+    <Temperature></Temperature>
     <Ams></Ams>
     <Lights></Lights>
 
