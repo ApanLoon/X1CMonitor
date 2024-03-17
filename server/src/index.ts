@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
-
+import path from "path";
+import { fileURLToPath } from "url";
 import { Api, ApiEvent } from "./Api/Api.js";
 import { X1Client, X1ClientEvent } from "./X1Client/X1Client.js";
 import { Logger } from "./Logger/Logger.js";
@@ -57,9 +58,10 @@ await x1Client.connect();
 //
 const port = process.env.WEB_PORT || 3000;
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Blahonga!");
-});
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static(path.join(__dirname, 'wwwroot')));
 
 app.listen(port, () => {
   logger.Log(`[Web] Server is running at http://localhost:${port}`);
