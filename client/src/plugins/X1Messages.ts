@@ -13,7 +13,7 @@ export class IpCam
 
 export class LightReport
 {
-    public mode : string = "on";            // "on", "flashing"
+    public mode : string = "on";            // "on", "off", "flashing"
     public node : string = "chamber_light"; // "chamber_light", "work_light"
 }
 
@@ -162,7 +162,7 @@ export class Status implements IPrinterMessage
     public gcode_file                 : string     = "";               // ""
     public gcode_file_prepare_percent : string     = "0";              // "0"
     public gcode_start_time           : string     = "0";              // "0"
-    public gcode_state                : string     = "IDLE";           // "IDLE"
+    public gcode_state                : string     = "IDLE";           // "IDLE", "PAUSE", "RUNNING", "SLICING", "PREPARE", "FINISH", "FAILED"
     public heatbreak_fan_speed        : string     = "0";              // "0"
     public hms                        : Array<any> = [];
     public home_flag                  : number     = 0;                // 6407631
@@ -201,8 +201,8 @@ export class Status implements IPrinterMessage
     public sequence_id                : string     = "2021";           // "2021"
     public spd_lvl                    : number     = 2;                // 2
     public spd_mag                    : number     = 100;              // 100
-    public stg                        : Array<any> = [];
-    public stg_cur                    : number     = -1;                // -1
+    public stg                        : Array<any> = [];               // Queue of "Stage"
+    public stg_cur                    : number     = -1;               // "Stage"
     public subtask_id                 : string     = "";               // ""
     public subtask_name               : string     = "";               // ""
     public task_id                    : string     = "";               // ""

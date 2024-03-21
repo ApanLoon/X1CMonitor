@@ -93,12 +93,12 @@ export class Ams
     public ams_exist_bits      : string = "0";   // "1"
     public insert_flag         : boolean = true; // true
     public power_on_flag       : boolean = true; // true
-    public tray_exist_bits     : string = "0";   // "f"
-    public tray_is_bbl_bits    : string = "0";   // "f"
+    public tray_exist_bits     : string = "0";   // "0-f" When a bit is set the corresponting tray has filament in it
+    public tray_is_bbl_bits    : string = "0";   // "0-f" When a bit is set the filament in the corresponting tray is from Bambu Lab
     public tray_now            : string = "255"; // "255"
     public tray_pre            : string = "255"; // "255"
-    public tray_read_done_bits : string = "0";   // "f"
-    public tray_reading_bits   : string = "0";   // "0",
+    public tray_read_done_bits : string = "0";   // "0-f" When a bit is set the corresponding tray has been read and all information we can get has been updated
+    public tray_reading_bits   : string = "0";   // "0-f" When a bit is set the corresponding tray is being read. We don't have accurate information yet.
     public tray_tar            : string = "255"; // "255"
     public version             : number = 0;     // 420
 }
