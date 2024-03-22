@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { inject, computed } from 'vue';
-import type { IX1Client } from '@/plugins/IX1Client';
-import type { Status } from '@/plugins/X1Messages';
+import { inject, computed } from "vue";
+import type { IX1Client } from "@/plugins/IX1Client";
+import type { Status } from "@/plugins/X1Messages";
 import { AmsRfidStatus, AmsStatus2String } from "@/plugins/AmsTypes";
 import BitDisplay from "./generic/BitDisplay.vue";
-import IconAms from './icons/IconAms.vue';
+import IconAms from "./icons/IconAms.vue";
+import IconBambuLab from "./icons/IconBambuLab.vue"
+import IconSpool from "./icons/IconSpool.vue"
 
 const x1Client = inject<IX1Client>("x1Client");
 if (x1Client === undefined)
@@ -29,6 +31,35 @@ const trayCount = computed<number> (() =>
     });
     return n;
 });
+
+const checkBit = (index : number, bitString : string) =>
+{
+    let mask = Math.pow(2, index);
+    let bits = Number("0x" + bitString);
+    return ((bits & mask) != 0);
+}
+
+const isTrayReading = (amsIndex : string, trayIndex : string) =>
+{
+    let index = Number(amsIndex) * 4 + Number(trayIndex);
+    return checkBit(index, x1Client.Status.value.ams.tray_reading_bits);
+}
+const isTrayRead = (amsIndex : string, trayIndex : string) =>
+{
+    let index = Number(amsIndex) * 4 + Number(trayIndex);
+    return checkBit(index, x1Client.Status.value.ams.tray_read_done_bits);
+}
+const isTrayEmpty = (amsIndex : string, trayIndex : string) =>
+{
+    let index = Number(amsIndex) * 4 + Number(trayIndex);
+    return checkBit(index, x1Client.Status.value.ams.tray_exist_bits) == false;
+}
+
+const isBbl = (amsIndex : string, trayIndex : string) =>
+{
+    let index = Number(amsIndex) * 4 + Number(trayIndex);
+    return checkBit(index, x1Client.Status.value.ams.tray_is_bbl_bits);
+}
 </script>
 
 <template>
@@ -74,12 +105,23 @@ const trayCount = computed<number> (() =>
                 <local-info><span>Temp:</span><span>{{ ams.temp }}&deg;</span></local-info>
             </div>
             <local-tray v-for="tray in ams.tray">
-                <local-tray-fill :style="{'background-color': '#' + tray.tray_color, 'height': tray.remain + '%' }"></local-tray-fill>
-                <local-tray-text>
-                    <div>{{ tray.tray_type }}</div>
-                    <div>{{ tray.remain }}%</div>
-                    <div>~{{ tray.remain / 100 * Number(tray.tray_weight) }}g</div>
-                </local-tray-text>
+                <template v-if="isTrayReading(ams.id, tray.id)">
+                    <IconSpool class="icon-spool"></IconSpool>
+                </template>
+                <template v-if="isTrayEmpty(ams.id, tray.id)">
+                    <local-tray-text>
+                        <div>Empty</div>
+                    </local-tray-text>
+                </template>
+                <template  v-if="isTrayRead(ams.id, tray.id) && isTrayEmpty(ams.id, tray.id) === false">
+                    <local-tray-fill :style="{'background-color': '#' + tray.tray_color, 'height': tray.remain + '%' }"></local-tray-fill>
+                    <local-tray-text>
+                        <IconBambuLab v-if="isBbl(ams.id, tray.id)"></IconBambuLab>
+                        <div>{{ tray.tray_type }}</div>
+                        <div>{{ tray.remain }}%</div>
+                        <div>~{{ tray.remain / 100 * Number(tray.tray_weight) }}g</div>
+                    </local-tray-text>
+                </template>
             </local-tray>
         </local-ams-instance>
     </local-ams>
@@ -156,12 +198,31 @@ local-tray
     top: 50%;
 }
 
+.icon-spool
+{
+    display: block;
+    margin: auto;
+    animation: spin 5s linear infinite ;
+}
+@keyframes spin
+{
+  100% {transform: rotate(360deg);}
+}
+
 local-tray local-tray-text
 {
     color: white;
     filter:  brightness(.7);
     mix-blend-mode: difference;
     text-align: center;
+}
+
+local-tray local-tray-text svg
+{
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    margin: 0.2rem;
 }
 
 local-tray local-tray-fill
@@ -173,4 +234,4 @@ local-tray local-tray-fill
     bottom: 0px;
     z-index: -10;
 }
-</style>@/plugins/X1Messages
+</style>
