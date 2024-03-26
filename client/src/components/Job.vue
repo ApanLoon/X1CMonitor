@@ -24,7 +24,9 @@ const EndTime = computed(()=>
     return "";
   }
 
-  let endTime  = new Date(Number(x1Client.Status.value.gcode_start_time) * 1000);
+  let seconds = Number(x1Client.Status.value.gcode_start_time) % 60;
+  let endTime  = new Date();
+  endTime.setSeconds(seconds);
   endTime.setMinutes(endTime.getMinutes() + x1Client.Status.value.mc_remaining_time);
   return endTime.toLocaleString("sv-SE");
 });
