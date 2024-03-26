@@ -19,12 +19,12 @@ const RemainingTime = computed<string>(() =>
 });
 const EndTime = computed(()=>
 {
-  if (x1Client.Status.value.gcode_start_time === "0")
+  if (x1Client.Status.value.mc_remaining_time === 0)
   {
     return "";
   }
 
-  let endTime  = new Date(Number(x1Client.Status.value.gcode_start_time) * 1000);
+  let endTime  = new Date();
   endTime.setMinutes(endTime.getMinutes() + x1Client.Status.value.mc_remaining_time);
   return endTime.toLocaleString("sv-SE");
 });
