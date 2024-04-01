@@ -51,6 +51,7 @@ export class X1Client extends EventEmitter
         username: this._options.UserName,
         password: this._options.Password,
         rejectUnauthorized: false,
+        keepalive: 10,
         reconnectPeriod: 1000
       });
 
