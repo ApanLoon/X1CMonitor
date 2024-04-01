@@ -155,7 +155,7 @@ export class Status implements IPrinterMessage
     public chamber_temper             : number     = 0;                // 25.0
     public cooling_fan_speed          : string     = "0";              // "0"
     public ctt                        : number     = 0;                // 0
-    public fail_reason                : string     = "0";              // "0"
+    public fail_reason                : string     = "";               // "0"
     public fan_gear                   : number     = 0;                // 0
     public filam_bak                  : Array<any> = [];
     public force_upgrade              : boolean    = false;            // false
@@ -172,7 +172,7 @@ export class Status implements IPrinterMessage
     public layer_num                  : number     = 0;                // 0
     public lifecycle                  : string     = "";               // "product"
     public lights_report              : Array<LightReport> = [];
-    public maintain                   : number     = 3;                // 3
+    public maintain                   : number     = 0;                // maintenance code: 3 = ?, 131075 = Lead screws need lubricant 
     public mc_percent                 : number     = 0;                // 0
     public mc_print_errorCode         : string     = "0";              // "0"
     public mc_print_stage             : string     = "1";              // "1"

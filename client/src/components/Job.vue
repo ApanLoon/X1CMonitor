@@ -8,8 +8,11 @@ if (x1Client === undefined)
 {
   throw new Error ("[Ams] Setup: No x1Client plugin found.");
 }
+
 const StartTime = computed(()=>x1Client.Status.value.gcode_start_time === "0" ? "" : new Date(Number(x1Client.Status.value.gcode_start_time) * 1000).toLocaleString("sv-SE"));
+
 const StageString   = computed<string>(() => Stage[x1Client.Status.value.stg_cur]);
+
 const RemainingTime = computed<string>(() =>
 {
     let minutes = x1Client.Status.value.mc_remaining_time;
@@ -17,6 +20,7 @@ const RemainingTime = computed<string>(() =>
     minutes -= hours * 60;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
 });
+
 const EndTime = computed(()=>
 {
   if (x1Client.Status.value.gcode_start_time === "0")
@@ -40,7 +44,7 @@ const EndTime = computed(()=>
         <local-info><span>Stage:</span><span>{{ StageString }}</span></local-info>
         
         <local-info><span>Start time: {{ StartTime }}</span><span>End time: {{ EndTime }}</span></local-info>
-        <local-info><span>Layer: {{ x1Client.Status.value.layer_num }}/{{ x1Client.Status.value.total_layer_num }}</span><span>{{x1Client.Status.value.mc_percent}}%</span><span>Reamining: {{ RemainingTime }}</span></local-info>
+        <local-info><span>Layer: {{ x1Client.Status.value.layer_num }}/{{ x1Client.Status.value.total_layer_num }}</span><span>{{x1Client.Status.value.mc_percent}}%</span><span>Remaining: {{ RemainingTime }}</span></local-info>
         <div><progress :value="x1Client.Status.value.mc_percent" min="0" max="100"></progress></div>
 
         <div>gcode: {{ x1Client.Status.value.gcode_state }} {{ x1Client.Status.value.gcode_file }} {{ x1Client.Status.value.gcode_start_time }}</div>

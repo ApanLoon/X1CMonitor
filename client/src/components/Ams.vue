@@ -47,7 +47,7 @@ const isTrayReading = (amsIndex : string, trayIndex : string) =>
 const isTrayRead = (amsIndex : string, trayIndex : string) =>
 {
     let index = Number(amsIndex) * 4 + Number(trayIndex);
-    return checkBit(index, x1Client.Status.value.ams.tray_read_done_bits);
+    return checkBit(index, x1Client.Status.value.ams.tray_read_done_bits) && isTrayReading(amsIndex, trayIndex) === false;
 }
 const isTrayEmpty = (amsIndex : string, trayIndex : string) =>
 {
@@ -91,11 +91,11 @@ const isBbl = (amsIndex : string, trayIndex : string) =>
             <BitDisplay style="grid-area: tray-done"    :lsbFirst="true" :bits="Number('0x' + status.ams.tray_read_done_bits)"></BitDisplay>
         </local-ams-state>
         
-        {{ status.ams.insert_flag }}
-        {{ status.ams.power_on_flag }}
-        {{ status.ams.tray_now }}
-        {{ status.ams.tray_pre }}
-        {{ status.ams.tray_tar }}
+        insert_flag: {{ status.ams.insert_flag }}
+        power_on_flag: {{ status.ams.power_on_flag }}
+        tray_now: {{ status.ams.tray_now }}
+        tray_pre: {{ status.ams.tray_pre }}
+        tray_tar: {{ status.ams.tray_tar }}
         
 
         <local-ams-instance v-for="ams in status.ams.ams">
