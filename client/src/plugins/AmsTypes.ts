@@ -91,6 +91,7 @@ export class Ams
 {
     public ams                 : Array<AmsInstance> = [];
     public ams_exist_bits      : string = "0";   // "1"
+    public ams_exist_bits_raw  : string = "0";   // "1"
     public insert_flag         : boolean = true; // true
     public power_on_flag       : boolean = true; // true
     public tray_exist_bits     : string = "0";   // "0-f" When a bit is set the corresponting tray has filament in it
