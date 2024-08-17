@@ -1,14 +1,31 @@
 import { Ams, Tray } from "./AmsTypes";
 
+export class NozzleInfo
+{
+    public info : number = 0;
+    public temp : number = 0;
+}
+export class Nozzle
+{
+    [key : string] : number | NozzleInfo;
+}
+
+export class Device
+{
+    public fan : number = 0;
+    public nozzle : Nozzle = {};
+}
+
 export class IpCam
 {
-    public ipcam_dev    : string = "1";       // "1"
-    public ipcam_record : string = "enable";  // "enable"
-    public mode_bits    : number = 2;         // 2
-    public resolution   : string = "1080p";   // "1080p"
-    public rtsp_url     : string = "disable"; // "disable"
-    public timelapse    : string = "disable"; // "disable"
-    public tutk_server  : string = "enable";  // "enable"
+    public agora_service : string = "disable"; // "disable"
+    public ipcam_dev    : string = "1";        // "1"
+    public ipcam_record : string = "enable";   // "enable"
+    public mode_bits    : number = 2;          // 2
+    public resolution   : string = "1080p";    // "1080p"
+    public rtsp_url     : string = "disable";  // "disable"
+    public timelapse    : string = "disable";  // "disable"
+    public tutk_server  : string = "enable";   // "enable"
 }
 
 export class LightReport
@@ -46,7 +63,8 @@ export class UpgradeState
     public ext_new_version_number : string = ""; // ""
     public force_upgrade          : boolean = false; // false
     public idx                    : number = 7; // 7
-    public message                : string = ""; // ""
+    public idx1                   : number = 0; // 0
+    public message                : string = ""; // "verifying: filament"
     public module                 : string = "null"; // "null"
     public new_version_state      : number = 2; // 2
     public ota_new_version_number : string = ""; // ""
@@ -155,13 +173,17 @@ export class Status implements IPrinterMessage
     public chamber_temper             : number     = 0;                // 25.0
     public cooling_fan_speed          : string     = "0";              // "0"
     public ctt                        : number     = 0;                // 0
-    public fail_reason                : string     = "0";              // "0"
+    public device                     : Device     = {fan : 0, nozzle: {}};
+    public fail_reason                : string     = "";               // "0"
     public fan_gear                   : number     = 0;                // 0
     public filam_bak                  : Array<any> = [];
     public force_upgrade              : boolean    = false;            // false
     public gcode_file                 : string     = "";               // ""
     public gcode_file_prepare_percent : string     = "0";              // "0"
+    
+    // Has this been removed?
     public gcode_start_time           : string     = "0";              // "0"
+
     public gcode_state                : string     = "IDLE";           // "IDLE", "PAUSE", "RUNNING", "SLICING", "PREPARE", "FINISH", "FAILED"
     public heatbreak_fan_speed        : string     = "0";              // "0"
     public hms                        : Array<any> = [];
@@ -172,20 +194,26 @@ export class Status implements IPrinterMessage
     public layer_num                  : number     = 0;                // 0
     public lifecycle                  : string     = "";               // "product"
     public lights_report              : Array<LightReport> = [];
-    public maintain                   : number     = 3;                // 3
+    public maintain                   : number     = 0;                // maintenance code: 3 = ?, 131075 = Lead screws need lubricant 
     public mc_percent                 : number     = 0;                // 0
     public mc_print_errorCode         : string     = "0";              // "0"
     public mc_print_stage             : string     = "1";              // "1"
     public mc_print_sub_stage         : number     = 0;                // 0
     public mc_remaining_time          : number     = 0;                // 0
+
+    // Has this been removed?
     public mess_production_state      : string     = "active";         // "active"
+
     public net                        : Net        = new Net;
     public nozzle_diameter            : string     = "0.4";            // "0.4"
     public nozzle_target_temper       : number     = 0.0;              // 0.0
     public nozzle_temper              : number     = 25.0;             // 25.0
     public nozzle_type                : string     = "hardened_steel"; // "hardened_steel"
     public online                     : OnLine = new OnLine;
+    
+    // Has this been removed?
     public param?                     : string;
+
     public print_error                : number     = 0;                // 0
     public print_gcode_action         : number     = 0;                // 0
     public print_real_action          : number     = 0;                // 0

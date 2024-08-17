@@ -226,6 +226,8 @@ export class X1Client extends EventEmitter
     "^status\.queue_est$",
     "^status\.subtask_id$",
     "^status\.user_id$",
-    "^status\.wifi_signal$"
+    "^status\.wifi_signal$",
+    "^status\.device\.nozzle\.\[[0-9]+\]\.temp$",
+    "^status\.device\.nozzle\.info$"
   ];
 }
