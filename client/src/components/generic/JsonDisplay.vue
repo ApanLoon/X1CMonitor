@@ -33,11 +33,11 @@ const isOpen : Ref<boolean> = ref(false);
 <template>
     <local-json-display>
         <local-property>
-            <template v-if="typeof props.data === 'object'">
-                <button v-if="isOpen === true" :onClick="()=>isOpen = false">-</button>
-                <button v-if="isOpen === false" :onClick="()=>isOpen = true">+</button>
-            </template>
             {{ rootName }}
+            <template v-if="typeof props.data === 'object'">
+                <button v-if="isOpen === true" :onClick="()=>isOpen = false">&#8743;</button>
+                <button v-if="isOpen === false" :onClick="()=>isOpen = true">&#8744;</button>
+            </template>
         </local-property>
         <local-container v-if="props.data !== undefined && props.data !== null" v-show="isOpen">
             <ul v-for="property in Object.keys(props.data)" :key="property">
