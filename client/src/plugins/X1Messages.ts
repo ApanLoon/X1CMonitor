@@ -8,12 +8,13 @@ export class NozzleInfo
 export class Nozzle
 {
     [key : string] : number | NozzleInfo;
+    public info : number = 0;
 }
 
 export class Device
 {
     public fan : number = 0;
-    public nozzle : Nozzle = {};
+    public nozzle : Nozzle = { info : 0 };
 }
 
 export class IpCam
@@ -64,6 +65,7 @@ export class UpgradeState
     public force_upgrade          : boolean = false; // false
     public idx                    : number = 7; // 7
     public idx1                   : number = 0; // 0
+    public lower_limit            : string = ""; // "00.00.00.00"
     public message                : string = ""; // "verifying: filament"
     public module                 : string = "null"; // "null"
     public new_version_state      : number = 2; // 2
@@ -173,7 +175,7 @@ export class Status implements IPrinterMessage
     public chamber_temper             : number     = 0;                // 25.0
     public cooling_fan_speed          : string     = "0";              // "0"
     public ctt                        : number     = 0;                // 0
-    public device                     : Device     = {fan : 0, nozzle: {}};
+    public device                     : Device     = {fan : 0, nozzle: { info : 0 }};
     public fail_reason                : string     = "";               // "0"
     public fan_gear                   : number     = 0;                // 0
     public filam_bak                  : Array<any> = [];
@@ -181,7 +183,7 @@ export class Status implements IPrinterMessage
     public gcode_file                 : string     = "";               // ""
     public gcode_file_prepare_percent : string     = "0";              // "0"
     
-    // Has this been removed?
+    // This was removed in firmware 01.08.00.00:
     public gcode_start_time           : string     = "0";              // "0"
 
     public gcode_state                : string     = "IDLE";           // "IDLE", "PAUSE", "RUNNING", "SLICING", "PREPARE", "FINISH", "FAILED"
@@ -192,7 +194,10 @@ export class Status implements IPrinterMessage
     public ip_cam                     : IpCam      = new IpCam;
     public job_id                     : string     = "";               // ""
     public layer_num                  : number     = 0;                // 0
+
+    // Removed?
     public lifecycle                  : string     = "";               // "product"
+
     public lights_report              : Array<LightReport> = [];
     public maintain                   : number     = 0;                // maintenance code: 3 = ?, 131075 = Lead screws need lubricant 
     public mc_percent                 : number     = 0;                // 0
@@ -201,7 +206,7 @@ export class Status implements IPrinterMessage
     public mc_print_sub_stage         : number     = 0;                // 0
     public mc_remaining_time          : number     = 0;                // 0
 
-    // Has this been removed?
+    // This was removed in firmware 01.08.00.00:
     public mess_production_state      : string     = "active";         // "active"
 
     public net                        : Net        = new Net;
@@ -211,7 +216,7 @@ export class Status implements IPrinterMessage
     public nozzle_type                : string     = "hardened_steel"; // "hardened_steel"
     public online                     : OnLine = new OnLine;
     
-    // Has this been removed?
+    // This was removed in firmware 01.08.00.00:
     public param?                     : string;
 
     public print_error                : number     = 0;                // 0
