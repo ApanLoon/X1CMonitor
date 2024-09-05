@@ -156,13 +156,17 @@ export interface IPrinterMessage
     sequence_id : string;
 }
 
-export class Status implements IPrinterMessage
+class PrinterMessage implements IPrinterMessage 
 {
     public command                    : string     = "";               // "push_status"
     public reason?                    : string;
     public result?                    : string;
     public return_code?               : number;
+    public sequence_id                : string     = "2021";           // "2021"
+}
 
+export class Status extends PrinterMessage
+{
     public ams                        : Ams        = new Ams;
     public ams_rfid_status            : number     = 0;                // 0
     public ams_status                 : number     = 0;                // 0
@@ -231,7 +235,6 @@ export class Status implements IPrinterMessage
     public queue_total                : number     = 0;                // 0
     public s_obj                      : Array<any> = [];
     public sdcard                     : boolean    = true;             // true
-    public sequence_id                : string     = "2021";           // "2021"
     public spd_lvl                    : number     = 2;                // 2
     public spd_mag                    : number     = 100;              // 100
     public stg                        : Array<any> = [];               // Queue of "Stage"
@@ -247,4 +250,9 @@ export class Status implements IPrinterMessage
     public wifi_signal                : string       = "";             // "-37dBm"
     public xcam                       : Xcam         = new Xcam;
     public xcam_status                : string       = "0";            // "0"
+}
+
+export class System_GetAccessCode extends PrinterMessage
+{
+    public access_code : string = "";
 }
