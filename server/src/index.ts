@@ -42,7 +42,8 @@ const x1Client = new X1Client(
 // Set up event routing:
 //
 x1Client.on(X1ClientEvent.ConnectionStatus, isConnected => { api.sendPrinterConnectionStatus(isConnected); });
-x1Client.on(X1ClientEvent.Status, status => { logger.LogChanges(status, "status", x1Client.LogIgnore_status); api.sendStatus(status); });
+x1Client.on(X1ClientEvent.Status, status => { api.sendStatus(status); });
+x1Client.on(X1ClientEvent.PropertyChanged, change => { logger.LogChange(change); });
 x1Client.on(X1ClientEvent.LedCtrl, ledCtrl => { console.log(ledCtrl) });
 
 api.on(ApiEvent.GetState,         sendState);

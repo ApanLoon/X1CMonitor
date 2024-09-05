@@ -2,6 +2,7 @@ import { MqttClient, connectAsync } from "mqtt";
 import { EventEmitter } from "node:events";
 import { Logger } from "../Logger/Logger.js";
 import { IMessage as IMessage } from "./IMessage.js";
+import { type Change, CompareObjects } from "./CompareObjects.js"
 
 export class X1Options
 {
@@ -17,6 +18,7 @@ export const X1ClientEvent = Object.freeze (
 {
   Status:           "status",
   LedCtrl:          "led-ctrl",
+  PropertyChanged:  "property-changed",
   ConnectionStatus: "connection-status"
 });
 
@@ -29,7 +31,7 @@ interface ICommandParser
 export class X1Client extends EventEmitter
 {
   public IsConnected : boolean = false;
-  public status : any;
+  public status : any = undefined;
 
   private _options : X1Options = new X1Options;
   private _client : MqttClient | null = null;
@@ -107,7 +109,7 @@ export class X1Client extends EventEmitter
     {
       Section : "print", Commands : 
       [
-        {Command : "push_status",               Parser : (message : IMessage, client : X1Client) => { client.status = message; client.emit (X1ClientEvent.Status, message); } },
+        {Command : "push_status",               Parser : this.parsePushStatus },
         // {Command : "ams_change_filament",       Parser : (message : IMessage, client : X1Client) => {}  },
         // {Command : "ams_control",               Parser : (message : IMessage, client : X1Client) => {}  },
         // {Command : "ams_filament_setting",      Parser : (message : IMessage, client : X1Client) => {}  },
@@ -137,7 +139,7 @@ export class X1Client extends EventEmitter
     {
       Section : "system", Commands : 
       [
-        //{Command : "get_access_code",           Parser : (message : IMessage, client : X1Client) => {}  },
+        {Command : "get_access_code",           Parser : (message : IMessage, client : X1Client) => {}  },
         {Command : "ledctrl",                   Parser : (message : IMessage, client : X1Client) => { client.emit (X1ClientEvent.LedCtrl, message); }        },
         //{Command : "set_accessories",           Parser : (message : IMessage, client : X1Client) => {} }
       ]
@@ -199,6 +201,32 @@ export class X1Client extends EventEmitter
         }
       }
     });
+  }
+
+  private parsePushStatus(message : IMessage, client : X1Client)
+  {
+    let ignoreChanges = false;
+    if (client.status === undefined)
+    {
+      client.status = {};
+      ignoreChanges = true;
+    }
+    const l = CompareObjects(client.status, message, "status");
+    client.status = message;
+
+    if (ignoreChanges === false)
+    {
+      l.forEach(change => 
+      {
+        let skip = client.LogIgnore_status?.some(regexp => change.path.match(regexp)) || false;
+        if (skip === false)
+        {
+          client.emit (X1ClientEvent.PropertyChanged, change);
+        }
+      });
+    }
+
+    client.emit (X1ClientEvent.Status, client.status); 
   }
 
   public LogIgnore_status =
