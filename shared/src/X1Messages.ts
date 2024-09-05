@@ -256,3 +256,9 @@ export class System_GetAccessCode extends PrinterMessage
 {
     public access_code : string = "";
 }
+
+export class Print_GcodeLine extends PrinterMessage
+{
+    public param?  : string; // 'M400 W0\n',
+    public source? : number; // 3072
+}

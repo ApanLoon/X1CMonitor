@@ -3,6 +3,7 @@ import { EventEmitter } from "node:events";
 import { Logger } from "../Logger/Logger.js";
 import { IMessage as IMessage } from "./IMessage.js";
 import { type Change, CompareObjects } from "./CompareObjects.js"
+import { type Status } from "../../../shared/src/X1Messages.js"
 
 export class X1Options
 {
@@ -125,7 +126,7 @@ export class X1Client extends EventEmitter
         // {Command : "flowrate_cali",             Parser : (message : IMessage, client : X1Client) => {}  },
         // {Command : "flowrate_get_result",       Parser : (message : IMessage, client : X1Client) => {}  },
         // {Command : "gcode_file",                Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "gcode_line",                Parser : (message : IMessage, client : X1Client) => {}  },
+        {Command : "gcode_line",                Parser : (message : IMessage, client : X1Client) => {}  },
         // {Command : "pause",                     Parser : (message : IMessage, client : X1Client) => {}  },
         // {Command : "print_option",              Parser : (message : IMessage, client : X1Client) => {}  },
         // {Command : "print_speed",               Parser : (message : IMessage, client : X1Client) => {}  },
@@ -211,13 +212,22 @@ export class X1Client extends EventEmitter
       client.status = {};
       ignoreChanges = true;
     }
-    const l = CompareObjects(client.status, message, "status");
-    client.status = message;
 
+    let newStatus = message as Status;
+    // Properties that has been removed in FW can be manually copied over here:
+    newStatus.gcode_start_time = client.status.gcode_start_time;
+
+    const l = CompareObjects(client.status, message, "status");
     if (ignoreChanges === false)
     {
       l.forEach(change => 
       {
+        // Since the gcode_start_time was removed in FW 01.08.00.00, we re-create it here to enable completion estimates in the frontend:
+        if (change.path === "status.gcode_state" && change.newValue === "RUNNING")
+        {
+          newStatus.gcode_start_time = String(Date.now() / 1000);
+        }
+
         let skip = client.LogIgnore_status?.some(regexp => change.path.match(regexp)) || false;
         if (skip === false)
         {
@@ -226,6 +236,7 @@ export class X1Client extends EventEmitter
       });
     }
 
+    client.status = newStatus;
     client.emit (X1ClientEvent.Status, client.status); 
   }
 
