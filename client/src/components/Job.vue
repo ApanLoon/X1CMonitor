@@ -9,7 +9,9 @@ if (x1Client === undefined)
   throw new Error ("[Ams] Setup: No x1Client plugin found.");
 }
 
-const StartTime = computed(()=>x1Client.Status.value.gcode_start_time === "0" ? "" : new Date(Number(x1Client.Status.value.gcode_start_time) * 1000).toLocaleString("sv-SE"));
+const StartTime = computed(()=>x1Client.Status.value.gcode_start_time === undefined || x1Client.Status.value.gcode_start_time === "0"
+  ? "Unknown"
+  : new Date(Number(x1Client.Status.value.gcode_start_time) * 1000).toLocaleString("sv-SE"));
 
 const StageString   = computed<string>(() => Stage[x1Client.Status.value.stg_cur]);
 
@@ -23,9 +25,9 @@ const RemainingTime = computed<string>(() =>
 
 const EndTime = computed(()=>
 {
-  if (x1Client.Status.value.gcode_start_time === "0")
+  if (x1Client.Status.value.gcode_start_time === undefined || x1Client.Status.value.gcode_start_time === "0")
   {
-    return "";
+    return "Unknown";
   }
 
   let seconds = Number(x1Client.Status.value.gcode_start_time) % 60;
