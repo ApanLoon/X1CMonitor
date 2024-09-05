@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject, computed } from 'vue';
 import type { IX1Client } from '@/plugins/IX1Client';
-import { Stage } from "@/plugins/X1Messages";
+import { Stage } from "@/../../shared/src/X1Messages";
 
 const x1Client = inject<IX1Client>("x1Client");
 if (x1Client === undefined)

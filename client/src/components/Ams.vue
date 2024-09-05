@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { inject, computed } from "vue";
 import type { IX1Client } from "@/plugins/IX1Client";
-import type { Status } from "@/plugins/X1Messages";
-import { AmsRfidStatus, AmsStatus2String } from "@/plugins/AmsTypes";
+import type { Status } from "@/../../../shared/src/X1Messages";
+import { AmsRfidStatus, AmsStatus2String } from "@/../../shared/src/AmsTypes";
 import BitDisplay from "./generic/BitDisplay.vue";
 import IconAms from "./icons/IconAms.vue";
 import IconBambuLab from "./icons/IconBambuLab.vue"
