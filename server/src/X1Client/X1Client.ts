@@ -23,6 +23,15 @@ export const X1ClientEvent = Object.freeze (
   ConnectionStatus: "connection-status"
 });
 
+class SocketError
+{
+  errno: number = 0;
+  code: string = "";
+  syscall: string = "";
+  address: string = "";
+  port: number = 0;
+}
+
 interface ICommandParser
 {
   Command : string;
@@ -36,6 +45,8 @@ export class X1Client extends EventEmitter
 
   private _options : X1Options = new X1Options;
   private _client : MqttClient | null = null;
+  private _firstConnect = true;
+  private _firstClose = true;
  
   public constructor(options : Partial<X1Options>)
   {
@@ -48,7 +59,11 @@ export class X1Client extends EventEmitter
     while (this.IsConnected === false)
     try
     {
-      this._options.Logger?.Log(`[X1Client] Connecting to ${this._options.Host}:${this._options.Port}...`);
+      if (this._firstConnect === true)
+      {
+        this._options.Logger?.Log(`[X1Client] Connecting to ${this._options.Host}:${this._options.Port}...`);
+        this._firstConnect = false;
+      }
       this._client = await connectAsync(`mqtts://${this._options.Host}:${this._options.Port}`, 
       {
         username: this._options.UserName,
@@ -58,7 +73,6 @@ export class X1Client extends EventEmitter
         reconnectPeriod: 1000
       });
 
-      this._options.Logger?.Log("[X1Client] Connected.");
       this._client.on("connect", ()=>this.onConnect(this));
       this._client.on("close", ()=>this.onClose(this));
       this.onConnect(this);
@@ -72,7 +86,14 @@ export class X1Client extends EventEmitter
     }
     catch (err)
     {
-      this._options.Logger?.Log (`[X1Client] ${err}`);
+      if (err instanceof SocketError)
+      {
+        const error = err as SocketError;
+        if (error.code !== "ETIMEOUT")
+        {
+          this._options.Logger?.Log (`[X1Client] ${err}`);
+        }
+      }
     }
   }
 
@@ -83,8 +104,10 @@ export class X1Client extends EventEmitter
 
   private onConnect(client : X1Client)
   {
-    client._options.Logger?.Log("[X1Client] OnConnect: Connected to printer.");
+    client._options.Logger?.Log(`[X1Client] OnConnect: Connected to printer at ${client._options.Host}:${client._options.Port}.`);
     client.IsConnected = true;
+    this._firstConnect = true;
+    this._firstClose = true;
     client.emit(X1ClientEvent.ConnectionStatus, this.IsConnected);
     client._client?.subscribe(`device/${client._options.Serial}/report`, (err) =>
     {
@@ -101,7 +124,11 @@ export class X1Client extends EventEmitter
   private onClose(client : X1Client)
   {
     client.IsConnected = false;
-    client._options.Logger?.Log(`[X1Client] OnClose: Disconnected from printer. Trying to re-connect to ${this._options.Host}:${this._options.Port}...`);
+    if (client._firstClose === true)
+    {
+      client._options.Logger?.Log(`[X1Client] OnClose: Disconnected from printer. Trying to re-connect to ${this._options.Host}:${this._options.Port}...`);
+      client._firstClose = false;
+    }
     client.emit(X1ClientEvent.ConnectionStatus, client.IsConnected);
   } 
 
