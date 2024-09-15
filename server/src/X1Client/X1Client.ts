@@ -59,7 +59,7 @@ export class X1Client extends EventEmitter
   public IsConnected : boolean = false;
   public status : any = undefined;
 
-  private _logLevel : LogLevel = LogLevel.Information;
+  public LogLevel : LogLevel = LogLevel.Information;
 
   private _options : X1Options = new X1Options;
   private _client : MqttClient | null = null;
@@ -127,7 +127,7 @@ export class X1Client extends EventEmitter
     this._firstConnect = true;
     this._firstClose = true;
     client.emit(X1ClientEvent.ConnectionStatus, this.IsConnected);
-    client.emit(X1ClientEvent.LogLevelChanged, client._logLevel);
+    client.emit(X1ClientEvent.LogLevelChanged, client.LogLevel);
     client._client?.subscribe(`device/${client._options.Serial}/report`, (err) =>
     {
       if (err)
@@ -153,8 +153,9 @@ export class X1Client extends EventEmitter
 
   public SetLogLevel(level : LogLevel)
   {
-    this._logLevel = level;
-    this.emit(X1ClientEvent.LogLevelChanged, this._logLevel);
+    this._options.Logger?.Log(`[X1Client] SetLogLevel: Changing log level to ${level}...`);
+    this.LogLevel = level;
+    this.emit(X1ClientEvent.LogLevelChanged, this.LogLevel);
   }
 
   private parsers =
@@ -287,7 +288,7 @@ export class X1Client extends EventEmitter
           level = definition.LogLevel;
         }
 
-        if (client._logLevel >= level)
+        if (client.LogLevel >= level)
         {
           client.emit (X1ClientEvent.PropertyChanged, change);
         }

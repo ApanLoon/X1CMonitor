@@ -49,6 +49,7 @@ x1Client.on(X1ClientEvent.LogLevelChanged,  level       => api.sendPrinterLogLev
 
 api.on(ApiEvent.GetState,           sendState);
 api.on(ApiEvent.SetLight,           isOn  => console.log(isOn));
+api.on(ApiEvent.GetPrinterLogLevel, ()    => api.sendPrinterLogLevel(x1Client.LogLevel));
 api.on(ApiEvent.SetPrinterLogLevel, level => x1Client.SetLogLevel(level));
 
 // Start services:
@@ -73,4 +74,5 @@ function sendState()
 {
   api.sendPrinterConnectionStatus(x1Client.IsConnected);
   api.sendStatus(x1Client.status);
+  api.sendPrinterLogLevel(x1Client.LogLevel);
 }

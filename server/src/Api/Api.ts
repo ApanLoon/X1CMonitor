@@ -14,6 +14,7 @@ export const ApiEvent = Object.freeze (
 {
     GetState:           "getstate",
     SetLight:           "setlight",
+    GetPrinterLogLevel: "getprinterloglevel",
     SetPrinterLogLevel: "setprinterloglevel"
 });
     
@@ -41,7 +42,8 @@ export class Api extends EventEmitter
                 {
                     case "GetState":           this.emit(ApiEvent.GetState);                       break;
                     case "SetLight":           this.emit(ApiEvent.SetLight, msg.isOn);             break;
-                    case "SetPrinterLogLevel": this.emit(ApiEvent.SetPrinterLogLevel, msg.level);  break;
+                    case "GetPrinterLogLevel": this.emit(ApiEvent.GetPrinterLogLevel);             break;
+                    case "SetPrinterLogLevel": this.emit(ApiEvent.SetPrinterLogLevel, msg.Level);  break;
                 }
             },
             (_event: any, connection: Connection) =>
@@ -78,7 +80,7 @@ export class Api extends EventEmitter
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            Type: "SetPrinterLogLevel",
+            Type: "PrinterLogLevel",
             Level: level
         }));
     }
