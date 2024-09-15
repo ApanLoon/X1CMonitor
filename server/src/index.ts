@@ -41,14 +41,16 @@ const x1Client = new X1Client(
 
 // Set up event routing:
 //
-x1Client.on(X1ClientEvent.ConnectionStatus, isConnected => { api.sendPrinterConnectionStatus(isConnected); });
-x1Client.on(X1ClientEvent.Status, status => { api.sendStatus(status); });
-x1Client.on(X1ClientEvent.PropertyChanged, change => { logger.LogChange(change); });
-x1Client.on(X1ClientEvent.LedCtrl, ledCtrl => { console.log(ledCtrl) });
+x1Client.on(X1ClientEvent.ConnectionStatus, isConnected => api.sendPrinterConnectionStatus(isConnected));
+x1Client.on(X1ClientEvent.Status,           status      => api.sendStatus(status));
+x1Client.on(X1ClientEvent.PropertyChanged,  change      => logger.LogChange(change));
+x1Client.on(X1ClientEvent.LedCtrl,          ledCtrl     => console.log(ledCtrl));
+x1Client.on(X1ClientEvent.LogLevelChanged,  level       => api.sendPrinterLogLevel(level));
 
-api.on(ApiEvent.GetState,         sendState);
-api.on(ApiEvent.SetLight,         (isOn)  => console.log(isOn));
-
+api.on(ApiEvent.GetState,           sendState);
+api.on(ApiEvent.SetLight,           isOn  => console.log(isOn));
+api.on(ApiEvent.GetPrinterLogLevel, ()    => api.sendPrinterLogLevel(x1Client.LogLevel));
+api.on(ApiEvent.SetPrinterLogLevel, level => x1Client.SetLogLevel(level));
 
 // Start services:
 //
@@ -72,4 +74,5 @@ function sendState()
 {
   api.sendPrinterConnectionStatus(x1Client.IsConnected);
   api.sendStatus(x1Client.status);
+  api.sendPrinterLogLevel(x1Client.LogLevel);
 }

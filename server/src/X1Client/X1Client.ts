@@ -20,8 +20,18 @@ export const X1ClientEvent = Object.freeze (
   Status:           "status",
   LedCtrl:          "led-ctrl",
   PropertyChanged:  "property-changed",
-  ConnectionStatus: "connection-status"
+  ConnectionStatus: "connection-status",
+  LogLevelChanged:  "log-level-changed"
 });
+
+export enum LogLevel
+{
+  Error       = 0,
+  Warning     = 1,
+  Information = 2,
+  Debug       = 3,
+  Trace       = 4
+}
 
 class SocketError
 {
@@ -38,10 +48,18 @@ interface ICommandParser
   Parser : (message : IMessage, client : X1Client) => void;
 }
 
+interface ILogMessageDefinition
+{
+  Pattern  : string;
+  LogLevel : LogLevel;
+}
+
 export class X1Client extends EventEmitter
 {
   public IsConnected : boolean = false;
   public status : any = undefined;
+
+  public LogLevel : LogLevel = LogLevel.Information;
 
   private _options : X1Options = new X1Options;
   private _client : MqttClient | null = null;
@@ -109,6 +127,7 @@ export class X1Client extends EventEmitter
     this._firstConnect = true;
     this._firstClose = true;
     client.emit(X1ClientEvent.ConnectionStatus, this.IsConnected);
+    client.emit(X1ClientEvent.LogLevelChanged, client.LogLevel);
     client._client?.subscribe(`device/${client._options.Serial}/report`, (err) =>
     {
       if (err)
@@ -131,6 +150,13 @@ export class X1Client extends EventEmitter
     }
     client.emit(X1ClientEvent.ConnectionStatus, client.IsConnected);
   } 
+
+  public SetLogLevel(level : LogLevel)
+  {
+    this._options.Logger?.Log(`[X1Client] SetLogLevel: Changing log level to ${level}...`);
+    this.LogLevel = level;
+    this.emit(X1ClientEvent.LogLevelChanged, this.LogLevel);
+  }
 
   private parsers =
   [
@@ -255,8 +281,14 @@ export class X1Client extends EventEmitter
           newStatus.gcode_start_time = String(Date.now() / 1000);
         }
 
-        let skip = client.LogIgnore_status?.some(regexp => change.path.match(regexp)) || false;
-        if (skip === false)
+        let level : LogLevel = LogLevel.Debug;
+        const definition = client.PrintStatus_LogMessageDefinitions.find(d => change.path.match(d.Pattern));
+        if (definition !== undefined)
+        {
+          level = definition.LogLevel;
+        }
+
+        if (client.LogLevel >= level)
         {
           client.emit (X1ClientEvent.PropertyChanged, change);
         }
@@ -267,34 +299,42 @@ export class X1Client extends EventEmitter
     client.emit (X1ClientEvent.Status, client.status); 
   }
 
-  public LogIgnore_status =
+  private PrintStatus_LogMessageDefinitions : ILogMessageDefinition[] =
   [
-    "^status\.ams\.version$",
-    "^status\.ams\.ams\[[0-9]+\]\.humidity$",
-    "^status\.ams\.ams\[[0-9]+\]\.temp$",
-    "^status\.ams\.ams\[[0-9]+\]\.tray\[[0-9]+\]\.remain$",
-    "^status\.bed_temper$",
-    "^status\.big_fan1_speed$",
-    "^status\.big_fan2_speed$",
-    "^status\.chamber_temper$",
-    "^status\.cooling_fan_speed$",
-    "^status\.fan_gear$",
-    "^status\.print_gcode_action$",
-    "^status\.gcode_file_prepare_percent$",
-    "^status\.heatbreak_fan_speed$",
-    "^status\.home_flag$",
-    "^status\.layer_num$",
-    "^status\.mc_percent$",
-    "^status\.mc_remaining_time$",
-    "^status\.net\.conf$",
-    "^status\.nozzle_temper$",
-    "^status\.param$",
-    "^status\.queue_est$",
-    "^status\.subtask_id$",
-    "^status\.user_id$",
-    "^status\.wifi_signal$",
-    "^status\.device\.nozzle\.[0-9]+\.temp$",
-    "^status\.device\.nozzle\.info$",
-    "^status\.device\.fan$"
+    { Pattern: "^status\.gcode_state$",                                LogLevel: LogLevel.Information } as ILogMessageDefinition,
+    { Pattern: "^status\.gcode_file$",                                 LogLevel: LogLevel.Information } as ILogMessageDefinition,
+    { Pattern: "^status\.subtask_name$",                               LogLevel: LogLevel.Information } as ILogMessageDefinition,
+
+    { Pattern: "^status\.ipcam.timelapse$",                            LogLevel: LogLevel.Information } as ILogMessageDefinition,
+
+    { Pattern: "^status\.ams\.tray_now$",                              LogLevel: LogLevel.Information } as ILogMessageDefinition,
+
+    { Pattern: "^status\.ams\.version$",                               LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.ams\.ams\[[0-9]+\]\.humidity$",               LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.ams\.ams\[[0-9]+\]\.temp$",                   LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.ams\.ams\[[0-9]+\]\.tray\[[0-9]+\]\.remain$", LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.bed_temper$",                                 LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.big_fan1_speed$",                             LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.big_fan2_speed$",                             LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.chamber_temper$",                             LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.cooling_fan_speed$",                          LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.fan_gear$",                                   LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.print_gcode_action$",                         LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.gcode_file_prepare_percent$",                 LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.heatbreak_fan_speed$",                        LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.home_flag$",                                  LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.layer_num$",                                  LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.mc_percent$",                                 LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.mc_remaining_time$",                          LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.net\.conf$",                                  LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.nozzle_temper$",                              LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.param$",                                      LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.queue_est$",                                  LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.subtask_id$",                                 LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.user_id$",                                    LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.wifi_signal$",                                LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.device\.nozzle\.[0-9]+\.temp$",               LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.device\.nozzle\.info$",                       LogLevel: LogLevel.Trace } as ILogMessageDefinition,
+    { Pattern: "^status\.device\.fan$",                                LogLevel: LogLevel.Trace } as ILogMessageDefinition
   ];
 }

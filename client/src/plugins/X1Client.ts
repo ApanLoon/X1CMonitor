@@ -1,6 +1,6 @@
 
 import { ref, type Ref } from "vue";
-import type { IX1Client } from "./IX1Client";
+import { type IX1Client, LogLevel } from "./IX1Client";
 import { Status } from "../../../shared/src/X1Messages";
 
 export class X1ClientOptions
@@ -15,6 +15,7 @@ export class X1Client implements IX1Client
     IsConnected: Ref<boolean> = ref(false);
     IsPrinterConnected : Ref<boolean> = ref(false);
     Status: Ref<Status> = ref(new Status);
+    LogLevel: Ref<LogLevel> = ref(LogLevel.Information);
 
     private _socket? : WebSocket;
 
@@ -46,7 +47,8 @@ export class X1Client implements IX1Client
             switch (msg.Type)
             {
                 case "Status":                  this.Status.value             = msg.Status as Status;      break;
-                case "PrinterConnectionStatus": this.IsPrinterConnected.value = msg.IsConnected; break;
+                case "PrinterConnectionStatus": this.IsPrinterConnected.value = msg.IsConnected;           break;
+                case "PrinterLogLevel":         this.LogLevel.value           = msg.Level as LogLevel;     break;
             }
         });
 
@@ -63,6 +65,15 @@ export class X1Client implements IX1Client
         this._socket?.send(JSON.stringify(
         {
             Type: "GetState"
+        }));
+    }
+
+    SetPrinterLogLevel(level : LogLevel)
+    {
+        this._socket?.send(JSON.stringify(
+        {
+            Type: "SetPrinterLogLevel",
+            Level: level
         }));
     }
 }
