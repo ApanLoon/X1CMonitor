@@ -61,10 +61,10 @@ await x1Client.connect();
 //
 const port = process.env.WEB_PORT || 3000;
 
-const __filename = fileURLToPath(import.meta.url);
+const __filename = fileURLToPath(import.meta.url); // NOTE: This is the path to the folder where index.js is. I.e. dist/server/src and not dist as I was hoping.
 const __dirname = path.dirname(__filename);
 
-app.use(express.static(path.join(__dirname, 'wwwroot')));
+app.use(express.static(path.join(__dirname, '../../wwwroot'))); // NOTE: This is only correct when running from dist. When doing npm run dev, the static files will not be hosted correctly.
 
 app.listen(port, () => {
   logger.Log(`[Web] Server is running at http://localhost:${port}`);
