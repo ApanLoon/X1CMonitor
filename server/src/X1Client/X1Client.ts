@@ -4,7 +4,6 @@ import { Logger } from "../Logger/Logger.js";
 import { IMessage as IMessage } from "./IMessage.js";
 import { type Change, CompareObjects } from "./CompareObjects.js"
 import { type Status } from "../../../shared/src/X1Messages.js"
-import { LogLevel } from "../../../shared/src/LogLevel.js"
 
 export class X1Options
 {
@@ -25,6 +24,15 @@ export const X1ClientEvent = Object.freeze (
   LogLevelChanged:  "log-level-changed"
 });
 
+export enum LogLevel
+{
+  Error       = 0,
+  Warning     = 1,
+  Information = 2,
+  Debug       = 3,
+  Trace       = 4
+}
+
 class SocketError
 {
   errno: number = 0;
@@ -43,7 +51,7 @@ interface ICommandParser
 interface ILogMessageDefinition
 {
   Pattern  : string;
-  LogLevel : LogLevel
+  LogLevel : LogLevel;
 }
 
 export class X1Client extends EventEmitter
@@ -272,7 +280,7 @@ export class X1Client extends EventEmitter
           newStatus.gcode_start_time = String(Date.now() / 1000);
         }
 
-        let level = LogLevel.Debug;
+        let level : LogLevel = LogLevel.Debug;
         const definition = client.PrintStatus_LogMessageDefinitions.find(d => change.path.match(d.Pattern));
         if (definition !== undefined)
         {
@@ -290,7 +298,7 @@ export class X1Client extends EventEmitter
     client.emit (X1ClientEvent.Status, client.status); 
   }
 
-  private PrintStatus_LogMessageDefinitions =
+  private PrintStatus_LogMessageDefinitions : ILogMessageDefinition[] =
   [
     { Pattern: "^status\.gcode_state$",                                LogLevel: LogLevel.Information } as ILogMessageDefinition,
     { Pattern: "^status\.gcode_file$",                                 LogLevel: LogLevel.Information } as ILogMessageDefinition,
