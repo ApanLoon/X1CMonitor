@@ -3,7 +3,8 @@ import { EventEmitter } from "node:events";
 import { Logger } from "../Logger/Logger.js";
 import { IMessage as IMessage } from "./IMessage.js";
 import { type Change, CompareObjects } from "./CompareObjects.js"
-import { type Status } from "../../../shared/src/X1Messages.js"
+import { type Status } from "../shared/X1Messages.js"
+import { LogLevel } from "../shared/LogLevel.js";
 
 export class X1Options
 {
@@ -23,15 +24,6 @@ export const X1ClientEvent = Object.freeze (
   ConnectionStatus: "connection-status",
   LogLevelChanged:  "log-level-changed"
 });
-
-export enum LogLevel
-{
-  Error       = 0,
-  Warning     = 1,
-  Information = 2,
-  Debug       = 3,
-  Trace       = 4
-}
 
 class SocketError
 {

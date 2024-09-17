@@ -1,7 +1,7 @@
 
 import { ref, type Ref } from "vue";
 import { type IX1Client, LogLevel } from "./IX1Client";
-import { Status } from "../../../shared/src/X1Messages";
+import { Status } from "../../../server/src/shared/X1Messages";
 
 export class X1ClientOptions
 {
