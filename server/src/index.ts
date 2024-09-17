@@ -55,7 +55,7 @@ api.on(ApiEvent.SetPrinterLogLevel, level => x1Client.SetLogLevel(level));
 // Start services:
 //
 
-await x1Client.connect();
+x1Client.connect();
 
 // Express web server:
 //
