@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { inject, computed } from "vue";
-import { type IX1Client, LogLevel } from "@/plugins/IX1Client";
+import { type IX1Client} from "@/plugins/IX1Client";
+import { LogLevel } from "../../../server/src/shared/LogLevel";
 
 import StyledSelect from "./generic/StyledSelect.vue";
 

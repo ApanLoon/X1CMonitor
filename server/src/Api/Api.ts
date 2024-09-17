@@ -2,7 +2,7 @@ import { WebSocketServer } from "ws";
 import { EventEmitter } from "node:events";
 import { Connection, ConnectionCollection } from "./ConnectionCollection.js";
 import { Logger } from "../Logger/Logger.js";
-import { LogLevel } from "../X1Client/X1Client.js";
+import { LogLevel } from "../shared/LogLevel.js";
 
 export class ApiOptions
 {

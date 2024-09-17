@@ -1,6 +1,6 @@
 import type { Ref } from "vue";
 import { X1ClientOptions } from "./X1Client";
-import { Status } from "../../../shared/src/X1Messages";
+import { Status } from "../../../server/src/shared/X1Messages";
 
 export enum LogLevel
 {
