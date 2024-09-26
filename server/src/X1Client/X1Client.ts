@@ -5,6 +5,7 @@ import { IMessage as IMessage } from "./IMessage.js";
 import { type Change, CompareObjects } from "./CompareObjects.js"
 import { type Status } from "../shared/X1Messages.js"
 import { LogLevel } from "../shared/LogLevel.js";
+import { AmsStatus2Main, AmsStatus2String, AmsStatus2Sub } from "../shared/AmsTypes.js";
 
 export class X1Options
 {
@@ -273,6 +274,14 @@ export class X1Client extends EventEmitter
           newStatus.gcode_start_time = String(Date.now() / 1000);
         }
 
+        if (change.path === "status.ams_status")
+        {
+          change.oldValue = AmsStatus2String(change.oldValue);
+          change.newValue = AmsStatus2String(change.newValue);
+            // change.oldValue = JSON.stringify({ Main : AmsStatus2Main (change.oldValue), Sub : AmsStatus2Sub (change.oldValue)});
+            // change.newValue = JSON.stringify({ Main : AmsStatus2Main (change.newValue), Sub : AmsStatus2Sub (change.newValue)});
+        }
+  
         let level : LogLevel = LogLevel.Debug;
         const definition = client.PrintStatus_LogMessageDefinitions.find(d => change.path.match(d.Pattern));
         if (definition !== undefined)

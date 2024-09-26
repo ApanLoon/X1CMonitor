@@ -34,6 +34,21 @@ export enum AmsStatusMain
     UNKNOWN             = 0xFF,
 };
 
+// When AmsStatusMain is FILAMENT_CHANGE (1):
+export enum FilamentStep
+{
+    IDLE               = 0,
+    HEAT_NOZZLE        = 1,
+    CUT_FILAMENT       = 2,
+    PULL_CURR_FILAMENT = 3,
+    PUSH_NEW_FILAMENT  = 4,
+    PURGE_OLD_FILAMENT = 5,
+    FEED_FILAMENT      = 6,
+    CONFIRM_EXTRUDED   = 7,
+    CHECK_POSITION     = 8
+};
+
+// When AmsStatusMain is RFID_IDENTIFYING (2):
 export enum AmsRfidStatus
 {
     IDLE           = 0,
@@ -96,18 +111,40 @@ export class Ams
     public power_on_flag       : boolean = true; // true
     public tray_exist_bits     : string = "0";   // "0-f" When a bit is set the corresponting tray has filament in it
     public tray_is_bbl_bits    : string = "0";   // "0-f" When a bit is set the filament in the corresponting tray is from Bambu Lab
-    public tray_now            : string = "255"; // "255"
-    public tray_pre            : string = "255"; // "255"
+    public tray_now            : string = "255"; // Currently loaded tray index. "255" means none.
+    public tray_pre            : string = "255"; // Previously loaded tray index. "255" means none.
     public tray_read_done_bits : string = "0";   // "0-f" When a bit is set the corresponding tray has been read and all information we can get has been updated
     public tray_reading_bits   : string = "0";   // "0-f" When a bit is set the corresponding tray is being read. We don't have accurate information yet.
-    public tray_tar            : string = "255"; // "255"
+    public tray_tar            : string = "255"; // Tray target when switching the tray, "255" means none.
     public version             : number = 0;     // 420
 }
 
+export const AmsStatus2Main = (status : number ) =>
+{
+    return (status & 0xFF00) >> 8;
+}
+export const AmsStatus2Sub = (status : number ) =>
+{
+    return status & 0xFF;
+}
+    
 export const AmsStatus2String = (status : number) =>
 {
-    let ams_status_sub = status & 0xFF;
-    let ams_status_main_int = (status & 0xFF00) >> 8;
+    if (status === 0)
+    {
+        return "IDLE";
+    }
 
-    return `${AmsStatusMain[ams_status_main_int]}:${ams_status_sub}`;
+    let main = AmsStatus2Main(status);
+    let sub  = AmsStatus2Sub(status);
+
+    switch (main)
+    {
+        case AmsStatusMain.FILAMENT_CHANGE:
+            return FilamentStep[sub] ?? `Unknown filament step (${sub})`;
+        case AmsStatusMain.RFID_IDENTIFYING:
+            return AmsRfidStatus[sub] ?? `Unknown RFID status (${sub})`;
+        default:
+            return `${AmsStatusMain[main]}:${sub}`;
+    }
 }
