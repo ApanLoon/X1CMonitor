@@ -104,7 +104,7 @@ const isBbl = (amsIndex : string, trayIndex : string) =>
                 <local-info><span>Humidity:</span><span>{{ ams.humidity }}</span></local-info>
                 <local-info><span>Temp:</span><span>{{ ams.temp }}&deg;</span></local-info>
             </div>
-            <local-tray v-for="tray in ams.tray">
+            <local-tray v-for="tray in ams.tray" :class="{'tray-is-loaded': status.ams.tray_now === tray.id }">
                 <template v-if="isTrayReading(ams.id, tray.id)">
                     <IconSpool class="icon-spool"></IconSpool>
                 </template>
@@ -233,5 +233,10 @@ local-tray local-tray-fill
     width: 100%;
     bottom: 0px;
     z-index: -10;
+}
+
+.tray-is-loaded
+{
+    border: 1px solid var(--color-on);
 }
 </style>
