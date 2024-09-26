@@ -2,7 +2,7 @@ export class Change
 {
     public path : string = "";
     public oldValue : any;
-    public newValue : any
+    public newValue : any;
 }
 
 export function CompareObjects (oldData : any, newData : any, path : string) : Array<Change>
