@@ -29,13 +29,13 @@ logger.Log(
 logger.Log("Starting up...");
 
 const app: Express = express();
-const api = new Api ({ Logger : logger, Port: Number(process.env.API_Port || 4000 ) });
+const api = new Api ({ Logger : logger, Port: Number(process.env.API_PORT) || 4000 });
 const x1Client = new X1Client(
 {
   Logger:   logger,
-  Host:     process.env.X1C_Host     || "",
-  Serial:   process.env.X1C_Serial   || "",
-  Password: process.env.X1C_Password || ""
+  Host:     process.env.X1C_HOST     || "",
+  Serial:   process.env.X1C_SERIAL   || "",
+  Password: process.env.X1C_PASSWORD || ""
 });
 
 

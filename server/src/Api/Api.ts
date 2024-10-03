@@ -32,6 +32,7 @@ export class Api extends EventEmitter
         Object.assign(this.options, options);
 
         this.server = new WebSocketServer({ port: this.options.Port });
+        this.options.Logger?.Log (`[Api] Listening on port ${this.options.Port}.`);
 
         this.server.on("connection", socket =>
         {
