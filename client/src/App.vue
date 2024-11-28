@@ -32,6 +32,7 @@ local-view
   display: flex;
   flex-direction: column;
   height: 100vh;
+  padding: 2rem;
 }
 local-page
 {
