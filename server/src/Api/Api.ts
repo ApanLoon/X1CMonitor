@@ -15,7 +15,8 @@ export const ApiEvent = Object.freeze (
     GetState:           "getstate",
     SetLight:           "setlight",
     GetPrinterLogLevel: "getprinterloglevel",
-    SetPrinterLogLevel: "setprinterloglevel"
+    SetPrinterLogLevel: "setprinterloglevel",
+    RequestFullLog:     "requestfulllog"
 });
     
 
@@ -45,15 +46,16 @@ export class Api extends EventEmitter
                     case "SetLight":           this.emit(ApiEvent.SetLight, msg.isOn);             break;
                     case "GetPrinterLogLevel": this.emit(ApiEvent.GetPrinterLogLevel);             break;
                     case "SetPrinterLogLevel": this.emit(ApiEvent.SetPrinterLogLevel, msg.Level);  break;
+                    case "RequestFullLog":     this.emit(ApiEvent.RequestFullLog);                 break;
                 }
             },
             (_event: any, connection: Connection) =>
             {
-                this.options.Logger?.Log (`[Api] Client disconnected. (${connection.id})`);
+                //this.options.Logger?.Log (`[Api] Client disconnected. (${connection.id})`);
                 this.connections.remove(connection);
             });
 
-            this.options.Logger?.Log(`[Api] Client connected. (${connection.id})`);
+            //this.options.Logger?.Log(`[Api] Client connected. (${connection.id})`);
 
             this.connections.add(connection);
         });
@@ -84,5 +86,14 @@ export class Api extends EventEmitter
             Type: "PrinterLogLevel",
             Level: level
         }));
+    }
+
+    sendLogMessage(message : string)
+    {
+        this.connections.sendToAll(JSON.stringify(
+        {
+            Type: "MessageLogged",
+            Message: message
+        }));    
     }
 }

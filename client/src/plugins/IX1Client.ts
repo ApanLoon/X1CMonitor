@@ -19,8 +19,10 @@ export interface IX1Client
 
     Status : Ref<Status>;
     LogLevel: Ref<LogLevel>;
+    Log: Ref<string[]>;
 
     Connect(connectHandler? : () => void) : void;
     GetState() : void;
     SetPrinterLogLevel(level : LogLevel) : void;
+    RequestFullLog() : void;
 }
