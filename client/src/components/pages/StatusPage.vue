@@ -16,6 +16,7 @@ if (x1Client === undefined)
 </script>
 
 <template>
+  <local-container>
     <template v-if="x1Client.IsConnected.value && x1Client.IsPrinterConnected.value && x1Client.Status.value !== undefined">
         <Job></Job>
         <Temperature></Temperature>
@@ -30,14 +31,19 @@ if (x1Client === undefined)
             <JsonDisplay :data="x1Client.Status.value" rootName="status"></JsonDisplay>
         </local-box>
     </template>
+  </local-container>
 </template>
 
 <style scoped>
+local-container
+{
+  display: grid;
+  grid-template-rows: auto auto auto auto auto auto auto 380px; /* TODO: How do I makle it fill the remaining space? */
+}
 local-box
 {
   display: block;
   border: 1px solid var(--color-border);
-  height: 500px;
   overflow: auto;
 }
 </style>
