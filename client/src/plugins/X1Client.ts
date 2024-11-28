@@ -16,6 +16,7 @@ export class X1Client implements IX1Client
     IsPrinterConnected : Ref<boolean> = ref(false);
     Status: Ref<Status> = ref(new Status);
     LogLevel: Ref<LogLevel> = ref(LogLevel.Information);
+    Log: Ref<string[]> = ref([]);
 
     private _socket? : WebSocket;
 
@@ -49,6 +50,7 @@ export class X1Client implements IX1Client
                 case "Status":                  this.Status.value             = msg.Status as Status;      break;
                 case "PrinterConnectionStatus": this.IsPrinterConnected.value = msg.IsConnected;           break;
                 case "PrinterLogLevel":         this.LogLevel.value           = msg.Level as LogLevel;     break;
+                case "MessageLogged":           this.Log.value.push (msg.Message);                         break;
             }
         });
 
@@ -74,6 +76,15 @@ export class X1Client implements IX1Client
         {
             Type: "SetPrinterLogLevel",
             Level: level
+        }));
+    }
+
+    RequestFullLog()
+    {
+        this.Log.value = [];
+        this._socket?.send(JSON.stringify(
+        {
+            Type: "RequestFullLog"
         }));
     }
 }

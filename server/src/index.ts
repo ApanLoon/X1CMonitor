@@ -4,7 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { Api, ApiEvent } from "./Api/Api.js";
 import { X1Client, X1ClientEvent } from "./X1Client/X1Client.js";
-import { Logger } from "./Logger/Logger.js";
+import { Logger, LoggerEvent } from "./Logger/Logger.js";
 
 dotenv.config();
 
@@ -51,6 +51,9 @@ api.on(ApiEvent.GetState,           sendState);
 api.on(ApiEvent.SetLight,           isOn  => console.log(isOn));
 api.on(ApiEvent.GetPrinterLogLevel, ()    => api.sendPrinterLogLevel(x1Client.LogLevel));
 api.on(ApiEvent.SetPrinterLogLevel, level => x1Client.SetLogLevel(level));
+api.on(ApiEvent.RequestFullLog,     ()    => logger.SendFullLog());
+
+logger.on(LoggerEvent.MessageLogged, message => api.sendLogMessage(message));
 
 // Start services:
 //

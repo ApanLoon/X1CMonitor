@@ -2,12 +2,7 @@
 import { inject } from "vue";
 import type { IX1Client } from "./plugins/IX1Client";
 
-import Header from "./components/Header.vue"
-import Ams from "./components/Ams.vue"
-import Job from "./components/Job.vue"
-import JsonDisplay from "./components/generic/JsonDisplay.vue";
-import Lights from "./components/Lights.vue";
-import Temperature from "./components/Temperature.vue";
+import Header from "./components/Header.vue";
 
 const x1Client = inject<IX1Client>("x1Client");
 if (x1Client === undefined)
@@ -18,35 +13,29 @@ x1Client.Connect(()=>
 {
   console.log("[App] X1Client connected");
   x1Client.GetState();
+  x1Client.RequestFullLog();
 });
 </script>
 
 <template>
-  <Header></Header>
-
-  <template v-if="x1Client.IsConnected.value && x1Client.IsPrinterConnected.value && x1Client.Status.value !== undefined">
-    <Job></Job>
-    <Temperature></Temperature>
-    <Ams></Ams>
-    <Lights></Lights>
-
-    <div>lifecycle: {{ x1Client.Status.value.lifecycle }}</div>
-    <div>nozzle: {{ x1Client.Status.value.nozzle_type }} {{ x1Client.Status.value.nozzle_diameter }}mm {{ x1Client.Status.value.nozzle_temper }}&deg;/{{ x1Client.Status.value.nozzle_target_temper }}&deg;</div>
-
-    <local-box>
-      <h2>Debug area</h2>
-      <JsonDisplay :data="x1Client.Status.value" rootName="status"></JsonDisplay>
-    </local-box>
-  </template>
+  <local-view>
+    <Header></Header>
+    <local-page>
+      <RouterView />
+    </local-page>
+  </local-view>
 </template>
 
 <style scoped>
-local-box
+local-view
 {
-  display: block;
-  border: 1px solid var(--color-border);
-  height: 500px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 2rem;
+}
+local-page
+{
   overflow: auto;
 }
 </style>
-

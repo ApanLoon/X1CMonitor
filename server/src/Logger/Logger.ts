@@ -1,18 +1,26 @@
 import fs from "fs";
+import rd from "readline";
 import Path from "path";
 import { type Change } from "../X1Client/CompareObjects.js"
+import { EventEmitter } from "node:events";
 
 export class LoggerOptions
 {
     public fileName : string = "./logs/log.txt";
 }
 
-export class Logger
+export const LoggerEvent = Object.freeze (
+{
+    MessageLogged:      "messagelogged"
+});
+
+export class Logger extends EventEmitter
 {
     private options : LoggerOptions;
 
     constructor (options : Partial<LoggerOptions>)
     {
+        super();
         this.options = new LoggerOptions;
         Object.assign(this.options, options);
     }
@@ -30,6 +38,7 @@ export class Logger
             err => {if (err !== null) console.log (`Unable to write to "${this.options.fileName}". (${err})`);});
 
         console.log (lines.trimEnd());
+        this.emit(LoggerEvent.MessageLogged, lines);
     }
 
     public LogChange(change : Change)
@@ -43,5 +52,22 @@ export class Logger
     {
         let timestamp = new Date().toISOString();
         return `${timestamp} ${message}\n`;
+    }
+
+    public SendFullLog()
+    {
+        if (fs.existsSync(this.options.fileName) === false)
+        {
+            return;
+        }
+
+        let reader = rd.createInterface (fs.createReadStream(this.options.fileName));
+        reader.on("line", (l : string) =>
+        {
+            this.emit(LoggerEvent.MessageLogged, l);
+        })
+        reader.on("close", () =>
+        {
+        });
     }
 }
