@@ -3,6 +3,8 @@ import rd from "readline";
 import Path from "path";
 import { type Change } from "../X1Client/CompareObjects.js"
 import { EventEmitter } from "node:events";
+import { Job } from "../JobManager/JobManager.js";
+import { GCodeState } from "../shared/X1Messages.js";
 
 export class LoggerOptions
 {
@@ -69,5 +71,33 @@ export class Logger extends EventEmitter
         reader.on("close", () =>
         {
         });
+    }
+
+    public MillisecondsToString(milliseconds : number ) : string
+    {
+        let total = milliseconds;
+        let hours = Math.floor (total / (60 * 60 * 1000));
+        total = total % (60 * 60 * 1000);
+
+        let minutes = Math.floor (total / (60 * 1000));
+        total = total % (60 * 1000);
+
+        let seconds = Math.floor (total / (1000));
+        total = total % (1000);
+
+        return `${hours} hours, ${minutes} minutes and ${seconds} seconds`;
+    }
+
+    public LogJobStopped(job: Job) : void
+    {
+        let status = job.state === GCodeState.Failed ? "failed" : "completed";
+        
+        let duration = "unknown";
+        if (job.stopTime !== null)
+        {
+            duration = this.MillisecondsToString(job.stopTime.getTime() - job.startTime.getTime());
+        }
+        let line = `${job.stopTime?.toISOString()} Job ${status} ("${job.name}" Duration ${duration}).\n`;
+        this.Log(line, true);
     }
 }

@@ -4,6 +4,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { Api, ApiEvent } from "./Api/Api.js";
 import { X1Client, X1ClientEvent } from "./X1Client/X1Client.js";
+import { type Change } from "./X1Client/CompareObjects.js"
+import { JobEvent, JobManager } from "./JobManager/JobManager.js";
 import { Logger, LoggerEvent } from "./Logger/Logger.js";
 
 dotenv.config();
@@ -29,6 +31,7 @@ logger.Log(
 logger.Log("Starting up...");
 
 const app: Express = express();
+const jobManager = new JobManager();
 const api = new Api ({ Logger : logger, Port: Number(process.env.API_PORT) || 4000 });
 const x1Client = new X1Client(
 {
@@ -41,9 +44,13 @@ const x1Client = new X1Client(
 
 // Set up event routing:
 //
+
+jobManager.on(JobEvent.JobFailed,    job => logger.LogJobStopped(job));
+jobManager.on(JobEvent.JobCompleted, job => logger.LogJobStopped(job));
+
 x1Client.on(X1ClientEvent.ConnectionStatus, isConnected => api.sendPrinterConnectionStatus(isConnected));
 x1Client.on(X1ClientEvent.Status,           status      => api.sendStatus(status));
-x1Client.on(X1ClientEvent.PropertyChanged,  change      => logger.LogChange(change));
+x1Client.on(X1ClientEvent.PropertyChanged,  onPropertyChanged);
 x1Client.on(X1ClientEvent.LedCtrl,          ledCtrl     => console.log(ledCtrl));
 x1Client.on(X1ClientEvent.LogLevelChanged,  level       => api.sendPrinterLogLevel(level));
 
@@ -78,4 +85,10 @@ function sendState()
   api.sendPrinterConnectionStatus(x1Client.IsConnected);
   api.sendStatus(x1Client.status);
   api.sendPrinterLogLevel(x1Client.LogLevel);
+}
+
+function onPropertyChanged (change : Change)
+{
+  logger.LogChange(change);
+  jobManager.HandleChange(change);
 }
