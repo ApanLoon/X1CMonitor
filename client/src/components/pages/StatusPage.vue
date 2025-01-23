@@ -24,7 +24,7 @@ if (x1Client === undefined)
         <Ams></Ams>
         <Lights></Lights>
 
-        <div>
+        <local-home-flag>
           home_flag: {{ x1Client.Status.value.home_flag }}
           <div v-if="(x1Client.Status.value.home_flag & HomeFlag.is_220V_voltage)                   != 0">is_220V_voltage</div>
           <div v-if="(x1Client.Status.value.home_flag & HomeFlag.xcam_auto_recovery_step_loss)      != 0">xcam_auto_recovery_step_loss</div>
@@ -43,7 +43,7 @@ if (x1Client === undefined)
           <div v-if="(x1Client.Status.value.home_flag & HomeFlag.supported_plus)                    != 0">supported_plus</div>
           <div v-if="(x1Client.Status.value.home_flag & HomeFlag.ams_air_print_status)              != 0">ams_air_print_status</div>
           <div v-if="(x1Client.Status.value.home_flag & HomeFlag.is_support_air_print_detection)    != 0">is_support_air_print_detection</div>
-        </div>
+        </local-home-flag>
         <div>lifecycle: {{ x1Client.Status.value.lifecycle }}</div>
         <div>nozzle: {{ x1Client.Status.value.nozzle_type }} {{ x1Client.Status.value.nozzle_diameter }}mm {{ x1Client.Status.value.nozzle_temper }}&deg;/{{ x1Client.Status.value.nozzle_target_temper }}&deg;</div>
 
@@ -66,5 +66,9 @@ local-box
   display: block;
   border: 1px solid var(--color-border);
   overflow: auto;
+}
+local-home-flag *
+{
+  margin-left: 2rem;
 }
 </style>
