@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import { Api, ApiEvent } from "./Api/Api.js";
 import { X1Client, X1ClientEvent } from "./X1Client/X1Client.js";
 import { Logger, LoggerEvent } from "./Logger/Logger.js";
+import { LogLevel } from "./shared/LogLevel.js";
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ const x1Client = new X1Client(
   Password: process.env.X1C_PASSWORD || ""
 });
 
+x1Client.SetLogLevel(LogLevel.Trace);
 
 // Set up event routing:
 //

@@ -165,6 +165,29 @@ class PrinterMessage implements IPrinterMessage
     public sequence_id                : string     = "2021";           // "2021"
 }
 
+export enum HomeFlag
+{
+    is_220V_voltage                   = 1 <<  3, // If false, assume 110V
+    xcam_auto_recovery_step_loss      = 1 <<  4,
+    camera_recording                  = 1 <<  5,
+    ams_calibrate_remain_flag         = 1 <<  7,
+    ams_auto_switch_filament_flag     = 1 << 10, // Only read this after n received messages
+    xcam_allow_prompt_sound           = 1 << 17, // Only read this after n received messages
+    is_support_prompt_sound           = 1 << 18,
+    is_support_filament_tangle_detect = 1 << 19,
+    xcam_filament_tangle_detect       = 1 << 20, // Only read this after n received messages
+    is_support_motor_noise_cali       = 1 << 21, // Only set this if it was previously false?
+    is_support_user_preset            = 1 << 22,
+    nozzle_blob_detection_enabled     = 1 << 24,
+    is_support_nozzle_blob_detection  = 1 << 25,
+    installed_plus                    = 1 << 26, // These toghether indicate P1S Plus
+    supported_plus                    = 1 << 27, // These toghether indicate P1S Plus
+    ams_air_print_status              = 1 << 28,
+    is_support_air_print_detection    = 1 << 29,
+    sdcard_state_mask                 = 0x11 << 8,
+}
+
+
 export class Status extends PrinterMessage
 {
     public ams                        : Ams        = new Ams;

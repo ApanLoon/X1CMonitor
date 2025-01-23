@@ -129,8 +129,9 @@ export class X1Client extends EventEmitter
         return;
       }
 
+      // Request version info:
       //let msg = {"info": {"sequence_id": "0", "command": "get_version"}};
-      //this._client?.publish(`device/${this._options.Serial}/request`, JSON.stringify(msg));
+      //this._client?.publish(`device/${this._options.Serial}/request`, JSON.stringify(msg));     
     });
   }
   private onClose(client : X1Client)
