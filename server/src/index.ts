@@ -39,7 +39,7 @@ const x1Client = new X1Client(
   Password: process.env.X1C_PASSWORD || ""
 });
 
-x1Client.SetLogLevel(LogLevel.Trace);
+//x1Client.SetLogLevel(LogLevel.Trace);
 
 // Set up event routing:
 //

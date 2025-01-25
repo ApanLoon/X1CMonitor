@@ -165,28 +165,57 @@ class PrinterMessage implements IPrinterMessage
     public sequence_id                : string     = "2021";           // "2021"
 }
 
-export enum HomeFlag
+export class HomeFlag
 {
-    is_220V_voltage                   = 1 <<  3, // If false, assume 110V
-    xcam_auto_recovery_step_loss      = 1 <<  4,
-    camera_recording                  = 1 <<  5,
-    ams_calibrate_remain_flag         = 1 <<  7,
-    ams_auto_switch_filament_flag     = 1 << 10, // Only read this after n received messages
-    xcam_allow_prompt_sound           = 1 << 17, // Only read this after n received messages
-    is_support_prompt_sound           = 1 << 18,
-    is_support_filament_tangle_detect = 1 << 19,
-    xcam_filament_tangle_detect       = 1 << 20, // Only read this after n received messages
-    is_support_motor_noise_cali       = 1 << 21, // Only set this if it was previously false?
-    is_support_user_preset            = 1 << 22,
-    nozzle_blob_detection_enabled     = 1 << 24,
-    is_support_nozzle_blob_detection  = 1 << 25,
-    installed_plus                    = 1 << 26, // These toghether indicate P1S Plus
-    supported_plus                    = 1 << 27, // These toghether indicate P1S Plus
-    ams_air_print_status              = 1 << 28,
-    is_support_air_print_detection    = 1 << 29,
-    sdcard_state_mask                 = 0x11 << 8,
+    public static readonly is_x_axis_home                    : number =  0;
+    public static readonly is_y_axis_home                    : number =  1;
+    public static readonly is_z_axis_home                    : number =  2;
+    public static readonly is_220V_voltage                   : number =  3; // If false, assume 110V
+    public static readonly xcam_auto_recovery_step_loss      : number =  4;
+    public static readonly camera_recording                  : number =  5;
+    public static readonly ams_calibrate_remain_flag         : number =  7;
+    public static readonly ams_auto_switch_filament_flag     : number = 10; // Only read this after n received messages
+    public static readonly xcam_allow_prompt_sound           : number = 17; // Only read this after n received messages
+    public static readonly is_support_prompt_sound           : number = 18;
+    public static readonly is_support_filament_tangle_detect : number = 19;
+    public static readonly xcam_filament_tangle_detect       : number = 20; // Only read this after n received messages
+    public static readonly is_support_motor_noise_cali       : number = 21; // Only set this if it was previously false?
+    public static readonly is_support_user_preset            : number = 22;
+    public static readonly nozzle_blob_detection_enabled     : number = 24;
+    public static readonly is_support_nozzle_blob_detection  : number = 25;
+    public static readonly installed_plus                    : number = 26; // These toghether indicate P1S Plus
+    public static readonly supported_plus                    : number = 27; // These toghether indicate P1S Plus
+    public static readonly ams_air_print_status              : number = 28;
+    public static readonly is_support_air_print_detection    : number = 29;
+
+    public static readonly sdcard_state_offset               : number =  8;
+    public static readonly sdcard_state_mask                 : number =  0x11;
+
+    public value : number;
+    public constructor (value : number = 0)
+    {
+        this.value = value;
+    }
+
+    public has (bit : number) : boolean
+    {
+        return ((this.value >> bit) & 1) == 1;
+    }
+
+    public sdCardState() : SdCardState
+    {
+        let x = (this.value >> HomeFlag.sdcard_state_offset) & HomeFlag.sdcard_state_mask; 
+        return x >= 0 && x <= SdCardState.SDCARD_STATE_NUM ? x : SdCardState.HAS_SDCARD_ABNORMAL;
+    }
 }
 
+export enum SdCardState 
+{
+    NO_SDCARD           = 0,
+    HAS_SDCARD_NORMAL   = 1,
+    HAS_SDCARD_ABNORMAL = 2,
+    SDCARD_STATE_NUM    = 3
+}
 
 export class Status extends PrinterMessage
 {
