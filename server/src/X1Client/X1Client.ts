@@ -3,7 +3,7 @@ import { EventEmitter } from "node:events";
 import { Logger } from "../Logger/Logger.js";
 import { IMessage as IMessage } from "./IMessage.js";
 import { type Change, CompareObjects } from "./CompareObjects.js"
-import { type Status } from "../shared/X1Messages.js"
+import { HomeFlag, SdCardState, type Status } from "../shared/X1Messages.js"
 import { LogLevel } from "../shared/LogLevel.js";
 import { AmsStatus2Main, AmsStatus2String, AmsStatus2Sub } from "../shared/AmsTypes.js";
 
@@ -51,7 +51,7 @@ export class X1Client extends EventEmitter
 {
   public IsConnected : boolean = false;
   public status : any = undefined;
-
+  
   public LogLevel : LogLevel = LogLevel.Information;
 
   private _options : X1Options = new X1Options;
@@ -129,8 +129,9 @@ export class X1Client extends EventEmitter
         return;
       }
 
+      // Request version info:
       //let msg = {"info": {"sequence_id": "0", "command": "get_version"}};
-      //this._client?.publish(`device/${this._options.Serial}/request`, JSON.stringify(msg));
+      //this._client?.publish(`device/${this._options.Serial}/request`, JSON.stringify(msg));     
     });
   }
   private onClose(client : X1Client)
