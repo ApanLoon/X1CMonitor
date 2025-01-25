@@ -247,7 +247,7 @@ export class Status extends PrinterMessage
     public hms                        : Array<any> = [];
     public home_flag                  : number     = 0;                // 6407631
     public hw_switch_state            : number     = 0;                // 0
-    public ip_cam                     : IpCam      = new IpCam;
+    public ipcam                      : IpCam      = new IpCam;        // Did the name of this change? Didn't it use to be "ip_cam"?
     public job_id                     : string     = "";               // ""
     public layer_num                  : number     = 0;                // 0
 

@@ -6,6 +6,7 @@ import { type Change, CompareObjects } from "./CompareObjects.js"
 import { HomeFlag, SdCardState, type Status } from "../shared/X1Messages.js"
 import { LogLevel } from "../shared/LogLevel.js";
 import { AmsStatus2Main, AmsStatus2String, AmsStatus2Sub } from "../shared/AmsTypes.js";
+import { RtspProxy } from "../RtspProxy/RtspProxy.js";
 
 export class X1Options
 {
@@ -59,6 +60,8 @@ export class X1Client extends EventEmitter
   private _firstConnect = true;
   private _firstClose = true;
  
+  private RtspProxy : RtspProxy | undefined;
+
   public constructor(options : Partial<X1Options>)
   {
     super();
@@ -264,6 +267,12 @@ export class X1Client extends EventEmitter
     // Properties that has been removed in FW can be manually copied over here:
     newStatus.gcode_start_time = client.status.gcode_start_time;
 
+    // Start RtspProxy: TODO: This should not be done here!
+    if (newStatus.ipcam !== undefined && newStatus.ipcam.rtsp_url !== "" && client.RtspProxy === undefined)
+    {
+      client.RtspProxy = new RtspProxy(newStatus.ipcam.rtsp_url, client._options.UserName, client._options.Password, 9999);
+    }
+
     const l = CompareObjects(client.status, message, "status");
     if (ignoreChanges === false)
     {
@@ -282,7 +291,7 @@ export class X1Client extends EventEmitter
             // change.oldValue = JSON.stringify({ Main : AmsStatus2Main (change.oldValue), Sub : AmsStatus2Sub (change.oldValue)});
             // change.newValue = JSON.stringify({ Main : AmsStatus2Main (change.newValue), Sub : AmsStatus2Sub (change.newValue)});
         }
-  
+
         let level : LogLevel = LogLevel.Debug;
         const definition = client.PrintStatus_LogMessageDefinitions.find(d => change.path.match(d.Pattern));
         if (definition !== undefined)

@@ -15,6 +15,11 @@ export class Connection
         socket.on("message", messageParser);
         socket.on("close", event => closeHandler(event, this));
     }
+
+    public Close()
+    {
+        this.socket.close();
+    }
 }
 
 export class ConnectionCollection
@@ -33,6 +38,8 @@ export class ConnectionCollection
 
     remove(connection : Connection)
     {
+        connection.Close();
+
         this.connections.filter((value, index, arr) =>
         {
             if (value.id === connection.id)
@@ -40,6 +47,12 @@ export class ConnectionCollection
                 arr.splice(index, 1);
             }
         });
+    }
+
+    removeAll()
+    {
+        this.connections.forEach(connection => { connection.Close(); });
+        this.connections = [];
     }
 
     sendToAll(msg : string)
@@ -51,6 +64,18 @@ export class ConnectionCollection
                 return;
             }
             connection.socket.send(msg);
+        });
+    }
+
+    sendBinaryToAll(data : any)
+    {
+        this.connections.forEach(connection =>
+        {
+            if (connection.socket === undefined || connection.socket === null) // TODO:  || connection.socket.closed === true)
+            {
+                return;
+            }
+            connection.socket.send(data, { binary: true });
         });
     }
 }
