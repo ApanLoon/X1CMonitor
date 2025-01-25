@@ -40,16 +40,13 @@ export class FfmpegStream extends EventEmitter
         let ffmpegPath = "ffmpeg";
         let spawnOptions : string[] =
         [
-            "-rtsp_transport",
-            "tcp",
-            "-i",
-            url,
-            '-f',
-            'mpegts',
-            '-codec:v',
-            'mpeg1video',
+            "-rtsp_transport", "tcp",
+            "-i", url,
+            "-f", "mpegts",
+            "-codec:v", "mpeg1video",
+            "-b:v", "4M",
 
-            '-'
+            "-"
         ];
         this.stream = spawn(ffmpegPath, spawnOptions, 
         {
