@@ -1,6 +1,6 @@
 import WebSocket, { WebSocketServer } from "ws";
 import { EventEmitter } from "node:events";
-import { Connection, ConnectionCollection } from "../Api/ConnectionCollection.js";
+import { Connection, ConnectionCollection, ConnectionEvent } from "../Api/ConnectionCollection.js";
 
 export class WebSocketPipe extends EventEmitter
 {
@@ -32,7 +32,16 @@ export class WebSocketPipe extends EventEmitter
     private onConnect(pipe : WebSocketPipe, socket : WebSocket, request : any)
     {
         let connection = new Connection(socket, (data : string) => { }, (_event: any, connection: Connection) => { this._connections.remove(connection); });
+        connection.on(ConnectionEvent.LostHeartbeat, ()=>
+        {
+            console.log("Lost Heartbeat: ipcam");
+            //TODO: The jsmpeg library doesn't send anything back on the socket. How should we detect if the browser is gone?
+            //this._connections.remove (connection);
+            //connection.Close();
+        });
+
         this._connections.add(connection);
+        
 
         // Send magic bytes and video size to the newly connected socket
         // struct { char magic[4]; unsigned short width, height;}

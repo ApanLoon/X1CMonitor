@@ -1,6 +1,6 @@
 import { WebSocketServer } from "ws";
 import { EventEmitter } from "node:events";
-import { Connection, ConnectionCollection } from "./ConnectionCollection.js";
+import { Connection, ConnectionCollection, ConnectionEvent } from "./ConnectionCollection.js";
 import { Logger } from "../Logger/Logger.js";
 import { LogLevel } from "../shared/LogLevel.js";
 
@@ -56,6 +56,11 @@ export class Api extends EventEmitter
             });
 
             //this.options.Logger?.Log(`[Api] Client connected. (${connection.id})`);
+            connection.on(ConnectionEvent.LostHeartbeat, ()=>
+            {
+                console.log("Lost Heartbeat: api");
+                this.connections.remove (connection);
+            });
 
             this.connections.add(connection);
         });

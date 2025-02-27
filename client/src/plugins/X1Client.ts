@@ -24,6 +24,8 @@ export class X1Client implements IX1Client
     Log: Ref<string[]> = ref([]);
 
     private _socket? : WebSocket;
+    private _keepAliveInterval = 5000;
+    private _keepAlive : ReturnType<typeof setInterval> | null = null;
 
     constructor(options : X1ClientOptions)
     {
@@ -40,6 +42,8 @@ export class X1Client implements IX1Client
         {
             console.log(`[X1Client] Connected to ${this.Options.Host}:${this.Options.Port}`);
             this.IsConnected.value = true;
+            this._keepAlive = window.setInterval(()=>this._socket?.send(JSON.stringify({Type: "KeepAlive"})), this._keepAliveInterval);
+
             if (connectHandler)
             {
                 connectHandler();
@@ -63,7 +67,8 @@ export class X1Client implements IX1Client
         {
             console.log("[X1Client] Connection closed.", error);
             this.IsConnected.value = false;
-            setTimeout(()=>this.Connect(connectHandler), 1000);
+            if (this._keepAlive != null) window.clearInterval(this._keepAlive);
+            window.setTimeout(()=>this.Connect(connectHandler), 1000);
         }
     }
 
