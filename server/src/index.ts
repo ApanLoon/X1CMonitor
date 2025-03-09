@@ -38,7 +38,12 @@ const x1Client = new X1Client(
   Logger:   logger,
   Host:     process.env.X1C_HOST     || "",
   Serial:   process.env.X1C_SERIAL   || "",
-  Password: process.env.X1C_PASSWORD || ""
+  Password: process.env.X1C_PASSWORD || "",
+  FtpOptions: 
+  {
+    Port: 990,
+    LocalFilePath: "./projectArchive"
+  }
 });
 
 

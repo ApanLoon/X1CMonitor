@@ -6,6 +6,7 @@ import { type Change, CompareObjects } from "./CompareObjects.js"
 import { type Status } from "../shared/X1Messages.js"
 import { LogLevel } from "../shared/LogLevel.js";
 import { AmsStatus2Main, AmsStatus2String, AmsStatus2Sub } from "../shared/AmsTypes.js";
+import { BambuFtpClient, BambuFtpOptions } from "./BambuFtpClient.js";
 
 export class X1Options
 {
@@ -15,6 +16,7 @@ export class X1Options
   Serial   : string = "no-serial";
   UserName : string = "bblp";
   Password : string = "";
+  FtpOptions : BambuFtpOptions = new BambuFtpOptions;
 }
 
 export const X1ClientEvent = Object.freeze (
@@ -58,11 +60,15 @@ export class X1Client extends EventEmitter
   private _client : MqttClient | null = null;
   private _firstConnect = true;
   private _firstClose = true;
- 
+
+  private _ftpClient : BambuFtpClient;
+
   public constructor(options : Partial<X1Options>)
   {
     super();
     Object.assign(this._options, options);
+
+    this._ftpClient = new BambuFtpClient(this._options);
   }
   
   public async connect()
@@ -121,13 +127,19 @@ export class X1Client extends EventEmitter
     this._firstClose = true;
     client.emit(X1ClientEvent.ConnectionStatus, this.IsConnected);
     client.emit(X1ClientEvent.LogLevelChanged, client.LogLevel);
-    client._client?.subscribe(`device/${client._options.Serial}/report`, (err) =>
+    client._client?.subscribe(`device/${client._options.Serial}/report`, async (err) =>
     {
       if (err)
       {
         client._options.Logger?.Log(`[X1Client] OnConnect: Unable to subscribe, (${err})`);
         return;
       }
+
+      // TODO: DEBUG - Get some project files from the printer via FTPS:
+      await this._ftpClient.DownloadProject("Girl-Leg-Right.gcode.3mf");
+      await this._ftpClient.DownloadProject("Dino (T-rex) All plates_plate_8.gcode.3mf");
+      await this._ftpClient.DownloadProject("Xmas_Tree_v1-rims.gcode.3mf");
+        
 
       //let msg = {"info": {"sequence_id": "0", "command": "get_version"}};
       //this._client?.publish(`device/${this._options.Serial}/request`, JSON.stringify(msg));
