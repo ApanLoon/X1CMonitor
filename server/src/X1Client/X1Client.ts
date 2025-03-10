@@ -7,6 +7,7 @@ import { type Status } from "../shared/X1Messages.js"
 import { LogLevel } from "../shared/LogLevel.js";
 import { AmsStatus2Main, AmsStatus2String, AmsStatus2Sub } from "../shared/AmsTypes.js";
 import { BambuFtpClient, BambuFtpOptions } from "./BambuFtpClient.js";
+import { Job } from "../JobManager/JobManager.js";
 
 export class X1Options
 {
@@ -25,7 +26,8 @@ export const X1ClientEvent = Object.freeze (
   LedCtrl:          "led-ctrl",
   PropertyChanged:  "property-changed",
   ConnectionStatus: "connection-status",
-  LogLevelChanged:  "log-level-changed"
+  LogLevelChanged:  "log-level-changed",
+  ProjectLoaded:    "x1client-project-loaded"
 });
 
 class SocketError
@@ -71,6 +73,12 @@ export class X1Client extends EventEmitter
     this._ftpClient = new BambuFtpClient(this._options);
   }
   
+  public async LoadProject(job : Job)
+  {
+    const project = await this._ftpClient.DownloadProject(`${job.name}.gcode.3mf`);
+    this.emit(X1ClientEvent.ProjectLoaded, project, job);
+  }
+
   public async connect()
   {
     while (this.IsConnected === false)
@@ -136,9 +144,9 @@ export class X1Client extends EventEmitter
       }
 
       // TODO: DEBUG - Get some project files from the printer via FTPS:
-      await this._ftpClient.DownloadProject("Girl-Leg-Right.gcode.3mf");
-      await this._ftpClient.DownloadProject("Dino (T-rex) All plates_plate_8.gcode.3mf");
-      await this._ftpClient.DownloadProject("Xmas_Tree_v1-rims.gcode.3mf");
+      // await this._ftpClient.DownloadProject("Girl-Leg-Right.gcode.3mf");
+      // await this._ftpClient.DownloadProject("Dino (T-rex) All plates_plate_8.gcode.3mf");
+      // await this._ftpClient.DownloadProject("Xmas_Tree_v1-rims.gcode.3mf");
         
 
       //let msg = {"info": {"sequence_id": "0", "command": "get_version"}};

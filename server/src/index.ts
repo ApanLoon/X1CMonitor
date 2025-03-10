@@ -52,12 +52,15 @@ const x1Client = new X1Client(
 
 jobManager.on(JobEvent.JobFailed,    job => logger.LogJobStopped(job));
 jobManager.on(JobEvent.JobCompleted, job => logger.LogJobStopped(job));
+jobManager.on(JobEvent.JobGetProject, job => x1Client.LoadProject(job));
 
 x1Client.on(X1ClientEvent.ConnectionStatus, isConnected => api.sendPrinterConnectionStatus(isConnected));
 x1Client.on(X1ClientEvent.Status,           status      => api.sendStatus(status));
+x1Client.on(X1ClientEvent.Status,           status      => jobManager.HandleStatus(status));
 x1Client.on(X1ClientEvent.PropertyChanged,  onPropertyChanged);
-x1Client.on(X1ClientEvent.LedCtrl,          ledCtrl     => console.log(ledCtrl));
-x1Client.on(X1ClientEvent.LogLevelChanged,  level       => api.sendPrinterLogLevel(level));
+x1Client.on(X1ClientEvent.LedCtrl,          ledCtrl        => console.log(ledCtrl));
+x1Client.on(X1ClientEvent.LogLevelChanged,  level          => api.sendPrinterLogLevel(level));
+x1Client.on(X1ClientEvent.ProjectLoaded,    (project, job) => jobManager.HandleProjectLoaded(project, job));
 
 api.on(ApiEvent.GetState,           sendState);
 api.on(ApiEvent.SetLight,           isOn  => console.log(isOn));

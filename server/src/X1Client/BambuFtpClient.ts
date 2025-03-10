@@ -43,7 +43,7 @@ export class BambuFtpClient
         }
     }
 
-    public async DownloadProject (srcPath : string) : Promise<boolean>
+    public async DownloadProject (srcPath : string) : Promise<Project | null>
     {
         this._options.Logger?.Log(`BambuFtpClient: Trying to get file ftps://${this._options.UserName}@${this._options.Host}:${this._options.FtpOptions.Port}/${srcPath}`);
         try
@@ -107,13 +107,13 @@ export class BambuFtpClient
             project.Filaments = sliceInfo?.config?.plate?.filament?.map ((x:any) => ({ TrayId: Number(x.id), Type: x.type, Colour: x.color, UsedLength: Number(x.used_m), UsedWeight: Number(x.used_g) }));
 
             console.log(project);
+            return project;
         }
         catch (err : any)
         {
             console.log("BambuFtpClient: ", err);
             //this._options.Logger?.Log("BambuFtpClient: ", err);
-            return false;
+            return null;
         }
-        return true;
     }
 }
