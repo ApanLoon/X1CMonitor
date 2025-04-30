@@ -99,12 +99,11 @@ export class Api extends EventEmitter
         }));    
     }
 
-    sendProjectInfo (project : Project | null, job : Job | null)
+    sendCurrentJob (job : Job | null)
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            Type: "ProjectInfo",
-            Project: project,
+            Type: "CurrentJob",
             Job: job
         }));                
     }

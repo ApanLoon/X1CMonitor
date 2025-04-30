@@ -11,15 +11,15 @@ if (x1Client === undefined)
 
 <template>
   <local-container>
-    <template v-if="x1Client.IsConnected.value && x1Client.IsPrinterConnected.value && x1Client.Status.value !== undefined && x1Client.CurrentProject.value != null">
-        <img :src="x1Client.CurrentProject.value.ThumbnailFile" alt="Project Image" />
+    <template v-if="x1Client.IsConnected.value && x1Client.IsPrinterConnected.value && x1Client.Status.value !== undefined && x1Client.CurrentJob.value != null && x1Client.CurrentJob.value.Project != null ">
+        <img :src="x1Client.CurrentJob.value.Project?.ThumbnailFile" alt="Project Image" />
         <local-itemised-list>
-          <local-item-name>Plate</local-item-name> <local-item-value>{{ x1Client.CurrentProject.value.PlateName }} (Index: {{ x1Client.CurrentProject.value.PlateIndex }})</local-item-value>
-          <local-item-name>Profile</local-item-name> <local-item-value>{{ x1Client.CurrentProject.value.SettingsName }}</local-item-value>
-          <local-item-name>Total filament weight</local-item-name> <local-item-value>{{ x1Client.CurrentProject.value.TotalWeight }}g</local-item-value>
+          <local-item-name>Plate</local-item-name> <local-item-value>{{ x1Client.CurrentJob.value.Project.PlateName }} (Index: {{ x1Client.CurrentJob.value.Project.PlateIndex }})</local-item-value>
+          <local-item-name>Profile</local-item-name> <local-item-value>{{ x1Client.CurrentJob.value.Project.SettingsName }}</local-item-value>
+          <local-item-name>Total filament weight</local-item-name> <local-item-value>{{ x1Client.CurrentJob.value.Project.TotalWeight }}g</local-item-value>
         </local-itemised-list>
 
-        <div v-for="filament in x1Client.CurrentProject.value.Filaments">
+        <div v-for="filament in x1Client.CurrentJob.value.Project.Filaments">
           <local-filament :style="{'background-color': filament.Colour}">
             <local-filament-text>
               <div>{{ filament.Type }}</div>

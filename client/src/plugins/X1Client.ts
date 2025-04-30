@@ -20,7 +20,6 @@ export class X1Client implements IX1Client
     LogLevel: Ref<LogLevel> = ref(LogLevel.Information);
     Log: Ref<string[]> = ref([]);
 
-    CurrentProject: Ref<Project | null> = ref(null);
     CurrentJob: Ref<Job | null> = ref(null);
 
     private _socket? : WebSocket;
@@ -56,7 +55,7 @@ export class X1Client implements IX1Client
                 case "PrinterConnectionStatus": this.IsPrinterConnected.value = msg.IsConnected;           break;
                 case "PrinterLogLevel":         this.LogLevel.value           = msg.Level as LogLevel;     break;
                 case "MessageLogged":           this.Log.value.push (msg.Message);                         break;
-                case "ProjectInfo":             this.UpdateProjectInfo (msg.Project, msg.Job);             break;
+                case "CurrentJob":              this.UpdateCurrentJob (msg.Job);                           break;
             }
         });
 
@@ -68,9 +67,8 @@ export class X1Client implements IX1Client
         }
     }
 
-    private UpdateProjectInfo(project : Project, job : Job)
+    private UpdateCurrentJob(job : Job)
     {
-        this.CurrentProject.value = project;
         this.CurrentJob.value = job;
     }
 

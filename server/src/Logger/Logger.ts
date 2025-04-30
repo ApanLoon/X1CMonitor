@@ -90,14 +90,14 @@ export class Logger extends EventEmitter
 
     public LogJobStopped(job: Job) : void
     {
-        let status = job.state === GCodeState.Failed ? "failed" : "completed";
+        let status = job.State === GCodeState.Failed ? "failed" : "completed";
         
         let duration = "unknown";
-        if (job.stopTime !== null)
+        if (job.StopTime !== null)
         {
-            duration = this.MillisecondsToString(job.stopTime.getTime() - job.startTime.getTime());
+            duration = this.MillisecondsToString(job.StopTime.getTime() - job.StartTime.getTime());
         }
-        let line = `${job.stopTime?.toISOString()} Job ${status} ("${job.name}" Duration ${duration}).\n`;
+        let line = `${job.StopTime?.toISOString()} Job ${status} ("${job.Name}" Duration ${duration}).\n`;
         this.Log(line, true);
     }
 }

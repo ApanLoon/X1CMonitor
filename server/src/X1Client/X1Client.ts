@@ -75,7 +75,7 @@ export class X1Client extends EventEmitter
   
   public async LoadProject(job : Job)
   {
-    const project = await this._ftpClient.DownloadProject(`${job.name}.gcode.3mf`);
+    const project = await this._ftpClient.DownloadProject(`${job.Name}.gcode.3mf`);
     this.emit(X1ClientEvent.ProjectLoaded, project, job);
   }
 

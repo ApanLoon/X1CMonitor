@@ -23,7 +23,6 @@ export interface IX1Client
     LogLevel: Ref<LogLevel>;
     Log: Ref<string[]>;
 
-    CurrentProject: Ref<Project | null>;
     CurrentJob: Ref<Job | null>;
 
     Connect(connectHandler? : () => void) : void;

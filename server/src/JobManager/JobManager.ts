@@ -16,7 +16,6 @@ export const JobEvent = Object.freeze (
 export class JobManager extends EventEmitter
 {
     public CurrentJob : Job | null = null;
-    public CurrentProject : Project | null = null;
     
     private _status : any = {};
 
@@ -28,13 +27,14 @@ export class JobManager extends EventEmitter
     public CancelCurrentJob()
     {
         this.CurrentJob = null;
+        this.emit (JobEvent.JobUpdated, this.CurrentJob);
     }
     
     public HandleStatus(status : any)
     {
         if (status.gcode_state === GCodeState.Running || status.gcode_state === GCodeState.Pause)
         {
-            if (this.CurrentJob !== null && this.CurrentJob.name !== status.subtask_name)
+            if (this.CurrentJob !== null && this.CurrentJob.Name !== status.subtask_name)
             {
                 this.CancelCurrentJob();
             }
@@ -42,10 +42,10 @@ export class JobManager extends EventEmitter
             if (this.CurrentJob === null)
             {
                 this.CurrentJob = new Job();
-                this.CurrentJob.startTime.setTime(Number(status.gcode_start_time));
-                this.CurrentJob.name = status.subtask_name;
-                this.CurrentJob.gcodeName = status.gcode_file;
-                this.CurrentJob.state = status.gcode_state;
+                this.CurrentJob.StartTime.setTime(Number(status.gcode_start_time));
+                this.CurrentJob.Name = status.subtask_name;
+                this.CurrentJob.GcodeName = status.gcode_file;
+                this.CurrentJob.State = status.gcode_state;
 
                 console.log(this.CurrentJob);
 
@@ -57,7 +57,12 @@ export class JobManager extends EventEmitter
 
     public HandleProjectLoaded(project : Project, job : Job)
     {
-        this.CurrentProject = project; // TODO: Should probably verify that the given job is the same as the Current job.
+        if (this.CurrentJob === null)
+        {
+            return;
+        }
+        this.CurrentJob.Project = project; // TODO: Should probably verify that the given job is the same as the Current job.
+        this.emit (JobEvent.JobUpdated, this.CurrentJob);
     }
 
     public HandleChange(change : Change)
