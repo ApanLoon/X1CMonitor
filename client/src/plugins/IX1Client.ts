@@ -1,6 +1,8 @@
 import type { Ref } from "vue";
 import { X1ClientOptions } from "./X1Client";
 import { Status } from "../../../server/src/shared/X1Messages";
+import type { Project } from "../../../server/src/shared/Project";
+import type { Job } from "../../../server/src/shared/Job";
 
 export enum LogLevel
 {
@@ -20,6 +22,9 @@ export interface IX1Client
     Status : Ref<Status>;
     LogLevel: Ref<LogLevel>;
     Log: Ref<string[]>;
+
+    CurrentProject: Ref<Project | null>;
+    CurrentJob: Ref<Job | null>;
 
     Connect(connectHandler? : () => void) : void;
     GetState() : void;

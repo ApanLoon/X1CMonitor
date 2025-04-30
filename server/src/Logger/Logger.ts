@@ -3,7 +3,7 @@ import rd from "readline";
 import Path from "path";
 import { type Change } from "../X1Client/CompareObjects.js"
 import { EventEmitter } from "node:events";
-import { Job } from "../JobManager/JobManager.js";
+import { Job } from "../shared/Job.js";
 import { GCodeState } from "../shared/X1Messages.js";
 
 export class LoggerOptions

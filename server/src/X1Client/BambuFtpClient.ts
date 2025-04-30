@@ -71,9 +71,13 @@ export class BambuFtpClient
 
             let project : Project = new Project();
 
+			this._options.Logger?.Log(`BambuFtpClient: File ftps://${this._options.UserName}@${this._options.Host}:${this._options.FtpOptions.Port}/${srcPath} unpacked. Reading project settings...`);
+
             // Read project_settings.config:
-            const projectSettings = JSON.parse(await fs.promises.readFile(Path.join(dstFolder, "MetaData", "project_settings.config"), "utf-8"));
+            const projectSettings = JSON.parse(await fs.promises.readFile(Path.join(dstFolder, "Metadata", "project_settings.config"), "utf-8"));
             project.SettingsName = projectSettings?.print_settings_id;
+
+			this._options.Logger?.Log(`BambuFtpClient: File ftps://${this._options.UserName}@${this._options.Host}:${this._options.FtpOptions.Port}/${srcPath} project settings read. Reading model settings...`);
 
             // Read model_settings.config:
             const modelSettingsParser = new XMLParser(
@@ -82,7 +86,7 @@ export class BambuFtpClient
                     attributeNamePrefix: "",
                     isArray: (tagName : string) => {return tagName === "plate" }
                 });
-            const modelSettings = modelSettingsParser.parse(readFileSync(Path.join(dstFolder, "MetaData", "model_settings.config")));
+            const modelSettings = modelSettingsParser.parse(readFileSync(Path.join(dstFolder, "Metadata", "model_settings.config")));
 
             // Map metadata key/value to plate objects:
             const plates = modelSettings.config.plate.map( (x : { metadata : Array<{ key: string; value: string; }> }) => Object.fromEntries(x.metadata.map((g: { key: string; value: string; } ) => [g.key, g.value])));
@@ -92,6 +96,8 @@ export class BambuFtpClient
             project.PlateName = plate?.plater_name;
             project.ThumbnailFile = Path.join(dstFolder, plate?.thumbnail_file);
 
+			this._options.Logger?.Log(`BambuFtpClient: File ftps://${this._options.UserName}@${this._options.Host}:${this._options.FtpOptions.Port}/${srcPath} model settings read. Reading slice info...`);
+
             // Read slice_info.config:
             const sliceInfoParser = new XMLParser(
                 {
@@ -99,14 +105,15 @@ export class BambuFtpClient
                     attributeNamePrefix: "",
                     isArray: (tagName : string) => { return ["metadata", "object", "filament"].includes (tagName) }
                 });
-            const sliceInfo = sliceInfoParser.parse(readFileSync(Path.join(dstFolder, "MetaData", "slice_info.config")));
+            const sliceInfo = sliceInfoParser.parse(readFileSync(Path.join(dstFolder, "Metadata", "slice_info.config")));
 
             const metadata = Object.fromEntries(sliceInfo?.config?.plate?.metadata?.map((g: { key: string; value: string; } ) => [g.key, g.value]));
             project.PlateIndex = Number(metadata?.index);
             project.TotalWeight = Number(metadata?.weight);
             project.Filaments = sliceInfo?.config?.plate?.filament?.map ((x:any) => ({ TrayId: Number(x.id), Type: x.type, Colour: x.color, UsedLength: Number(x.used_m), UsedWeight: Number(x.used_g) }));
 
-            console.log(project);
+			this._options.Logger?.Log(`BambuFtpClient: File ftps://${this._options.UserName}@${this._options.Host}:${this._options.FtpOptions.Port}/${srcPath} read successfully.`);
+
             return project;
         }
         catch (err : any)

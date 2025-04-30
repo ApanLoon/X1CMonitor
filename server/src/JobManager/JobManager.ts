@@ -1,31 +1,8 @@
+import { Job } from "../shared/Job.js";
 import { Project } from "../shared/Project.js";
 import { GCodeState } from "../shared/X1Messages.js";
 import { type Change } from "../X1Client/CompareObjects.js"
 import { EventEmitter } from "node:events";
-
-export class Job
-{
-    public startTime : Date;
-    public stopTime : Date | null;
-    public name : string;
-    public gcodeName : string;
-    public state : string;
-
-    constructor (
-        startTime : Date = new Date(),
-        stopTime : Date | null = null,
-        name : string = "",
-        gcodeName : string = "",
-        state : string = ""
-    )
-    {
-        this.startTime = startTime;
-        this.stopTime = stopTime;
-        this.name = name;
-        this.gcodeName = gcodeName;
-        this.state = state;
-    }
-}
 
 export const JobEvent = Object.freeze (
 {
@@ -38,7 +15,9 @@ export const JobEvent = Object.freeze (
 
 export class JobManager extends EventEmitter
 {
-    private _currentJob : Job | null = null;
+    public CurrentJob : Job | null = null;
+    public CurrentProject : Project | null = null;
+    
     private _status : any = {};
 
     constructor()
@@ -48,36 +27,37 @@ export class JobManager extends EventEmitter
 
     public CancelCurrentJob()
     {
-        this._currentJob = null;
+        this.CurrentJob = null;
     }
     
     public HandleStatus(status : any)
     {
         if (status.gcode_state === GCodeState.Running || status.gcode_state === GCodeState.Pause)
         {
-            if (this._currentJob !== null && this._currentJob.name !== status.subtask_name)
+            if (this.CurrentJob !== null && this.CurrentJob.name !== status.subtask_name)
             {
                 this.CancelCurrentJob();
             }
 
-            if (this._currentJob === null)
+            if (this.CurrentJob === null)
             {
-                console.log("Apa");
-                this._currentJob = new Job();
-                this._currentJob.startTime.setTime(Number(status.gcode_start_time));
-                this._currentJob.name = status.subtask_name;
-                this._currentJob.gcodeName = status.gcode_file;
-                this._currentJob.state = status.gcode_state;
-                console.log(this._currentJob);
-                this.emit(JobEvent.JobGetProject, this._currentJob);
-                this.emit (JobEvent.JobUpdated, this._currentJob);
+                this.CurrentJob = new Job();
+                this.CurrentJob.startTime.setTime(Number(status.gcode_start_time));
+                this.CurrentJob.name = status.subtask_name;
+                this.CurrentJob.gcodeName = status.gcode_file;
+                this.CurrentJob.state = status.gcode_state;
+
+                console.log(this.CurrentJob);
+
+                this.emit(JobEvent.JobGetProject, this.CurrentJob);
+                this.emit (JobEvent.JobUpdated, this.CurrentJob);
             }
         }
     }
 
     public HandleProjectLoaded(project : Project, job : Job)
     {
-        console.log("JobManager.HandleProjectLoaded: ", project);
+        this.CurrentProject = project; // TODO: Should probably verify that the given job is the same as the Current job.
     }
 
     public HandleChange(change : Change)

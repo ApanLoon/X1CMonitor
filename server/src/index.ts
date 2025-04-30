@@ -61,6 +61,7 @@ x1Client.on(X1ClientEvent.PropertyChanged,  onPropertyChanged);
 x1Client.on(X1ClientEvent.LedCtrl,          ledCtrl        => console.log(ledCtrl));
 x1Client.on(X1ClientEvent.LogLevelChanged,  level          => api.sendPrinterLogLevel(level));
 x1Client.on(X1ClientEvent.ProjectLoaded,    (project, job) => jobManager.HandleProjectLoaded(project, job));
+x1Client.on(X1ClientEvent.ProjectLoaded,    (project, job) => api.sendProjectInfo(project, job));
 
 api.on(ApiEvent.GetState,           sendState);
 api.on(ApiEvent.SetLight,           isOn  => console.log(isOn));
@@ -79,10 +80,22 @@ x1Client.connect();
 //
 const port = process.env.WEB_PORT || 3000;
 
-const __filename = fileURLToPath(import.meta.url); // NOTE: This is the path to the folder where index.js is. I.e. dist/server/src and not dist as I was hoping.
-const __dirname = path.dirname(__filename);
 
-app.use(express.static(path.join(__dirname, './wwwroot'))); // NOTE: This is only correct when running from dist. When doing npm run dev, the static files will not be hosted correctly.
+const __filename = fileURLToPath(import.meta.url); // NOTE: This is the path to the folder where index.js is. I.e. dist/server/src and not dist as I was hoping.
+let __dirname = path.dirname(__filename); // TODO: __dirname will be "dist/server/src" int prod and "D:\GIT\ApanLoon\X1CMonitor\server\src\" in dev.
+
+let wwwroot = "./wwwroot";
+let projectArchive = "./projectArchive";
+
+if (process.env.IS_DEVELOPMENT)
+{
+  __dirname = path.join(__dirname, "..");
+  wwwroot = path.join("dist", wwwroot);
+}
+
+app.use("/",               express.static(path.join(__dirname, wwwroot)));
+app.use("/projectArchive", express.static(path.join(__dirname, projectArchive)));
+
 
 app.listen(port, () => {
   logger.Log(`[Web] Server is running at http://localhost:${port}`);
@@ -93,6 +106,7 @@ function sendState()
   api.sendPrinterConnectionStatus(x1Client.IsConnected);
   api.sendStatus(x1Client.status);
   api.sendPrinterLogLevel(x1Client.LogLevel);
+  api.sendProjectInfo(jobManager.CurrentProject, jobManager.CurrentJob);
 }
 
 function onPropertyChanged (change : Change)

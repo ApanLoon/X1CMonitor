@@ -7,7 +7,7 @@ import { type Status } from "../shared/X1Messages.js"
 import { LogLevel } from "../shared/LogLevel.js";
 import { AmsStatus2Main, AmsStatus2String, AmsStatus2Sub } from "../shared/AmsTypes.js";
 import { BambuFtpClient, BambuFtpOptions } from "./BambuFtpClient.js";
-import { Job } from "../JobManager/JobManager.js";
+import { Job } from "../shared/Job.js";
 
 export class X1Options
 {

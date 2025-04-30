@@ -2,6 +2,8 @@
 import { ref, type Ref } from "vue";
 import { type IX1Client, LogLevel } from "./IX1Client";
 import { Status } from "../../../server/src/shared/X1Messages";
+import { Project } from "../../../server/src/shared/Project";
+import { Job } from "../../../server/src/shared/Job";
 
 export class X1ClientOptions
 {
@@ -17,6 +19,9 @@ export class X1Client implements IX1Client
     Status: Ref<Status> = ref(new Status);
     LogLevel: Ref<LogLevel> = ref(LogLevel.Information);
     Log: Ref<string[]> = ref([]);
+
+    CurrentProject: Ref<Project | null> = ref(null);
+    CurrentJob: Ref<Job | null> = ref(null);
 
     private _socket? : WebSocket;
 
@@ -51,6 +56,7 @@ export class X1Client implements IX1Client
                 case "PrinterConnectionStatus": this.IsPrinterConnected.value = msg.IsConnected;           break;
                 case "PrinterLogLevel":         this.LogLevel.value           = msg.Level as LogLevel;     break;
                 case "MessageLogged":           this.Log.value.push (msg.Message);                         break;
+                case "ProjectInfo":             this.UpdateProjectInfo (msg.Project, msg.Job);             break;
             }
         });
 
@@ -60,6 +66,12 @@ export class X1Client implements IX1Client
             this.IsConnected.value = false;
             setTimeout(()=>this.Connect(connectHandler), 1000);
         }
+    }
+
+    private UpdateProjectInfo(project : Project, job : Job)
+    {
+        this.CurrentProject.value = project;
+        this.CurrentJob.value = job;
     }
 
     GetState(): void
