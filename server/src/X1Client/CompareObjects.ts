@@ -3,6 +3,20 @@ export class Change
     public path : string = "";
     public oldValue : any;
     public newValue : any;
+    public timestamp : Date;
+
+    constructor(
+        path : string,
+        oldValue : any,
+        newValue : any,
+        timestamp : Date = new Date()
+    )
+    {
+        this.path = path;
+        this.oldValue = oldValue;
+        this.newValue = newValue;
+        this.timestamp = timestamp;
+    }
 }
 
 export function CompareObjects (oldData : any, newData : any, path : string) : Array<Change>
@@ -32,7 +46,7 @@ export function CompareObjects (oldData : any, newData : any, path : string) : A
                 case "boolean":
                 case "string":
                 case "bigint":
-                    l.push({path : propPath, oldValue : oldData[key], newValue : newData[key] });
+                    l.push(new Change (propPath, oldData[key], newData[key]));
                         break;
                 case "object":
                     l.push(...CompareObjects(oldData[key], newData[key], propPath));

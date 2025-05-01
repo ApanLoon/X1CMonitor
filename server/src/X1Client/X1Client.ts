@@ -6,6 +6,8 @@ import { type Change, CompareObjects } from "./CompareObjects.js"
 import { HomeFlag, SdCardState, type Status } from "../shared/X1Messages.js"
 import { LogLevel } from "../shared/LogLevel.js";
 import { AmsStatus2Main, AmsStatus2String, AmsStatus2Sub } from "../shared/AmsTypes.js";
+import { BambuFtpClient, BambuFtpOptions } from "./BambuFtpClient.js";
+import { Job } from "../shared/Job.js";
 
 export class X1Options
 {
@@ -15,6 +17,7 @@ export class X1Options
   Serial   : string = "no-serial";
   UserName : string = "bblp";
   Password : string = "";
+  FtpOptions : BambuFtpOptions = new BambuFtpOptions;
 }
 
 export const X1ClientEvent = Object.freeze (
@@ -23,7 +26,8 @@ export const X1ClientEvent = Object.freeze (
   LedCtrl:          "led-ctrl",
   PropertyChanged:  "property-changed",
   ConnectionStatus: "connection-status",
-  LogLevelChanged:  "log-level-changed"
+  LogLevelChanged:  "log-level-changed",
+  ProjectLoaded:    "x1client-project-loaded"
 });
 
 class SocketError
@@ -58,13 +62,23 @@ export class X1Client extends EventEmitter
   private _client : MqttClient | null = null;
   private _firstConnect = true;
   private _firstClose = true;
- 
+
+  private _ftpClient : BambuFtpClient;
+
   public constructor(options : Partial<X1Options>)
   {
     super();
     Object.assign(this._options, options);
+
+    this._ftpClient = new BambuFtpClient(this._options);
   }
   
+  public async LoadProject(job : Job)
+  {
+    const project = await this._ftpClient.DownloadProject(`${job.Name}.gcode.3mf`);
+    this.emit(X1ClientEvent.ProjectLoaded, project, job);
+  }
+
   public async connect()
   {
     while (this.IsConnected === false)
@@ -121,7 +135,7 @@ export class X1Client extends EventEmitter
     this._firstClose = true;
     client.emit(X1ClientEvent.ConnectionStatus, this.IsConnected);
     client.emit(X1ClientEvent.LogLevelChanged, client.LogLevel);
-    client._client?.subscribe(`device/${client._options.Serial}/report`, (err) =>
+    client._client?.subscribe(`device/${client._options.Serial}/report`, async (err) =>
     {
       if (err)
       {
