@@ -1,8 +1,8 @@
 import type { Ref } from "vue";
 import { X1ClientOptions } from "./X1Client";
 import { Status } from "../../../server/src/shared/X1Messages";
-import type { Project } from "../../../server/src/shared/Project";
 import type { Job } from "../../../server/src/shared/Job";
+import { HomeFlag, SdCardState, Status } from "../../../server/src/shared/X1Messages";
 
 export enum LogLevel
 {
@@ -19,7 +19,10 @@ export interface IX1Client
     IsConnected : Ref<boolean>;
     IsPrinterConnected : Ref<boolean>;
 
-    Status : Ref<Status>;
+    Status      : Ref<Status>;
+    HomeFlag    : Ref<HomeFlag>;
+    SdCardState : Ref<SdCardState>;
+
     LogLevel: Ref<LogLevel>;
     Log: Ref<string[]>;
 
