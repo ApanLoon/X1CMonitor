@@ -15,7 +15,7 @@ export default defineConfig (( { mode } ) =>
       {
         input: "../server/projectArchive/**",
         output: "/projectArchive",
-        watch: true // default
+        watch: false
       });
   }
   
