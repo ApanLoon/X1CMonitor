@@ -1,6 +1,5 @@
 import type { Ref } from "vue";
 import { X1ClientOptions } from "./X1Client";
-import { Status } from "../../../server/src/shared/X1Messages";
 import type { Job } from "../../../server/src/shared/Job";
 import { HomeFlag, SdCardState, Status } from "../../../server/src/shared/X1Messages";
 

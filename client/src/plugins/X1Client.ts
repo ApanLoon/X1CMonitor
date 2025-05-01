@@ -1,7 +1,6 @@
 
 import { ref, type Ref } from "vue";
 import { type IX1Client, LogLevel } from "./IX1Client";
-import { Status } from "../../../server/src/shared/X1Messages";
 import { Job } from "../../../server/src/shared/Job";
 import { HomeFlag, SdCardState, Status } from "../../../server/src/shared/X1Messages";
 
