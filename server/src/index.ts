@@ -8,6 +8,8 @@ import { type Change } from "./X1Client/CompareObjects.js"
 import { JobEvent, JobManager } from "./JobManager/JobManager.js";
 import { Logger, LoggerEvent } from "./Logger/Logger.js";
 import { LogLevel } from "./shared/LogLevel.js";
+import { Database } from "./Database/Database.js";
+import { Job } from "./shared/Job.js";
 
 dotenv.config();
 
@@ -32,8 +34,24 @@ logger.Log(
 logger.Log("Starting up...");
 
 const app: Express = express();
-const jobManager = new JobManager();
+
+const database = new Database(
+{
+  Logger:   logger,
+  Host:     process.env.DB_HOST         || "",
+  Port:     Number(process.env.DB_PORT) || 27017,
+  Database: process.env.DB_NAME         || "X1CMonitor",
+  UserName: process.env.DB_USER         || "x1cmonitor",
+  Password: process.env.DB_PWD          || ""
+});
+  
+const jobManager = new JobManager(
+{
+  Database: database
+});
+
 const api = new Api ({ Logger : logger, Port: Number(process.env.API_PORT) || 4000 });
+
 const x1Client = new X1Client(
 {
   Logger:   logger,
@@ -44,7 +62,7 @@ const x1Client = new X1Client(
   {
     Port: 990,
     LocalFilePath: "./projectArchive"
-  }
+  },
 });
 
 //x1Client.SetLogLevel(LogLevel.Trace);
@@ -55,6 +73,7 @@ const x1Client = new X1Client(
 jobManager.on(JobEvent.JobFailed,     job => logger.LogJobStopped(job));
 jobManager.on(JobEvent.JobCompleted,  job => logger.LogJobStopped(job));
 jobManager.on(JobEvent.JobGetProject, job => x1Client.LoadProject(job));
+jobManager.on(JobEvent.JobUpdated,    job => database.UpdateJob (job));
 jobManager.on(JobEvent.JobUpdated,    job => api.sendCurrentJob (job));
 
 x1Client.on(X1ClientEvent.ConnectionStatus, isConnected => api.sendPrinterConnectionStatus(isConnected));
@@ -75,13 +94,12 @@ logger.on(LoggerEvent.MessageLogged, message => api.sendLogMessage(message));
 
 // Start services:
 //
-
+await database.Connect();
 x1Client.connect();
 
 // Express web server:
 //
 const port = process.env.WEB_PORT || 3000;
-
 
 const __filename = fileURLToPath(import.meta.url); // NOTE: This is the path to the folder where index.js is. I.e. dist/server/src and not dist as I was hoping.
 let __dirname = path.dirname(__filename); // TODO: __dirname will be "dist/server/src" int prod and "D:\GIT\ApanLoon\X1CMonitor\server\src\" in dev.

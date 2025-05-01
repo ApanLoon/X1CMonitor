@@ -1,9 +1,14 @@
-import { Job } from "../shared/Job.js";
+import { Database } from "../Database/Database.js";
+import { Job, JobState } from "../shared/Job.js";
 import { Project } from "../shared/Project.js";
 import { GCodeState } from "../shared/X1Messages.js";
 import { type Change } from "../X1Client/CompareObjects.js"
 import { EventEmitter } from "node:events";
 
+export class JobManagerOptions
+{
+  Database?  : Database;
+}
 export const JobEvent = Object.freeze (
 {
     JobStarted:      "jobstarted",
@@ -16,12 +21,14 @@ export const JobEvent = Object.freeze (
 export class JobManager extends EventEmitter
 {
     public CurrentJob : Job | null = null;
-    
+
+    private _options : JobManagerOptions = new JobManagerOptions;
     private _status : any = {};
 
-    constructor()
+    constructor(options : Partial<JobManagerOptions>)
     {
         super();
+        Object.assign(this._options, options);
     }
 
     public CancelCurrentJob()
@@ -32,26 +39,34 @@ export class JobManager extends EventEmitter
     
     public HandleStatus(status : any)
     {
-        if (status.gcode_state === GCodeState.Running || status.gcode_state === GCodeState.Pause)
+        if (this.CurrentJob !== null && this.CurrentJob.Name !== status.subtask_name)
         {
-            if (this.CurrentJob !== null && this.CurrentJob.Name !== status.subtask_name)
-            {
-                this.CancelCurrentJob();
-            }
+            // The current job doesn't match the running job. What to do?
+            this.CancelCurrentJob();
+        }
 
-            if (this.CurrentJob === null)
-            {
-                this.CurrentJob = new Job();
-                this.CurrentJob.StartTime.setTime(Number(status.gcode_start_time));
-                this.CurrentJob.Name = status.subtask_name;
-                this.CurrentJob.GcodeName = status.gcode_file;
-                this.CurrentJob.State = status.gcode_state;
+        if (this.CurrentJob === null && (status.gcode_state === GCodeState.Running || status.gcode_state === GCodeState.Pause))
+        {
+            // TODO: Get latest running job from database
+            // TODO: If it is the same job as we think that we are starting now, use the one from the database
+            // TODO: If it is NOT the same job as we think that we are starting now, stop the job from the database and create a new one
 
-                console.log(this.CurrentJob);
+            this.CurrentJob = new Job();
+            this.CurrentJob.StartTime = new Date();
+            this.CurrentJob.Name = status.subtask_name;
+            this.CurrentJob.GcodeName = status.gcode_file;
+            this.CurrentJob.State = JobState.Started;
 
-                this.emit(JobEvent.JobGetProject, this.CurrentJob);
-                this.emit (JobEvent.JobUpdated, this.CurrentJob);
-            }
+            this.emit (JobEvent.JobGetProject, this.CurrentJob);
+            this.emit (JobEvent.JobUpdated, this.CurrentJob);
+        }
+
+        if (this.CurrentJob !== null && (status.gcode_state === GCodeState.Failed || status.gcode_state === GCodeState.Finish))
+        {
+            this.CurrentJob.StopTime = new Date();
+            this.CurrentJob.State = status.gcode_state === GCodeState.Failed ? JobState.Failed : JobState.Finished;
+            this.emit (JobEvent.JobUpdated, this.CurrentJob); // NOTE: This will hopefully trigger a database update. TODO: Woiuld it be better to explicitly call the database from here when creating, updating or stopping jobs? 
+            this.CancelCurrentJob();
         }
     }
 
