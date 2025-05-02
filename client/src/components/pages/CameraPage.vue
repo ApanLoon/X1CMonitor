@@ -15,6 +15,8 @@ onMounted(()=>
 {
     player = new JSMpeg.Player('ws://localhost:9999', 
     {
+        keepAliveInterval: 6,
+        keepAliveMessage: { Type: "KeepAlive" },
         canvas: document.getElementById('canvas') // Canvas should be a canvas DOM element
     });
 });

@@ -14,6 +14,16 @@ var WSSource = function(url, options) {
 		: 5;
 	this.shouldAttemptReconnect = !!this.reconnectInterval;
 
+	// Keep alive mechanism to let server detect when we stop watching
+	this.keepAliveInterval = options.keepAliveInterval !== undefined
+		? options.keepAliveInterval
+		: 5;
+	this.shouldKeepAlive = !!this.keepAliveInterval;
+	this.keepAliveMessage = options.keepAliveMessage !== undefined
+		? options.keepAliveMessage
+		: { Type: "KeepAlive" };
+	this.keepAliveIntervalId = 0;
+
 	this.completed = false;
 	this.established = false;
 	this.progress = 0;
@@ -58,9 +68,20 @@ WSSource.prototype.resume = function(secondsHeadroom) {
 
 WSSource.prototype.onOpen = function() {
 	this.progress = 1;
+
+	if (this.shouldKeepAlive) {
+		clearInterval(this.keepAliveIntervalId);
+		this.keepAliveIntervalId = setInterval(function(){
+			this.socket.send(JSON.stringify(this.keepAliveMessage));	
+		}.bind(this), this.keepAliveInterval*1000);
+	}
 };
 
 WSSource.prototype.onClose = function() {
+	if (this.shouldKeepAlive) {
+		clearInterval(this.keepAliveIntervalId);
+	}
+
 	if (this.shouldAttemptReconnect) {
 		clearTimeout(this.reconnectTimeoutId);
 		this.reconnectTimeoutId = setTimeout(function(){
