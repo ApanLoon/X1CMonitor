@@ -3,7 +3,7 @@ import { computed, inject, onMounted } from "vue";
 import type { IX1Client } from "../../plugins/IX1Client";
 
 //@ts-ignore
-import { JSMpeg } from "../../lib/jsmpeg.min.js";
+import { JSMpeg } from "../../lib/jsmpeg/jsmpeg.min.js";
 
 const x1Client = inject<IX1Client>("x1Client");
 if (x1Client === undefined)

@@ -3,7 +3,7 @@
 
 // This sets up the JSMpeg "Namespace". The object is empty apart from the Now()
 // utility function and the automatic CreateVideoElements() after DOMReady.
-var JSMpeg = {
+export var JSMpeg = {
 
 	// The Player sets up the connections between source, demuxer, decoders,
 	// renderer and audio output. It ties everything together, is responsible
