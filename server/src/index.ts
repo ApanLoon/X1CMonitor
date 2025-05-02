@@ -4,8 +4,12 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { Api, ApiEvent } from "./Api/Api.js";
 import { X1Client, X1ClientEvent } from "./X1Client/X1Client.js";
+import { type Change } from "./X1Client/CompareObjects.js"
+import { JobEvent, JobManager } from "./JobManager/JobManager.js";
 import { Logger, LoggerEvent } from "./Logger/Logger.js";
 import { LogLevel } from "./shared/LogLevel.js";
+import { Database } from "./Database/Database.js";
+import { Job } from "./shared/Job.js";
 
 dotenv.config();
 
@@ -30,24 +34,55 @@ logger.Log(
 logger.Log("Starting up...");
 
 const app: Express = express();
+
+const database = new Database(
+{
+  Logger:   logger,
+  Host:     process.env.DB_HOST         || "",
+  Port:     Number(process.env.DB_PORT) || 27017,
+  Database: process.env.DB_NAME         || "X1CMonitor",
+  UserName: process.env.DB_USER         || "x1cmonitor",
+  Password: process.env.DB_PWD          || ""
+});
+  
+const jobManager = new JobManager(
+{
+  Database: database
+});
+
 const api = new Api ({ Logger : logger, Port: Number(process.env.API_PORT) || 4000 });
+
 const x1Client = new X1Client(
 {
   Logger:   logger,
   Host:     process.env.X1C_HOST     || "",
   Serial:   process.env.X1C_SERIAL   || "",
-  Password: process.env.X1C_PASSWORD || ""
+  Password: process.env.X1C_PASSWORD || "",
+  FtpOptions: 
+  {
+    Port: 990,
+    LocalFilePath: "./projectArchive"
+  },
 });
 
 //x1Client.SetLogLevel(LogLevel.Trace);
 
 // Set up event routing:
 //
+
+jobManager.on(JobEvent.JobFailed,     job => logger.LogJobStopped(job));
+jobManager.on(JobEvent.JobCompleted,  job => logger.LogJobStopped(job));
+jobManager.on(JobEvent.JobGetProject, job => x1Client.LoadProject(job));
+jobManager.on(JobEvent.JobUpdated,    job => database.UpdateJob (job));
+jobManager.on(JobEvent.JobUpdated,    job => api.sendCurrentJob (job));
+
 x1Client.on(X1ClientEvent.ConnectionStatus, isConnected => api.sendPrinterConnectionStatus(isConnected));
 x1Client.on(X1ClientEvent.Status,           status      => api.sendStatus(status));
-x1Client.on(X1ClientEvent.PropertyChanged,  change      => logger.LogChange(change));
-x1Client.on(X1ClientEvent.LedCtrl,          ledCtrl     => console.log(ledCtrl));
-x1Client.on(X1ClientEvent.LogLevelChanged,  level       => api.sendPrinterLogLevel(level));
+x1Client.on(X1ClientEvent.Status,           status      => jobManager.HandleStatus(status));
+x1Client.on(X1ClientEvent.PropertyChanged,  onPropertyChanged);
+x1Client.on(X1ClientEvent.LedCtrl,          ledCtrl        => console.log(ledCtrl));
+x1Client.on(X1ClientEvent.LogLevelChanged,  level          => api.sendPrinterLogLevel(level));
+x1Client.on(X1ClientEvent.ProjectLoaded,    (project, job) => jobManager.HandleProjectLoaded(project, job));
 
 api.on(ApiEvent.GetState,           sendState);
 api.on(ApiEvent.SetLight,           isOn  => console.log(isOn));
@@ -59,7 +94,7 @@ logger.on(LoggerEvent.MessageLogged, message => api.sendLogMessage(message));
 
 // Start services:
 //
-
+await database.Connect();
 x1Client.connect();
 
 // Express web server:
@@ -67,9 +102,20 @@ x1Client.connect();
 const port = process.env.WEB_PORT || 3000;
 
 const __filename = fileURLToPath(import.meta.url); // NOTE: This is the path to the folder where index.js is. I.e. dist/server/src and not dist as I was hoping.
-const __dirname = path.dirname(__filename);
+let __dirname = path.dirname(__filename); // TODO: __dirname will be "dist/server/src" int prod and "D:\GIT\ApanLoon\X1CMonitor\server\src\" in dev.
 
-app.use(express.static(path.join(__dirname, './wwwroot'))); // NOTE: This is only correct when running from dist. When doing npm run dev, the static files will not be hosted correctly.
+let wwwroot = "./wwwroot";
+let projectArchive = "./projectArchive";
+
+if (process.env.IS_DEVELOPMENT)
+{
+  __dirname = path.join(__dirname, "..");
+  wwwroot = path.join("dist", wwwroot);
+}
+
+app.use("/",               express.static(path.join(__dirname, wwwroot)));
+app.use("/projectArchive", express.static(path.join(__dirname, projectArchive)));
+
 
 app.listen(port, () => {
   logger.Log(`[Web] Server is running at http://localhost:${port}`);
@@ -80,4 +126,11 @@ function sendState()
   api.sendPrinterConnectionStatus(x1Client.IsConnected);
   api.sendStatus(x1Client.status);
   api.sendPrinterLogLevel(x1Client.LogLevel);
+  api.sendCurrentJob(jobManager.CurrentJob);
+}
+
+function onPropertyChanged (change : Change)
+{
+  logger.LogChange(change);
+  jobManager.HandleChange(change);
 }

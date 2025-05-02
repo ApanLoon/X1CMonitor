@@ -42,6 +42,7 @@ const selectLogLevel = function (selected : string)
     <nav>
         <RouterLink to="/">Status</RouterLink>
         <RouterLink to="/camera">Camera</RouterLink>
+        <RouterLink to="/Handy">Handy</RouterLink>
         <RouterLink to="/log">Log</RouterLink>
         <local-filler></local-filler>
     </nav>

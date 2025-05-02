@@ -1,5 +1,6 @@
 import type { Ref } from "vue";
 import { X1ClientOptions } from "./X1Client";
+import type { Job } from "../../../server/src/shared/Job";
 import { HomeFlag, SdCardState, Status } from "../../../server/src/shared/X1Messages";
 
 export enum LogLevel
@@ -23,6 +24,8 @@ export interface IX1Client
 
     LogLevel: Ref<LogLevel>;
     Log: Ref<string[]>;
+
+    CurrentJob: Ref<Job | null>;
 
     Connect(connectHandler? : () => void) : void;
     GetState() : void;

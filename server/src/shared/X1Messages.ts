@@ -142,7 +142,16 @@ export enum Stage
     "Nozzle clog pause"                               = 35
 }
 
-
+export const GCodeState = Object.freeze (
+{
+    Idle:    "IDLE",
+    Pause:   "PAUSE",
+    Running: "RUNNING",
+    Slicing: "SLICING",
+    Prepare: "PREPARE",
+    Finish:  "FINISH",
+    Failed:  "FAILED"
+});
 
 // Messages:
 //

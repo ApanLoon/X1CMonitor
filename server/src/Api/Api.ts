@@ -3,6 +3,8 @@ import { EventEmitter } from "node:events";
 import { Connection, ConnectionCollection, ConnectionEvent } from "./ConnectionCollection.js";
 import { Logger } from "../Logger/Logger.js";
 import { LogLevel } from "../shared/LogLevel.js";
+import { Project } from "../shared/Project.js";
+import { Job } from "../shared/Job.js";
 
 export class ApiOptions
 {
@@ -100,5 +102,14 @@ export class Api extends EventEmitter
             Type: "MessageLogged",
             Message: message
         }));    
+    }
+
+    sendCurrentJob (job : Job | null)
+    {
+        this.connections.sendToAll(JSON.stringify(
+        {
+            Type: "CurrentJob",
+            Job: job
+        }));                
     }
 }

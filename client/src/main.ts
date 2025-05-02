@@ -8,13 +8,15 @@ import X1ClientPlugin from './plugins/X1ClientPlugin'
 
 import StatusPage from "./components/pages/StatusPage.vue";
 import CameraPage from "./components/pages/CameraPage.vue";
+import HandyPage from "./components/pages/HandyPage.vue";
 import LogPage from "./components/pages/LogPage.vue";
 
 const routes =
 [
-    { path: "/",       component: StatusPage },
+    { path: "/",       component: StatusPage  },
     { path: "/camera", component: CameraPage },
-    { path: "/log",    component: LogPage    }
+    { path: "/handy", component: HandyPage },
+    { path: "/log",    component: LogPage     }
 ];
 
 console.log("[main] Getting config...");
