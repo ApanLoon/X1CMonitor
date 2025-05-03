@@ -25,7 +25,10 @@ watch (IsCameraOn, (oldIsCameraOn, newIsCameraOn) =>
 function startCamera()
 {
     stopCamera();
-    player = new JSMpeg.Player('ws://localhost:9999', 
+
+    const url = `ws://${x1Client?.Options.Host}:9999`; // TODO: Where should it get the port?
+
+    player = new JSMpeg.Player(url, 
     {
         autoplay: true,
         keepAliveInterval: 6,
