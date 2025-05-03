@@ -46,6 +46,11 @@ export class ConnectionCollection
 {
     connections : Array<Connection> = [];
 
+    count()
+    {
+        return this.connections.length;
+    }
+    
     add (connection : Connection)
     {
         let c = this.connections.find(x=>x.id === connection.id);

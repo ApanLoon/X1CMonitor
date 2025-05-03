@@ -9,16 +9,18 @@ import { AmsStatus2Main, AmsStatus2String, AmsStatus2Sub } from "../shared/AmsTy
 import { BambuFtpClient, BambuFtpOptions } from "./BambuFtpClient.js";
 import { Job } from "../shared/Job.js";
 import { RtspProxy } from "../RtspProxy/RtspProxy.js";
+import { CameraFeed } from "../RtspProxy/CameraFeed.js";
 
 export class X1Options
 {
-  Logger?  : Logger;
-  Host     : string = "localhost";
-  Port     : number = 8883;
-  Serial   : string = "no-serial";
-  UserName : string = "bblp";
-  Password : string = "";
-  FtpOptions : BambuFtpOptions = new BambuFtpOptions;
+  Logger?        : Logger;
+  Host           : string = "localhost";
+  Port           : number = 8883;
+  Serial         : string = "no-serial";
+  UserName       : string = "bblp";
+  Password       : string = "";
+  FtpOptions     : BambuFtpOptions = new BambuFtpOptions;
+  CameraFeedPort : number = 9999;
 }
 
 export const X1ClientEvent = Object.freeze (
@@ -66,7 +68,8 @@ export class X1Client extends EventEmitter
 
   private _ftpClient : BambuFtpClient;
 
-  private RtspProxy : RtspProxy | undefined;
+  private _cameraFeed : CameraFeed | undefined;
+  //private RtspProxy : RtspProxy | undefined;
 
   public constructor(options : Partial<X1Options>)
   {
@@ -74,6 +77,7 @@ export class X1Client extends EventEmitter
     Object.assign(this._options, options);
 
     this._ftpClient = new BambuFtpClient(this._options);
+    this._cameraFeed = new CameraFeed({ X1Client: this, Port: this._options.CameraFeedPort, UserName: this._options.UserName, Password: this._options.Password }); // TODO: Should this even be in the X1Client? The RtspProxy should probably be in X1Client/ but the camera feed might be its own thing.
   }
   
   public async LoadProject(job : Job)
@@ -280,12 +284,6 @@ export class X1Client extends EventEmitter
     let newStatus = message as Status;
     // Properties that has been removed in FW can be manually copied over here:
     newStatus.gcode_start_time = client.status.gcode_start_time;
-
-    // Start RtspProxy: //TODO: This should not be done here! Instead we should start the WebSocketPipe in the constructor and have that start and stop the RtspProxy on demand.
-    if (newStatus.ipcam !== undefined && newStatus.ipcam.rtsp_url !== "" && client.RtspProxy === undefined)
-    {
-      client.RtspProxy = new RtspProxy(newStatus.ipcam.rtsp_url, client._options.UserName, client._options.Password, 9999);
-    }
 
     const l = CompareObjects(client.status, message, "status");
     if (ignoreChanges === false)

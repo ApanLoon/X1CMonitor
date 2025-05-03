@@ -1,12 +1,11 @@
 import { FfmpegStream, FfmpegStreamEvent } from "./FfmpegStream.js";
-import { WebSocketPipe } from "./WebsocketPipe.js";
+import { CameraFeed } from "./CameraFeed.js";
 
 export class RtspProxy
 {
     private _ffmpegStream : FfmpegStream | undefined;
-    private _webSocketPipe : WebSocketPipe | undefined;
 
-    constructor (urlString : string, userName: string, password : string, port : number)
+    constructor (urlString : string, userName: string, password : string, cameraFeed : CameraFeed)
     {
         console.log("RtspProxy: Connecting to camera...");
         let url = new URL(urlString);
@@ -14,9 +13,8 @@ export class RtspProxy
         url.password = password;
 
         this._ffmpegStream = new FfmpegStream();
-        this._webSocketPipe = new WebSocketPipe(port);
 
-        this._ffmpegStream.on(FfmpegStreamEvent.Data, data => this._webSocketPipe?.Send(data));
+        this._ffmpegStream.on(FfmpegStreamEvent.Data, data => cameraFeed?.Send(data));
 
         this._ffmpegStream.on(FfmpegStreamEvent.StreamStarted, ()=>
         {
@@ -26,7 +24,7 @@ export class RtspProxy
                 return;
             }
 
-            this._webSocketPipe?.Start(this._ffmpegStream.Width, this._ffmpegStream.Height);
+            cameraFeed?.Start(this._ffmpegStream.Width, this._ffmpegStream.Height);
         })
 
         this._ffmpegStream.Start(url.toString());
@@ -34,7 +32,7 @@ export class RtspProxy
 
     public Stop()
     {
-        this._webSocketPipe?.Stop();
+        console.log("RtspPRoxy: Stopping stream...");
         this._ffmpegStream?.Stop();
     }
 }
