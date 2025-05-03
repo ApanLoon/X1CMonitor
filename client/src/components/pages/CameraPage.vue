@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, inject, onMounted } from "vue";
+import { computed, inject, onMounted, ref, type Ref, watch } from "vue";
 import type { IX1Client } from "../../plugins/IX1Client";
 
 //@ts-ignore
@@ -11,28 +11,70 @@ if (x1Client === undefined)
   throw new Error ("[StatusPage] Setup: No x1Client plugin found.");
 }
 
-onMounted(()=>
+const IsCameraOn: Ref<boolean> = ref(false);
+const CameraOnButtonText = computed<string>(() => IsCameraOn.value ? "Off" : "On" );
+var player : any = null;
+
+watch (IsCameraOn, (oldIsCameraOn, newIsCameraOn) =>
 {
+    newIsCameraOn ? stopCamera() : startCamera();
+});
+
+function startCamera()
+{
+    stopCamera();
     player = new JSMpeg.Player('ws://localhost:9999', 
     {
+        autoplay: true,
         keepAliveInterval: 6,
         keepAliveMessage: { Type: "KeepAlive" },
         canvas: document.getElementById('canvas') // Canvas should be a canvas DOM element
     });
+}
+
+function stopCamera()
+{
+    if (player === null)
+    {
+        return;
+    }
+    player.destroy();
+    player = null;
+}
+
+onMounted(()=>
+{
 });
-var player : any;
 
 </script>
 
 <template>
-    <div>
-        <canvas id="canvas" width="1920" height="1080"></canvas>
-    </div>
+    <local-container>
+        {{ IsCameraOn }}
+        <button @click="IsCameraOn = !IsCameraOn">{{ CameraOnButtonText }}</button>
+        <canvas id="canvas" :class="{hidden: IsCameraOn === false}" width="1920" height="1080"></canvas>
+        <local-cameradummy v-if="IsCameraOn === false">No camara feed</local-cameradummy>
+    </local-container>
 </template>
 
 <style scoped>
-canvas
+local-container
 {
+    display: block;
+    margin-top: 1rem;
+}
+
+canvas,
+local-cameradummy
+{
+    display: block;
     width: 100%;
+    aspect-ratio: 1.7777777777777777777777777777778;
+    background-color: black;
+    text-align: center;
+}
+.hidden
+{
+    display: none;
 }
 </style>
