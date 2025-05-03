@@ -69,8 +69,7 @@ export class X1Client extends EventEmitter
   private _ftpClient : BambuFtpClient;
 
   private _cameraFeed : CameraFeed | undefined;
-  //private RtspProxy : RtspProxy | undefined;
-
+  
   public constructor(options : Partial<X1Options>)
   {
     super();
@@ -131,6 +130,7 @@ export class X1Client extends EventEmitter
 
   public close()
   {
+    this._cameraFeed?.Stop();
     this._client?.end();
   }
 

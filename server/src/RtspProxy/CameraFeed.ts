@@ -80,6 +80,7 @@ export class CameraFeed extends EventEmitter
     {
         this._connections.removeAll();
         this._server?.close();
+        this._rtspProxy?.Stop();
     }
 
     public Send(data : any)
