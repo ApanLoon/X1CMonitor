@@ -281,7 +281,7 @@ export class X1Client extends EventEmitter
     // Properties that has been removed in FW can be manually copied over here:
     newStatus.gcode_start_time = client.status.gcode_start_time;
 
-    // Start RtspProxy: TODO: This should not be done here!
+    // Start RtspProxy: //TODO: This should not be done here! Instead we should start the WebSocketPipe in the constructor and have that start and stop the RtspProxy on demand.
     if (newStatus.ipcam !== undefined && newStatus.ipcam.rtsp_url !== "" && client.RtspProxy === undefined)
     {
       client.RtspProxy = new RtspProxy(newStatus.ipcam.rtsp_url, client._options.UserName, client._options.Password, 9999);

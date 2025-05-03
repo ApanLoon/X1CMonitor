@@ -31,14 +31,17 @@ export class WebSocketPipe extends EventEmitter
 
     private onConnect(pipe : WebSocketPipe, socket : WebSocket, request : any)
     {
+        //TODO: If there are zero connections, create the RtspProxy.
+
         let connection = new Connection(socket, (data : string) => { }, (_event: any, connection: Connection) => { this._connections.remove(connection); });
         connection.on(ConnectionEvent.LostHeartbeat, ()=>
         {
             console.log("Lost Heartbeat: ipcam");
-            //TODO: The jsmpeg library doesn't send anything back on the socket. How should we detect if the browser is gone?
-            //this._connections.remove (connection);
-            //connection.Close();
-        });
+            this._connections.remove (connection);
+            connection.Close();
+
+        //TODO: If there are zero connections left, destroy the RtspProxy.
+    });
 
         this._connections.add(connection);
         
