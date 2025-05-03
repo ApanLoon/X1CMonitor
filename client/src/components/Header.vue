@@ -69,7 +69,7 @@ nav
 {
   margin-top: 1rem;
   display: grid;
-  grid-template-columns: auto auto auto 1fr;
+  grid-template-columns: auto auto auto auto 1fr;
 }
 
 nav > a
