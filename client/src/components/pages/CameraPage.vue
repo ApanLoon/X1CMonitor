@@ -2,6 +2,8 @@
 import { computed, inject, onMounted, ref, type Ref, watch } from "vue";
 import type { IX1Client } from "../../plugins/IX1Client";
 
+import ToggleSwitch from "../generic/ToggleSwitch.vue"
+
 //@ts-ignore
 import { JSMpeg } from "../../lib/jsmpeg/jsmpeg.min.js";
 
@@ -50,8 +52,7 @@ onMounted(()=>
 
 <template>
     <local-container>
-        {{ IsCameraOn }}
-        <button @click="IsCameraOn = !IsCameraOn">{{ CameraOnButtonText }}</button>
+        <ToggleSwitch class="option" label="Enable camera" :isOn="IsCameraOn" @toggle="(isOn : boolean) => IsCameraOn = isOn"></ToggleSwitch>
         <canvas id="canvas" :class="{hidden: IsCameraOn === false}" width="1920" height="1080"></canvas>
         <local-cameradummy v-if="IsCameraOn === false">No camara feed</local-cameradummy>
     </local-container>
@@ -60,13 +61,20 @@ onMounted(()=>
 <style scoped>
 local-container
 {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-top: 1rem;
 }
 
+.option
+{
+    width: 25%;
+}
 canvas,
 local-cameradummy
 {
+    margin-top: 0.5rem;
     display: block;
     width: 100%;
     aspect-ratio: 1.7777777777777777777777777777778;
