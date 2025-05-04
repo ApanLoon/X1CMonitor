@@ -67,7 +67,7 @@ const sdCardStateString = computed<string>(() => SdCardState[x1Client.SdCardStat
 local-container
 {
   display: grid;
-  grid-template-rows: auto auto auto auto auto auto auto auto auto 350px; /* TODO: How do I makle it fill the remaining space? */
+  grid-template-rows: auto auto auto auto auto auto auto auto auto 340px; /* TODO: How do I makle it fill the remaining space? */
 }
 local-box
 {

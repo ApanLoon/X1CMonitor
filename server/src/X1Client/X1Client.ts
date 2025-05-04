@@ -8,16 +8,19 @@ import { LogLevel } from "../shared/LogLevel.js";
 import { AmsStatus2Main, AmsStatus2String, AmsStatus2Sub } from "../shared/AmsTypes.js";
 import { BambuFtpClient, BambuFtpOptions } from "./BambuFtpClient.js";
 import { Job } from "../shared/Job.js";
+import { RtspProxy } from "../RtspProxy/RtspProxy.js";
+import { CameraFeed } from "../RtspProxy/CameraFeed.js";
 
 export class X1Options
 {
-  Logger?  : Logger;
-  Host     : string = "localhost";
-  Port     : number = 8883;
-  Serial   : string = "no-serial";
-  UserName : string = "bblp";
-  Password : string = "";
-  FtpOptions : BambuFtpOptions = new BambuFtpOptions;
+  Logger?        : Logger;
+  Host           : string = "localhost";
+  Port           : number = 8883;
+  Serial         : string = "no-serial";
+  UserName       : string = "bblp";
+  Password       : string = "";
+  FtpOptions     : BambuFtpOptions = new BambuFtpOptions;
+  CameraFeedPort : number = 9999;
 }
 
 export const X1ClientEvent = Object.freeze (
@@ -65,12 +68,15 @@ export class X1Client extends EventEmitter
 
   private _ftpClient : BambuFtpClient;
 
+  private _cameraFeed : CameraFeed | undefined;
+  
   public constructor(options : Partial<X1Options>)
   {
     super();
     Object.assign(this._options, options);
 
     this._ftpClient = new BambuFtpClient(this._options);
+    this._cameraFeed = new CameraFeed({ X1Client: this, Port: this._options.CameraFeedPort, UserName: this._options.UserName, Password: this._options.Password }); // TODO: Should this even be in the X1Client? The RtspProxy should probably be in X1Client/ but the camera feed might be its own thing.
   }
   
   public async LoadProject(job : Job)
@@ -124,6 +130,7 @@ export class X1Client extends EventEmitter
 
   public close()
   {
+    this._cameraFeed?.Stop();
     this._client?.end();
   }
 
@@ -296,7 +303,7 @@ export class X1Client extends EventEmitter
             // change.oldValue = JSON.stringify({ Main : AmsStatus2Main (change.oldValue), Sub : AmsStatus2Sub (change.oldValue)});
             // change.newValue = JSON.stringify({ Main : AmsStatus2Main (change.newValue), Sub : AmsStatus2Sub (change.newValue)});
         }
-  
+
         let level : LogLevel = LogLevel.Debug;
         const definition = client.PrintStatus_LogMessageDefinitions.find(d => change.path.match(d.Pattern));
         if (definition !== undefined)
