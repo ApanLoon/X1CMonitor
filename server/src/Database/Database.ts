@@ -57,7 +57,7 @@ export class Database extends EventEmitter
         {
           const db = this._client.db();
           const collection = db.collection("Job");
-          const cursor = collection.find<Job> ({});
+          const cursor = collection.find<Job> ({}).sort({ StartTime: -1 });
           return await cursor.toArray();
         }
         catch (err)

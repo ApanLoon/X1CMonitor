@@ -89,7 +89,7 @@ api.on(ApiEvent.SetLight,                 isOn  => console.log(isOn));
 api.on(ApiEvent.GetPrinterLogLevel,       ()    => api.sendPrinterLogLevel(x1Client.LogLevel));
 api.on(ApiEvent.SetPrinterLogLevel,       level => x1Client.SetLogLevel(level));
 api.on(ApiEvent.RequestFullLog,           ()    => logger.SendFullLog());
-api.on(ApiEvent.RequestJobs,        async ()    => api.sendJobHistory(await jobManager.GetJobHistory()))
+api.on(ApiEvent.RequestJobHistory,  async ()    => api.sendJobHistory(await jobManager.GetJobHistory()))
 
 logger.on(LoggerEvent.MessageLogged, message => api.sendLogMessage(message));
 

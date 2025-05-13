@@ -26,9 +26,12 @@ export interface IX1Client
     Log: Ref<string[]>;
 
     CurrentJob: Ref<Job | null>;
+    JobHistory: Ref<Array<Job>>;
 
     Connect(connectHandler? : () => void) : void;
     GetState() : void;
     SetPrinterLogLevel(level : LogLevel) : void;
+
+    RequestJobHistory() : void;
     RequestFullLog() : void;
 }

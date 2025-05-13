@@ -19,7 +19,7 @@ export const ApiEvent = Object.freeze (
     GetPrinterLogLevel: "getprinterloglevel",
     SetPrinterLogLevel: "setprinterloglevel",
     RequestFullLog:     "requestfulllog",
-    RequestJobs:        "requestjobs"
+    RequestJobHistory:  "requestjobHistory"
 });
     
 
@@ -50,7 +50,7 @@ export class Api extends EventEmitter
                     case "GetPrinterLogLevel": this.emit(ApiEvent.GetPrinterLogLevel);             break;
                     case "SetPrinterLogLevel": this.emit(ApiEvent.SetPrinterLogLevel, msg.Level);  break;
                     case "RequestFullLog":     this.emit(ApiEvent.RequestFullLog);                 break;
-                    case "RequestJobs":        this.emit(ApiEvent.RequestJobs);                    break;
+                    case "RequestJobHistory":  this.emit(ApiEvent.RequestJobHistory);              break;
                 }
             },
             (_event: any, connection: Connection) =>

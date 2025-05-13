@@ -43,6 +43,7 @@ const selectLogLevel = function (selected : string)
         <RouterLink to="/">Status</RouterLink>
         <RouterLink to="/camera">Camera</RouterLink>
         <RouterLink to="/Handy">Handy</RouterLink>
+        <RouterLink to="/History">History</RouterLink>
         <RouterLink to="/log">Log</RouterLink>
         <local-filler></local-filler>
     </nav>
@@ -69,7 +70,7 @@ nav
 {
   margin-top: 1rem;
   display: grid;
-  grid-template-columns: auto auto auto auto 1fr;
+  grid-template-columns: auto auto auto auto auto 1fr;
 }
 
 nav > a
