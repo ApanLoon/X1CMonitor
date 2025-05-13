@@ -102,7 +102,7 @@ export class X1Client implements IX1Client
     private updateStatus(status : Status)
     {
         this.Status.value      = status;
-        this.HomeFlag.value    = new HomeFlag(status.home_flag);
+        this.HomeFlag.value    = new HomeFlag(status?.home_flag);
         this.SdCardState.value = this.HomeFlag.value.sdCardState();    
     }
 
