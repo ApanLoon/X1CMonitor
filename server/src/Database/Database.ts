@@ -51,6 +51,22 @@ export class Database extends EventEmitter
         this._client.close();
       }
 
+      public async GetJobHistory()
+      {
+        try
+        {
+          const db = this._client.db();
+          const collection = db.collection("Job");
+          const cursor = collection.find<Job> ({}).sort({ StartTime: -1 });
+          return await cursor.toArray();
+        }
+        catch (err)
+        {
+          this._options.Logger?.Log(`[Database] UpdateJob failed. ${err}`);
+        }
+        return null;
+    }
+
       public async UpdateJob (job : Job | null)
       {
         if (job === null)

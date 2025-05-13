@@ -25,6 +25,7 @@ export class X1Client implements IX1Client
     Log: Ref<string[]> = ref([]);
 
     CurrentJob: Ref<Job | null> = ref(null);
+    JobHistory: Ref<Array<Job>> = ref([]);
 
     private _socket? : WebSocket;
     private _keepAliveInterval = 5000;
@@ -64,6 +65,7 @@ export class X1Client implements IX1Client
                 case "PrinterLogLevel":         this.LogLevel.value           = msg.Level as LogLevel;     break;
                 case "MessageLogged":           this.Log.value.push (msg.Message);                         break;
                 case "CurrentJob":              this.UpdateCurrentJob (msg.Job);                           break;
+                case "JobHistory":              this.UpdateJobHistory (msg.Jobs);                          break;
             }
         });
 
@@ -78,9 +80,25 @@ export class X1Client implements IX1Client
 
     private UpdateCurrentJob(job : Job)
     {
+        if (job !== null)
+        {
+            job.StartTime = new Date(job.StartTime);
+            job.StopTime = job.StopTime == null ? null : new Date(job.StopTime);
+        }
         this.CurrentJob.value = job;
     }
- 
+
+    private UpdateJobHistory(jobs : Array<Job>)
+    {
+        jobs.forEach(job =>
+        {
+            job.StartTime = new Date(job.StartTime);
+            job.StopTime = job.StopTime == null ? null : new Date(job.StopTime);
+    
+        });
+        this.JobHistory.value = jobs;
+    }
+
     private updateStatus(status : Status)
     {
         this.Status.value      = status;
@@ -102,6 +120,15 @@ export class X1Client implements IX1Client
         {
             Type: "SetPrinterLogLevel",
             Level: level
+        }));
+    }
+
+    RequestJobHistory()
+    {
+        this.Log.value = [];
+        this._socket?.send(JSON.stringify(
+        {
+            Type: "RequestJobHistory"
         }));
     }
 
