@@ -108,7 +108,7 @@ local-job
 img
 {
     grid-area: img;
-    align-self: stretch;
+    aspect-ratio: 1;
     justify-self: stretch;
 }
 
