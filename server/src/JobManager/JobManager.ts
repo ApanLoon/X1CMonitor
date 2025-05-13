@@ -80,6 +80,11 @@ export class JobManager extends EventEmitter
         this.emit (JobEvent.JobUpdated, this.CurrentJob);
     }
 
+    public async GetJobHistory()
+    {
+        return await this._options.Database?.GetJobHistory() ?? null;
+    }
+
     public HandleChange(change : Change)
     {
         // console.log("A1"); // TODO: How do we set the current job if the server was started while a job was in progress?

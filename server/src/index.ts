@@ -84,11 +84,12 @@ x1Client.on(X1ClientEvent.LedCtrl,          ledCtrl        => console.log(ledCtr
 x1Client.on(X1ClientEvent.LogLevelChanged,  level          => api.sendPrinterLogLevel(level));
 x1Client.on(X1ClientEvent.ProjectLoaded,    (project, job) => jobManager.HandleProjectLoaded(project, job));
 
-api.on(ApiEvent.GetState,           sendState);
-api.on(ApiEvent.SetLight,           isOn  => console.log(isOn));
-api.on(ApiEvent.GetPrinterLogLevel, ()    => api.sendPrinterLogLevel(x1Client.LogLevel));
-api.on(ApiEvent.SetPrinterLogLevel, level => x1Client.SetLogLevel(level));
-api.on(ApiEvent.RequestFullLog,     ()    => logger.SendFullLog());
+api.on(ApiEvent.GetState,                 sendState);
+api.on(ApiEvent.SetLight,                 isOn  => console.log(isOn));
+api.on(ApiEvent.GetPrinterLogLevel,       ()    => api.sendPrinterLogLevel(x1Client.LogLevel));
+api.on(ApiEvent.SetPrinterLogLevel,       level => x1Client.SetLogLevel(level));
+api.on(ApiEvent.RequestFullLog,           ()    => logger.SendFullLog());
+api.on(ApiEvent.RequestJobs,        async ()    => api.sendJobHistory(await jobManager.GetJobHistory()))
 
 logger.on(LoggerEvent.MessageLogged, message => api.sendLogMessage(message));
 

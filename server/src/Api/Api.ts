@@ -18,7 +18,8 @@ export const ApiEvent = Object.freeze (
     SetLight:           "setlight",
     GetPrinterLogLevel: "getprinterloglevel",
     SetPrinterLogLevel: "setprinterloglevel",
-    RequestFullLog:     "requestfulllog"
+    RequestFullLog:     "requestfulllog",
+    RequestJobs:        "requestjobs"
 });
     
 
@@ -49,6 +50,7 @@ export class Api extends EventEmitter
                     case "GetPrinterLogLevel": this.emit(ApiEvent.GetPrinterLogLevel);             break;
                     case "SetPrinterLogLevel": this.emit(ApiEvent.SetPrinterLogLevel, msg.Level);  break;
                     case "RequestFullLog":     this.emit(ApiEvent.RequestFullLog);                 break;
+                    case "RequestJobs":        this.emit(ApiEvent.RequestJobs);                    break;
                 }
             },
             (_event: any, connection: Connection) =>
@@ -110,6 +112,15 @@ export class Api extends EventEmitter
         {
             Type: "CurrentJob",
             Job: job
+        }));                
+    }
+    
+    sendJobHistory (jobs : Array<Job> | null)
+    {
+        this.connections.sendToAll(JSON.stringify(
+        {
+            Type: "JobHistory",
+            Jobs: jobs ?? []
         }));                
     }
 }
