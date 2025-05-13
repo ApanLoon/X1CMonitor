@@ -11,13 +11,15 @@ services:
     env_file: "docker.env"
     environment:
       NODE_ENV: production
+    volumes:
+      - /volume1/docker/x1monitor/projectArchive/:/usr/src/app/projectArchive
     ports:
       - 5005:5005
       - 4000:4000
       - 9999:9999
     networks:
       - x1monitor
-      
+
 networks:
   x1monitor:
     name: x1monitor
