@@ -37,7 +37,7 @@ export class JobManager extends EventEmitter
         this.emit (JobEvent.JobUpdated, this.CurrentJob);
     }
     
-    public HandleStatus(status : any)
+    public async HandleStatus(status : any)
     {
         if (this.CurrentJob !== null && this.CurrentJob.Name !== status.subtask_name)
         {
@@ -47,15 +47,29 @@ export class JobManager extends EventEmitter
 
         if (this.CurrentJob === null && (status.gcode_state === GCodeState.Running || status.gcode_state === GCodeState.Pause))
         {
-            // TODO: Get latest running job from database
-            // TODO: If it is the same job as we think that we are starting now, use the one from the database
-            // TODO: If it is NOT the same job as we think that we are starting now, stop the job from the database and create a new one
+            this.CurrentJob = await this._options.Database?.GetLastPendingJob() ?? null;
 
-            this.CurrentJob = new Job();
-            this.CurrentJob.StartTime = new Date();
-            this.CurrentJob.Name = status.subtask_name;
-            this.CurrentJob.GcodeName = status.gcode_file;
-            this.CurrentJob.State = JobState.Started;
+            if (this.CurrentJob !== null)
+            {
+                if (   this.CurrentJob.Name      !== status.subtask_name
+                    || this.CurrentJob.GcodeName !== status.gcode_file
+                    // TODO: Could this return false positives?
+                )
+                {
+                    // It is NOT the same job as we think that we are starting now, stop the job that is listed as pending the database.
+                    this.CancelCurrentJob(); // NOTE: This clears this.CurrentJob, so we will create a new one below.
+                }
+            }
+
+            if (this.CurrentJob === null)
+            {
+                // There was no pending job in ther database, create a new one
+                this.CurrentJob = new Job();
+                this.CurrentJob.StartTime = new Date();
+                this.CurrentJob.Name = status.subtask_name;
+                this.CurrentJob.GcodeName = status.gcode_file;
+                this.CurrentJob.State = JobState.Started;
+            }
 
             this.emit (JobEvent.JobGetProject, this.CurrentJob);
             this.emit (JobEvent.JobUpdated, this.CurrentJob);
