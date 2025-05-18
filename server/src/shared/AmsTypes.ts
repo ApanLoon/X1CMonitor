@@ -119,6 +119,47 @@ export class Ams
     public version             : number = 0;     // 420
 }
 
+const AmsIndex = (index : number) : [number, number] =>
+{
+    return [Math.floor (index / 4), index % 4];
+}
+
+export const AmsTrayBrandFamily = (ams : Ams, index : number) =>
+{
+    const [amsIndex, trayIndex] = AmsIndex (index);
+    return ams.ams[amsIndex]?.tray[trayIndex]?.tray_sub_brands ?? "";
+}
+
+export const AmsTrayBrandFamilyId = (ams : Ams, index : number) =>
+{
+    const [amsIndex, trayIndex] = AmsIndex (index);
+    return ams.ams[amsIndex]?.tray[trayIndex]?.tray_info_idx ?? "";
+}
+
+export const AmsTrayBrandId = (ams : Ams, index : number) =>
+{
+    const [amsIndex, trayIndex] = AmsIndex (index);
+    return ams.ams[amsIndex]?.tray[trayIndex]?.tray_id_name ?? "";
+}
+    
+export const AmsTrayUuid = (ams : Ams, index : number) =>
+{
+    const [amsIndex, trayIndex] = AmsIndex (index);
+    return ams.ams[amsIndex]?.tray[trayIndex]?.tray_uuid ?? "";
+}
+
+export const AmsTrayIsBbl = (ams : Ams, index : number) =>
+{
+    return AmsCheckBit(index, ams.tray_is_bbl_bits);
+}
+
+const AmsCheckBit = (index : number, bitString : string) =>
+{
+    let mask = Math.pow(2, index);
+    let bits = Number("0x" + bitString);
+    return ((bits & mask) != 0);
+}
+
 export const AmsStatus2Main = (status : number ) =>
 {
     return (status & 0xFF00) >> 8;

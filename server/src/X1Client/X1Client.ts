@@ -5,7 +5,7 @@ import { IMessage as IMessage } from "./IMessage.js";
 import { type Change, CompareObjects } from "./CompareObjects.js"
 import { HomeFlag, SdCardState, type Status } from "../shared/X1Messages.js"
 import { LogLevel } from "../shared/LogLevel.js";
-import { AmsStatus2Main, AmsStatus2String, AmsStatus2Sub } from "../shared/AmsTypes.js";
+import { AmsStatus2Main, AmsStatus2String, AmsStatus2Sub, AmsTrayBrandFamily, AmsTrayBrandFamilyId, AmsTrayBrandId, AmsTrayIsBbl, AmsTrayUuid } from "../shared/AmsTypes.js";
 import { BambuFtpClient, BambuFtpOptions } from "./BambuFtpClient.js";
 import { Job } from "../shared/Job.js";
 import { RtspProxy } from "../RtspProxy/RtspProxy.js";
@@ -82,6 +82,18 @@ export class X1Client extends EventEmitter
   public async LoadProject(job : Job)
   {
     const project = await this._ftpClient.DownloadProject(`${job.Name}.gcode.3mf`);
+
+    // Add in extra information from AMS:
+    project?.Filaments.forEach(filament => 
+    {
+      const trayIndex = filament.TrayId - 1;
+      filament.IsBBL         = AmsTrayIsBbl         (this.status.ams, trayIndex);
+      filament.BrandFamily   = AmsTrayBrandFamily   (this.status.ams, trayIndex);
+      filament.BrandFamilyId = AmsTrayBrandFamilyId (this.status.ams, trayIndex);
+      filament.BrandId       = AmsTrayBrandId       (this.status.ams, trayIndex);
+      filament.Uuid          = AmsTrayUuid          (this.status.ams, trayIndex);
+    });
+
     this.emit(X1ClientEvent.ProjectLoaded, project, job);
   }
 
