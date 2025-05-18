@@ -19,6 +19,10 @@
   --vt-c-green-light: #a0f8a0;
   --vt-c-green-dark: #005a00;
 
+  --vt-c-orange: hsl(39, 100%, 50%);
+  --vt-c-orange-light: hsl(39, 86%, 80%);
+  --vt-c-orange-dark: hsl(39, 100%, 18%);
+
   --vt-c-indigo: #2c3e50;
   
   --vt-c-divider-light-1: #c6c6c6;
@@ -46,6 +50,7 @@
   --color-text-mute: var(--vt-c-text-light-1);
   --color-text-highlight: var(--vt-c-text-light-2);
 
+  --color-pending: var(--vt-c-orange-light);
   --color-on: var(--vt-c-green-light);
   --color-off: var(--vt-c-gray-light);
   --color-error: var(--vt-c-red-light);  
@@ -67,6 +72,7 @@
     --color-text-mute: var(--vt-c-text-dark-2);
     --color-text-highlight: var(--vt-c-text-dark-1);
 
+    --color-pending: var(--vt-c-orange-dark);
     --color-on: var(--vt-c-green-dark);
     --color-off: var(--vt-c-gray-dark);
     --color-error: var(--vt-c-red-dark);  

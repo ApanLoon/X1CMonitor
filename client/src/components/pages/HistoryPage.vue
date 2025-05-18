@@ -63,7 +63,8 @@ function round(value: number, places : number)
     <local-job v-for="job in x1Client.JobHistory.value">
         <img :src="job.Project?.ThumbnailFile" alt="Project Image" />
         <local-state :class="{
-            success:    job.State === JobState.Finished,
+            pending:  job.State === JobState.Started,
+            success:  job.State === JobState.Finished,
             fail:     job.State === JobState.Failed
         }">{{ status(job) }}</local-state>
         <local-name>{{ job.Name }}</local-name>
@@ -80,6 +81,10 @@ local-container
     justify-items: center;
 }
 
+.pending
+{
+    background-color: var(--color-pending);
+}
 .success
 {
     background-color: var(--color-on);
