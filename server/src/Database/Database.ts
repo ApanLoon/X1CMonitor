@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
 import { Logger } from "../Logger/Logger.js";
 import EventEmitter from "events";
-import { Job } from "../shared/Job.js";
+import { Job, JobState } from "../shared/Job.js";
 
 export class DatabaseOptions
 {
@@ -51,6 +51,22 @@ export class Database extends EventEmitter
         this._client.close();
       }
 
+      public async GetLastPendingJob()
+      {
+        try
+        {
+          const db = this._client.db();
+          const collection = db.collection("Job");
+          const cursor = collection.find<Job> ({State: JobState.Started}).sort({"StartTime": -1}).limit(1);
+          return cursor.next();
+        }
+        catch (err)
+        {
+          this._options.Logger?.Log(`[Database] GetLastPendingJob failed. ${err}`);
+        }
+        return null;
+      }
+
       public async GetJobHistory()
       {
         try
@@ -62,7 +78,7 @@ export class Database extends EventEmitter
         }
         catch (err)
         {
-          this._options.Logger?.Log(`[Database] UpdateJob failed. ${err}`);
+          this._options.Logger?.Log(`[Database] GetJobHistory failed. ${err}`);
         }
         return null;
     }
