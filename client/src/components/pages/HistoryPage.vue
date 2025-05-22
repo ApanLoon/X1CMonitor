@@ -61,7 +61,7 @@ function round(value: number, places : number)
 <template>
   <local-container>
     <local-job v-for="job in x1Client.JobHistory.value">
-        <img :src="job.Project?.ThumbnailFile" alt="Project Image" />
+        <local-image><img :src="job.Project?.ThumbnailFile" alt="Project Image" /></local-image>
         <local-state :class="{
             pending:  job.State === JobState.Started,
             success:  job.State === JobState.Finished,
@@ -110,11 +110,15 @@ local-job
     overflow: auto;
 }
 
-img
+local-image
 {
     grid-area: img;
-    aspect-ratio: 1;
-    justify-self: stretch;
+    aspect-ratio: 1 / 1;
+}
+local-image > img
+{
+    width: 100%;
+    height: 100%;
 }
 
 local-state
