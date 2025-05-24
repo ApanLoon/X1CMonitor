@@ -1,7 +1,7 @@
 import './assets/main.css'
 
 import { createApp } from 'vue';
-import { createMemoryHistory, createRouter } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import App from './App.vue';
 
 import X1ClientPlugin from './plugins/X1ClientPlugin'
@@ -35,7 +35,7 @@ fetch ("config.json")
     {
         const router = createRouter(
             {
-                history: createMemoryHistory(),
+                history: createWebHistory(),
                 routes
             }
         );
