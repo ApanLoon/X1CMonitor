@@ -4,9 +4,6 @@ services:
     hostname: x1monitor
     build:
       context: .
-      args: 
-        API_HOST: 192.168.0.13
-        API_PORT: 4000
     image: x1monitor
     env_file: "docker.env"
     environment:
