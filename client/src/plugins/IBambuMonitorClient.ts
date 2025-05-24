@@ -1,7 +1,7 @@
 import type { Ref } from "vue";
-import { X1ClientOptions } from "./X1Client";
+import { BambuMonitorClientOptions } from "./BambuMonitorClient";
 import type { Job } from "../../../server/src/shared/Job";
-import { HomeFlag, SdCardState, Status } from "../../../server/src/shared/X1Messages";
+import { HomeFlag, SdCardState, Status } from "../../../server/src/shared/BambuMessages";
 
 export enum LogLevel
 {
@@ -12,9 +12,9 @@ export enum LogLevel
   Trace       = 4
 }
 
-export interface IX1Client
+export interface IBambuMonitorClient
 {
-    Options : X1ClientOptions;
+    Options : BambuMonitorClientOptions;
     IsConnected : Ref<boolean>;
     IsPrinterConnected : Ref<boolean>;
 

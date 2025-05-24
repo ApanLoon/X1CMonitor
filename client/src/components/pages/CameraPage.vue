@@ -1,16 +1,16 @@
 <script lang="ts" setup>
 import { computed, inject, onMounted, ref, type Ref, watch } from "vue";
-import type { IX1Client } from "../../plugins/IX1Client";
+import type { IBambuMonitorClient } from "../../plugins/IBambuMonitorClient";
 
 import ToggleSwitch from "../generic/ToggleSwitch.vue"
 
 //@ts-ignore
 import { JSMpeg } from "../../lib/jsmpeg/jsmpeg.min.js";
 
-const x1Client = inject<IX1Client>("x1Client");
-if (x1Client === undefined)
+const bambuMonitorClient = inject<IBambuMonitorClient>("BambuMonitorClient");
+if (bambuMonitorClient === undefined)
 {
-  throw new Error ("[StatusPage] Setup: No x1Client plugin found.");
+  throw new Error ("[StatusPage] Setup: No BambuMonitorClient plugin found.");
 }
 
 const IsCameraOn: Ref<boolean> = ref(false);
@@ -26,7 +26,7 @@ function startCamera()
 {
     stopCamera();
 
-    const url = `ws://${x1Client?.Options.Host}:9999`; // TODO: Where should it get the port?
+    const url = `ws://${bambuMonitorClient?.Options.Host}:9999`; // TODO: Where should it get the port?
 
     player = new JSMpeg.Player(url, 
     {

@@ -1,17 +1,17 @@
 <script lang="ts" setup>
 import { inject } from "vue";
-import type { IX1Client } from "../../plugins/IX1Client";
+import type { IBambuMonitorClient } from "../../plugins/IBambuMonitorClient";
 
-const x1Client = inject<IX1Client>("x1Client");
-if (x1Client === undefined)
+const bambuMonitorClient = inject<IBambuMonitorClient>("BambuMonitorClient");
+if (bambuMonitorClient === undefined)
 {
-  throw new Error ("[LogPage] Setup: No x1Client plugin found.");
+  throw new Error ("[LogPage] Setup: No BambuMonitorClient plugin found.");
 }
 </script>
 
 <template>
     <local-container>
-        <local-logmessage v-for="message in x1Client.Log.value">
+        <local-logmessage v-for="message in bambuMonitorClient.Log.value">
             <pre>{{ message }}</pre>
         </local-logmessage>
     </local-container>

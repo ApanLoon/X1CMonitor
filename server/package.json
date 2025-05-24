@@ -1,5 +1,5 @@
 {
-  "name": "x1c-monitor",
+  "name": "bambu-monitor",
   "version": "1.0.0",
   "description": "Listens to, logs and presents messages on the MQTT bus of a Bambu Lab X1 Carbon 3D printer.",
   "main": "dist/index.js",

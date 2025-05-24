@@ -1,5 +1,5 @@
 // Messages sent by the client to the server.
-export const X1MonitorServerMessage = Object.freeze (
+export const BambuMonitorServerMessage = Object.freeze (
 {
   GetState:           "GetState",
   SetLight:           "SetLight",
@@ -10,7 +10,7 @@ export const X1MonitorServerMessage = Object.freeze (
 });
 
 // Messages sent by the server to the client.
-export const X1MonitorClientMessage = Object.freeze (
+export const BambuMonitorClientMessage = Object.freeze (
 {
   Status:                  "Status",
   PrinterConnectionStatus: "PrinterConnectionStatus",

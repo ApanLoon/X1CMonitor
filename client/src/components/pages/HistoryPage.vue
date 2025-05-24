@@ -1,17 +1,17 @@
 <script lang="ts" setup>
 import { inject, onMounted } from "vue";
-import type { IX1Client } from "../../plugins/IX1Client";
+import type { IBambuMonitorClient } from "../../plugins/IBambuMonitorClient";
 import { JobState, type Job } from "../../../../server/src/shared/Job";
 
-const x1Client = inject<IX1Client>("x1Client");
-if (x1Client === undefined)
+const bambuMonitorClient = inject<IBambuMonitorClient>("BambuMonitorClient");
+if (bambuMonitorClient === undefined)
 {
-  throw new Error ("[HistoryPage] Setup: No x1Client plugin found.");
+  throw new Error ("[HistoryPage] Setup: No BambuMonitorClient plugin found.");
 }
 
 onMounted(()=>
 {
-    x1Client.RequestJobHistory();
+    bambuMonitorClient.RequestJobHistory();
 });
 
 function status(job : Job)
@@ -60,7 +60,7 @@ function round(value: number, places : number)
 
 <template>
   <local-container>
-    <local-job v-for="job in x1Client.JobHistory.value">
+    <local-job v-for="job in bambuMonitorClient.JobHistory.value">
         <local-image><img :src="job.Project?.ThumbnailFile" alt="Project Image" /></local-image>
         <local-state :class="{
             pending:  job.State === JobState.Started,

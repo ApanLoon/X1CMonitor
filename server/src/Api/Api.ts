@@ -4,7 +4,7 @@ import { Connection, ConnectionCollection, ConnectionEvent } from "./ConnectionC
 import { Logger } from "../Logger/Logger.js";
 import { LogLevel } from "../shared/LogLevel.js";
 import { Job } from "../shared/Job.js";
-import { X1MonitorClientMessage, X1MonitorServerMessage } from "../shared/X1CMonitorApi.js";
+import { BambuMonitorClientMessage, BambuMonitorServerMessage } from "../shared/BambuMonitorApi.js";
 
 export class ApiOptions
 {
@@ -45,12 +45,12 @@ export class Api extends EventEmitter
                 const msg = JSON.parse(data);
                 switch (msg.Type)
                 {
-                    case X1MonitorServerMessage.GetState:           this.emit(ApiEvent.GetState);                       break;
-                    case X1MonitorServerMessage.SetLight:           this.emit(ApiEvent.SetLight, msg.isOn);             break;
-                    case X1MonitorServerMessage.GetPrinterLogLevel: this.emit(ApiEvent.GetPrinterLogLevel);             break;
-                    case X1MonitorServerMessage.SetPrinterLogLevel: this.emit(ApiEvent.SetPrinterLogLevel, msg.Level);  break;
-                    case X1MonitorServerMessage.RequestFullLog:     this.emit(ApiEvent.RequestFullLog);                 break;
-                    case X1MonitorServerMessage.RequestJobHistory:  this.emit(ApiEvent.RequestJobHistory);              break;
+                    case BambuMonitorServerMessage.GetState:           this.emit(ApiEvent.GetState);                       break;
+                    case BambuMonitorServerMessage.SetLight:           this.emit(ApiEvent.SetLight, msg.isOn);             break;
+                    case BambuMonitorServerMessage.GetPrinterLogLevel: this.emit(ApiEvent.GetPrinterLogLevel);             break;
+                    case BambuMonitorServerMessage.SetPrinterLogLevel: this.emit(ApiEvent.SetPrinterLogLevel, msg.Level);  break;
+                    case BambuMonitorServerMessage.RequestFullLog:     this.emit(ApiEvent.RequestFullLog);                 break;
+                    case BambuMonitorServerMessage.RequestJobHistory:  this.emit(ApiEvent.RequestJobHistory);              break;
                 }
             },
             (_event: any, connection: Connection) =>
@@ -74,7 +74,7 @@ export class Api extends EventEmitter
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            Type: X1MonitorClientMessage.Status,
+            Type: BambuMonitorClientMessage.Status,
             Status: status
         }));
     }
@@ -83,7 +83,7 @@ export class Api extends EventEmitter
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            Type: X1MonitorClientMessage.PrinterConnectionStatus,
+            Type: BambuMonitorClientMessage.PrinterConnectionStatus,
             IsConnected: isConnected
         }));
     }
@@ -92,7 +92,7 @@ export class Api extends EventEmitter
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            Type: X1MonitorClientMessage.PrinterLogLevel,
+            Type: BambuMonitorClientMessage.PrinterLogLevel,
             Level: level
         }));
     }
@@ -101,7 +101,7 @@ export class Api extends EventEmitter
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            Type: X1MonitorClientMessage.MessageLogged,
+            Type: BambuMonitorClientMessage.MessageLogged,
             Message: message
         }));    
     }
@@ -110,7 +110,7 @@ export class Api extends EventEmitter
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            Type: X1MonitorClientMessage.CurrentJob,
+            Type: BambuMonitorClientMessage.CurrentJob,
             Job: job
         }));                
     }
@@ -119,7 +119,7 @@ export class Api extends EventEmitter
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            Type: X1MonitorClientMessage.JobHistory,
+            Type: BambuMonitorClientMessage.JobHistory,
             Jobs: jobs ?? []
         }));                
     }

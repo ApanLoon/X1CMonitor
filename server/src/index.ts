@@ -3,13 +3,11 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import { Api, ApiEvent } from "./Api/Api.js";
-import { X1Client, X1ClientEvent } from "./BambuClient/X1Client.js";
+import { BambuClient, BambuClientEvent } from "./BambuClient/BambuClient.js";
 import { type Change } from "./BambuClient/CompareObjects.js"
 import { JobEvent, JobManager } from "./JobManager/JobManager.js";
 import { Logger, LoggerEvent } from "./Logger/Logger.js";
-import { LogLevel } from "./shared/LogLevel.js";
 import { Database } from "./Database/Database.js";
-import { Job } from "./shared/Job.js";
 
 dotenv.config();
 
@@ -40,8 +38,8 @@ const database = new Database(
   Logger:   logger,
   Host:     process.env.DB_HOST         || "",
   Port:     Number(process.env.DB_PORT) || 27017,
-  Database: process.env.DB_NAME         || "X1CMonitor",
-  UserName: process.env.DB_USER         || "x1cmonitor",
+  Database: process.env.DB_NAME         || "BambuMonitor",
+  UserName: process.env.DB_USER         || "bambumonitor",
   Password: process.env.DB_PWD          || ""
 });
   
@@ -52,7 +50,7 @@ const jobManager = new JobManager(
 
 const api = new Api ({ Logger : logger, Port: Number(process.env.API_PORT) || 4000 });
 
-const x1Client = new X1Client(
+const bambuClient = new BambuClient(
 {
   Logger:   logger,
   Host:     process.env.X1C_HOST     || "",
@@ -65,29 +63,29 @@ const x1Client = new X1Client(
   },
 });
 
-//x1Client.SetLogLevel(LogLevel.Trace);
+//bambuClient.SetLogLevel(LogLevel.Trace);
 
 // Set up event routing:
 //
 
 jobManager.on(JobEvent.JobFailed,     job => logger.LogJobStopped(job));
 jobManager.on(JobEvent.JobCompleted,  job => logger.LogJobStopped(job));
-jobManager.on(JobEvent.JobGetProject, job => x1Client.LoadProject(job));
+jobManager.on(JobEvent.JobGetProject, job => bambuClient.LoadProject(job));
 jobManager.on(JobEvent.JobUpdated,    job => database.UpdateJob (job));
 jobManager.on(JobEvent.JobUpdated,    job => api.sendCurrentJob (job));
 
-x1Client.on(X1ClientEvent.ConnectionStatus, isConnected => api.sendPrinterConnectionStatus(isConnected));
-x1Client.on(X1ClientEvent.Status,           status      => api.sendStatus(status));
-x1Client.on(X1ClientEvent.Status,           status      => jobManager.HandleStatus(status));
-x1Client.on(X1ClientEvent.PropertyChanged,  onPropertyChanged);
-x1Client.on(X1ClientEvent.LedCtrl,          ledCtrl        => console.log(ledCtrl));
-x1Client.on(X1ClientEvent.LogLevelChanged,  level          => api.sendPrinterLogLevel(level));
-x1Client.on(X1ClientEvent.ProjectLoaded,    (project, job) => jobManager.HandleProjectLoaded(project, job));
+bambuClient.on(BambuClientEvent.ConnectionStatus, isConnected => api.sendPrinterConnectionStatus(isConnected));
+bambuClient.on(BambuClientEvent.Status,           status      => api.sendStatus(status));
+bambuClient.on(BambuClientEvent.Status,           status      => jobManager.HandleStatus(status));
+bambuClient.on(BambuClientEvent.PropertyChanged,  onPropertyChanged);
+bambuClient.on(BambuClientEvent.LedCtrl,          ledCtrl        => console.log(ledCtrl));
+bambuClient.on(BambuClientEvent.LogLevelChanged,  level          => api.sendPrinterLogLevel(level));
+bambuClient.on(BambuClientEvent.ProjectLoaded,    (project, job) => jobManager.HandleProjectLoaded(project, job));
 
 api.on(ApiEvent.GetState,                 sendState);
 api.on(ApiEvent.SetLight,                 isOn  => console.log(isOn));
-api.on(ApiEvent.GetPrinterLogLevel,       ()    => api.sendPrinterLogLevel(x1Client.LogLevel));
-api.on(ApiEvent.SetPrinterLogLevel,       level => x1Client.SetLogLevel(level));
+api.on(ApiEvent.GetPrinterLogLevel,       ()    => api.sendPrinterLogLevel(bambuClient.LogLevel));
+api.on(ApiEvent.SetPrinterLogLevel,       level => bambuClient.SetLogLevel(level));
 api.on(ApiEvent.RequestFullLog,           ()    => logger.SendFullLog());
 api.on(ApiEvent.RequestJobHistory,  async ()    => api.sendJobHistory(await jobManager.GetJobHistory()))
 
@@ -96,14 +94,14 @@ logger.on(LoggerEvent.MessageLogged, message => api.sendLogMessage(message));
 // Start services:
 //
 await database.Connect();
-x1Client.connect();
+bambuClient.connect();
 
 // Express web server:
 //
 const webPort = Number(process.env.WEB_PORT) || 3000;
 
 const __filename = fileURLToPath(import.meta.url); // NOTE: This is the path to the folder where index.js is. I.e. dist/server/src and not dist as I was hoping.
-let __dirname = path.dirname(__filename); // TODO: __dirname will be "dist/server/src" int prod and "D:\GIT\ApanLoon\X1CMonitor\server\src\" in dev.
+let __dirname = path.dirname(__filename); // TODO: __dirname will be "dist/server/src" int prod and "D:\GIT\ApanLoon\BambuMonitor\server\src\" in dev.
 
 let wwwroot = "./wwwroot";
 let projectArchive = "./projectArchive";
@@ -133,9 +131,9 @@ app.listen(webPort, () => {
 
 function sendState()
 {
-  api.sendPrinterConnectionStatus(x1Client.IsConnected);
-  api.sendStatus(x1Client.status);
-  api.sendPrinterLogLevel(x1Client.LogLevel);
+  api.sendPrinterConnectionStatus(bambuClient.IsConnected);
+  api.sendStatus(bambuClient.status);
+  api.sendPrinterLogLevel(bambuClient.LogLevel);
   api.sendCurrentJob(jobManager.CurrentJob);
 }
 

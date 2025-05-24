@@ -3,14 +3,14 @@ import { EventEmitter } from "node:events";
 import { Logger } from "../Logger/Logger.js";
 import { IMessage as IMessage } from "./IMessage.js";
 import { CompareObjects } from "./CompareObjects.js"
-import { type Status } from "../shared/X1Messages.js"
+import { type Status } from "../shared/BambuMessages.js"
 import { LogLevel } from "../shared/LogLevel.js";
-import { AmsStatus2String, AmsTrayBrandFamily, AmsTrayBrandFamilyId, AmsTrayBrandId, AmsTrayIsBbl, AmsTrayUuid } from "../shared/AmsTypes.js";
+import { AmsStatus2String, AmsTrayBrandFamily, AmsTrayBrandFamilyId, AmsTrayBrandId, AmsTrayIsBbl, AmsTrayUuid } from "../shared/BambuAmsTypes.js";
 import { BambuFtpClient, BambuFtpOptions } from "./BambuFtpClient.js";
 import { Job } from "../shared/Job.js";
 import { CameraFeed } from "../RtspProxy/CameraFeed.js";
 
-export class X1Options
+export class BambuClientOptions
 {
   Logger?        : Logger;
   Host           : string = "localhost";
@@ -22,14 +22,14 @@ export class X1Options
   CameraFeedPort : number = 9999;
 }
 
-export const X1ClientEvent = Object.freeze (
+export const BambuClientEvent = Object.freeze (
 {
   Status:           "status",
   LedCtrl:          "led-ctrl",
   PropertyChanged:  "property-changed",
   ConnectionStatus: "connection-status",
   LogLevelChanged:  "log-level-changed",
-  ProjectLoaded:    "x1client-project-loaded"
+  ProjectLoaded:    "bambuclient-project-loaded"
 });
 
 class SocketError
@@ -44,7 +44,7 @@ class SocketError
 interface ICommandParser
 {
   Command : string;
-  Parser : (message : IMessage, client : X1Client) => void;
+  Parser : (message : IMessage, client : BambuClient) => void;
 }
 
 interface ILogMessageDefinition
@@ -53,14 +53,14 @@ interface ILogMessageDefinition
   LogLevel : LogLevel;
 }
 
-export class X1Client extends EventEmitter
+export class BambuClient extends EventEmitter
 {
   public IsConnected : boolean = false;
   public status : any = undefined;
   
   public LogLevel : LogLevel = LogLevel.Information;
 
-  private _options : X1Options = new X1Options;
+  private _options : BambuClientOptions = new BambuClientOptions;
   private _client : MqttClient | null = null;
   private _firstConnect = true;
   private _firstClose = true;
@@ -69,13 +69,13 @@ export class X1Client extends EventEmitter
 
   private _cameraFeed : CameraFeed | undefined;
   
-  public constructor(options : Partial<X1Options>)
+  public constructor(options : Partial<BambuClientOptions>)
   {
     super();
     Object.assign(this._options, options);
 
     this._ftpClient = new BambuFtpClient(this._options);
-    this._cameraFeed = new CameraFeed({ X1Client: this, Port: this._options.CameraFeedPort, UserName: this._options.UserName, Password: this._options.Password }); // TODO: Should this even be in the X1Client? The RtspProxy should probably be in X1Client/ but the camera feed might be its own thing.
+    this._cameraFeed = new CameraFeed({ BambuClient: this, Port: this._options.CameraFeedPort, UserName: this._options.UserName, Password: this._options.Password }); // TODO: Should this even be in the BambuClient? The RtspProxy should probably be in BambuClient/ but the camera feed might be its own thing.
   }
   
   private Pad(n : number) : string
@@ -103,7 +103,7 @@ export class X1Client extends EventEmitter
       filament.Uuid          = AmsTrayUuid          (this.status.ams, trayIndex);
     });
 
-    this.emit(X1ClientEvent.ProjectLoaded, project, job);
+    this.emit(BambuClientEvent.ProjectLoaded, project, job);
   }
 
   public async connect()
@@ -113,7 +113,7 @@ export class X1Client extends EventEmitter
     {
       if (this._firstConnect === true)
       {
-        this._options.Logger?.Log(`[X1Client] Connecting to ${this._options.Host}:${this._options.Port}...`);
+        this._options.Logger?.Log(`[BambuClient] Connecting to ${this._options.Host}:${this._options.Port}...`);
         this._firstConnect = false;
       }
       this._client = await connectAsync(`mqtts://${this._options.Host}:${this._options.Port}`, 
@@ -143,7 +143,7 @@ export class X1Client extends EventEmitter
         const error = err as SocketError;
         if (error.code !== "ETIMEOUT")
         {
-          this._options.Logger?.Log (`[X1Client] ${err}`);
+          this._options.Logger?.Log (`[BambuClient] ${err}`);
         }
       }
     }
@@ -155,19 +155,19 @@ export class X1Client extends EventEmitter
     this._client?.end();
   }
 
-  private onConnect(client : X1Client)
+  private onConnect(client : BambuClient)
   {
-    client._options.Logger?.Log(`[X1Client] OnConnect: Connected to printer at ${client._options.Host}:${client._options.Port}.`);
+    client._options.Logger?.Log(`[BambuClient] OnConnect: Connected to printer at ${client._options.Host}:${client._options.Port}.`);
     client.IsConnected = true;
     this._firstConnect = true;
     this._firstClose = true;
-    client.emit(X1ClientEvent.ConnectionStatus, this.IsConnected);
-    client.emit(X1ClientEvent.LogLevelChanged, client.LogLevel);
+    client.emit(BambuClientEvent.ConnectionStatus, this.IsConnected);
+    client.emit(BambuClientEvent.LogLevelChanged, client.LogLevel);
     client._client?.subscribe(`device/${client._options.Serial}/report`, async (err) =>
     {
       if (err)
       {
-        client._options.Logger?.Log(`[X1Client] OnConnect: Unable to subscribe, (${err})`);
+        client._options.Logger?.Log(`[BambuClient] OnConnect: Unable to subscribe, (${err})`);
         return;
       }
 
@@ -176,22 +176,22 @@ export class X1Client extends EventEmitter
       //this._client?.publish(`device/${this._options.Serial}/request`, JSON.stringify(msg));     
     });
   }
-  private onClose(client : X1Client)
+  private onClose(client : BambuClient)
   {
     client.IsConnected = false;
     if (client._firstClose === true)
     {
-      client._options.Logger?.Log(`[X1Client] OnClose: Disconnected from printer. Trying to re-connect to ${this._options.Host}:${this._options.Port}...`);
+      client._options.Logger?.Log(`[BambuClient] OnClose: Disconnected from printer. Trying to re-connect to ${this._options.Host}:${this._options.Port}...`);
       client._firstClose = false;
     }
-    client.emit(X1ClientEvent.ConnectionStatus, client.IsConnected);
+    client.emit(BambuClientEvent.ConnectionStatus, client.IsConnected);
   } 
 
   public SetLogLevel(level : LogLevel)
   {
-    this._options.Logger?.Log(`[X1Client] SetLogLevel: Changing log level to ${level}...`);
+    this._options.Logger?.Log(`[BambuClient] SetLogLevel: Changing log level to ${level}...`);
     this.LogLevel = level;
-    this.emit(X1ClientEvent.LogLevelChanged, this.LogLevel);
+    this.emit(BambuClientEvent.LogLevelChanged, this.LogLevel);
   }
 
   private parsers =
@@ -200,72 +200,72 @@ export class X1Client extends EventEmitter
       Section : "print", Commands : 
       [
         {Command : "push_status",               Parser : this.parsePushStatus },
-        // {Command : "ams_change_filament",       Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "ams_control",               Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "ams_filament_setting",      Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "ams_user_setting",          Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "calibration",               Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "clean_print_error",         Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "extrusion_cali",            Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "extrusion_cali_del",        Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "extrusion_cali_get",        Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "extrusion_cali_get_result", Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "extrusion_cali_sel",        Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "extrusion_cali_set",        Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "flowrate_cali",             Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "flowrate_get_result",       Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "gcode_file",                Parser : (message : IMessage, client : X1Client) => {}  },
-        {Command : "gcode_line",                Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "pause",                     Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "print_option",              Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "print_speed",               Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "push_status",               Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "resume",                    Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "set_ctt",                   Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "stop",                      Parser : (message : IMessage, client : X1Client) => {}  },
-        // {Command : "unload_filament",           Parser : (message : IMessage, client : X1Client) => {}  }
+        // {Command : "ams_change_filament",       Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "ams_control",               Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "ams_filament_setting",      Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "ams_user_setting",          Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "calibration",               Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "clean_print_error",         Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "extrusion_cali",            Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "extrusion_cali_del",        Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "extrusion_cali_get",        Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "extrusion_cali_get_result", Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "extrusion_cali_sel",        Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "extrusion_cali_set",        Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "flowrate_cali",             Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "flowrate_get_result",       Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "gcode_file",                Parser : (message : IMessage, client : BambuClient) => {}  },
+        {Command : "gcode_line",                Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "pause",                     Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "print_option",              Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "print_speed",               Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "push_status",               Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "resume",                    Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "set_ctt",                   Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "stop",                      Parser : (message : IMessage, client : BambuClient) => {}  },
+        // {Command : "unload_filament",           Parser : (message : IMessage, client : BambuClient) => {}  }
       ]
     },
     {
       Section : "system", Commands : 
       [
-        {Command : "get_access_code",           Parser : (message : IMessage, client : X1Client) => {}  },
-        {Command : "ledctrl",                   Parser : (message : IMessage, client : X1Client) => { client.emit (X1ClientEvent.LedCtrl, message); }        },
-        //{Command : "set_accessories",           Parser : (message : IMessage, client : X1Client) => {} }
+        {Command : "get_access_code",           Parser : (message : IMessage, client : BambuClient) => {}  },
+        {Command : "ledctrl",                   Parser : (message : IMessage, client : BambuClient) => { client.emit (BambuClientEvent.LedCtrl, message); }        },
+        //{Command : "set_accessories",           Parser : (message : IMessage, client : BambuClient) => {} }
       ]
     },
     // {
     //   Section : "info", Commands : 
     //   [
-    //     {Command : "get_version",               Parser : (message : IMessage, client : X1Client) => {}  }
+    //     {Command : "get_version",               Parser : (message : IMessage, client : BambuClient) => {}  }
     //   ]
     // },
     // {
     //   Section : "pushing", Commands : 
     //   [
-    //     {Command : "pushall",                   Parser : (message : IMessage, client : X1Client) => {}  }
+    //     {Command : "pushall",                   Parser : (message : IMessage, client : BambuClient) => {}  }
     //   ]
     // },
     // {
     //   Section : "upgrade", Commands : 
     //   [
-    //     {Command : "upgrade_confirm",           Parser : (message : IMessage, client : X1Client) => {}  },
-    //     {Command : "consistency_confirm",       Parser : (message : IMessage, client : X1Client) => {}  },
-    //     {Command : "start",                     Parser : (message : IMessage, client : X1Client) => {}  }
+    //     {Command : "upgrade_confirm",           Parser : (message : IMessage, client : BambuClient) => {}  },
+    //     {Command : "consistency_confirm",       Parser : (message : IMessage, client : BambuClient) => {}  },
+    //     {Command : "start",                     Parser : (message : IMessage, client : BambuClient) => {}  }
     //   ]
     // },
     // {
     //   Section : "camera", Commands : 
     //   [
-    //     {Command : "ipcam_record_set",          Parser : (message : IMessage, client : X1Client) => {}  },
-    //     {Command :"ipcam_timelapse",            Parser : (message : IMessage, client : X1Client) => {}  },
-    //     {Command :"ipcam_resolution_set",       Parser : (message : IMessage, client : X1Client) => {}  }
+    //     {Command : "ipcam_record_set",          Parser : (message : IMessage, client : BambuClient) => {}  },
+    //     {Command :"ipcam_timelapse",            Parser : (message : IMessage, client : BambuClient) => {}  },
+    //     {Command :"ipcam_resolution_set",       Parser : (message : IMessage, client : BambuClient) => {}  }
     //   ]
     // },
     // {
     //   Section : "xcam", Commands : 
     //   [
-    //     {Command : "xcam_control_set",          Parser : (message : IMessage, client : X1Client) => {}  }
+    //     {Command : "xcam_control_set",          Parser : (message : IMessage, client : BambuClient) => {}  }
     //   ]
     // }
   ];
@@ -293,7 +293,7 @@ export class X1Client extends EventEmitter
     });
   }
 
-  private parsePushStatus(message : IMessage, client : X1Client)
+  private parsePushStatus(message : IMessage, client : BambuClient)
   {
     let ignoreChanges = false;
     if (client.status === undefined)
@@ -334,13 +334,13 @@ export class X1Client extends EventEmitter
 
         if (client.LogLevel >= level)
         {
-          client.emit (X1ClientEvent.PropertyChanged, change);
+          client.emit (BambuClientEvent.PropertyChanged, change);
         }
       });
     }
 
     client.status = newStatus;
-    client.emit (X1ClientEvent.Status, client.status); 
+    client.emit (BambuClientEvent.Status, client.status); 
   }
 
   private PrintStatus_LogMessageDefinitions : ILogMessageDefinition[] =

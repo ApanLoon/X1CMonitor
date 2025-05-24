@@ -1,15 +1,15 @@
 import WebSocket, { WebSocketServer } from "ws";
 import { EventEmitter } from "node:events";
 import { Connection, ConnectionCollection, ConnectionEvent } from "../Api/ConnectionCollection.js";
-import { X1Client } from "../BambuClient/X1Client.js";
+import { BambuClient } from "../BambuClient/BambuClient.js";
 import { RtspProxy } from "./RtspProxy.js";
 
 export class CameraFeedOptions
 {
-    X1Client   : X1Client | null = null;
-    Port       : number = 9999;
-    UserName   : string = "bblp";
-    Password   : string = "";
+    BambuClient : BambuClient | null = null;
+    Port        : number = 9999;
+    UserName    : string = "bblp";
+    Password    : string = "";
 }
 
 export class CameraFeed extends EventEmitter
@@ -43,9 +43,9 @@ export class CameraFeed extends EventEmitter
     private onConnect(pipe : CameraFeed, socket : WebSocket, request : any)
     {
         //If there are zero connections, create the RtspProxy:
-        if (this._connections.count() === 0 && this._options.X1Client?.status.ipcam !== undefined && this._options.X1Client?.status.ipcam.rtsp_url !== "" && this._rtspProxy === undefined)
+        if (this._connections.count() === 0 && this._options.BambuClient?.status.ipcam !== undefined && this._options.BambuClient?.status.ipcam.rtsp_url !== "" && this._rtspProxy === undefined)
         {
-            this._rtspProxy = new RtspProxy(this._options.X1Client?.status.ipcam.rtsp_url, this._options.UserName, this._options.Password, this);
+            this._rtspProxy = new RtspProxy(this._options.BambuClient?.status.ipcam.rtsp_url, this._options.UserName, this._options.Password, this);
         }
 
         let connection = new Connection(socket, (data : string) => { }, (_event: any, connection: Connection) => { this._connections.remove(connection); });

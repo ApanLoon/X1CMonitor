@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { inject } from "vue";
-import type { IX1Client } from "./plugins/IX1Client";
+import type { IBambuMonitorClient } from "./plugins/IBambuMonitorClient";
 
 import Header from "./components/Header.vue";
 
-const x1Client = inject<IX1Client>("x1Client");
-if (x1Client === undefined)
+const bambuMonitorClient = inject<IBambuMonitorClient>("BambuMonitorClient");
+if (bambuMonitorClient === undefined)
 {
-  throw new Error ("[App] Setup: No x1Client plugin found.");
+  throw new Error ("[App] Setup: No BambuMonitorClient plugin found.");
 }
-x1Client.Connect(()=>
+bambuMonitorClient.Connect(()=>
 {
-  console.log("[App] X1Client connected");
-  x1Client.GetState();
-  x1Client.RequestFullLog();
+  console.log("[App] BambuMonitorClient connected");
+  bambuMonitorClient.GetState();
+  bambuMonitorClient.RequestFullLog();
 });
 </script>
 
