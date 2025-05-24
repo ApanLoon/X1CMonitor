@@ -1,4 +1,4 @@
-# X1CMonitor
+# Bambu Monitor
 Listens to, logs and presents messages on the MQTT bus of a Bambu Lab X1 Carbon 3D printer.
 
 The server component remains connected to the printer at all times and logs changes in the printer state to a log file. It also detects when print jobs start and stop, downloads the project files from the printer and stores a print history in a database.
@@ -51,7 +51,7 @@ The "server/projectArchive" folder is the default location for storing the proje
 1. In the client folder, run "npm run dev". This hosts the vue application with vite and uses a config.json that points to the local server
 
 ## Docker
-To build a docker image of the x1cmonitor,
+To build a docker image of the Bambu Monitor,
 1. Clear out the "server/dist/wwwroot" folder manually or add "--emptyOutDir" to your build command.
 1. In the client folder, run "npm run build". This will create the client files in the "server/dist/wwwroot" folder
 1. In the server folder, run "npm run build". This will build the server application into "server/dist"
@@ -72,6 +72,6 @@ The server is configured using environment variables. Typically use a .env (dock
 | API_PORT | Port of the server API | 4000 |
 | DB_HOST  | Host name or IP-address of the mongodb database storing the job history | |
 | DB_PORT  | Port of the mongodb database | 27017 |
-| DB_NAME  | Name of the database | X1CMonitor |
-| DB_USER  | Username for accessing the database | x1cmonitor |
+| DB_NAME  | Name of the database | BambuMonitor |
+| DB_USER  | Username for accessing the database | bambumonitor |
 | DB_PWD   | Password for accessing the database | |

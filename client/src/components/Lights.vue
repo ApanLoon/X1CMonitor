@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import type { IX1Client } from '@/plugins/IX1Client';
+import type { IBambuMonitorClient } from '@/plugins/IBambuMonitorClient';
 import { inject } from 'vue';
 
-const x1Client = inject<IX1Client>("x1Client");
-if (x1Client === undefined)
+const bambuMonitorClient = inject<IBambuMonitorClient>("BambuMonitorClient");
+if (bambuMonitorClient === undefined)
 {
-  throw new Error ("[Lights] Setup: No x1Client plugin found.");
+  throw new Error ("[Lights] Setup: No BambuMonitorClient plugin found.");
 }
 </script>
 
 <template>
-    <div v-for="light in x1Client.Status.value.lights_report">
+    <div v-for="light in bambuMonitorClient.Status.value.lights_report">
         {{ light.node }}: {{ light.mode }}
     </div>
 </template>

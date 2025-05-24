@@ -1,18 +1,19 @@
 
 import { ref, type Ref } from "vue";
-import { type IX1Client, LogLevel } from "./IX1Client";
+import { type IBambuMonitorClient, LogLevel } from "./IBambuMonitorClient";
 import { Job } from "../../../server/src/shared/Job";
-import { HomeFlag, SdCardState, Status } from "../../../server/src/shared/X1Messages";
+import { BambuMonitorClientMessage, BambuMonitorServerMessage } from "../../../server/src/shared/BambuMonitorApi";
+import { HomeFlag, SdCardState, Status } from "../../../server/src/shared/BambuMessages";
 
-export class X1ClientOptions
+export class BambuMonitorClientOptions
 {
     public Host : string = "localhost";
     public Port : number = 4000;
 }
 
-export class X1Client implements IX1Client
+export class BambuMonitorClient implements IBambuMonitorClient
 {
-    Options: X1ClientOptions;
+    Options: BambuMonitorClientOptions;
     IsConnected: Ref<boolean> = ref(false);
     IsPrinterConnected : Ref<boolean> = ref(false);
 
@@ -31,20 +32,20 @@ export class X1Client implements IX1Client
     private _keepAliveInterval = 5000;
     private _keepAlive : ReturnType<typeof setInterval> | null = null;
 
-    constructor(options : X1ClientOptions)
+    constructor(options : BambuMonitorClientOptions)
     {
         this.Options = options;
     }
 
     public Connect(connectHandler? : () => void) : void
     {
-        console.log(`[X1Client] Connecting to ${this.Options.Host}:${this.Options.Port}...`);
+        console.log(`[BambuMonitorClient] Connecting to ${this.Options.Host}:${this.Options.Port}...`);
 
         this._socket = new WebSocket(`ws://${this.Options.Host}:${this.Options.Port}`);
 
         this._socket.addEventListener("open", () => 
         {
-            console.log(`[X1Client] Connected to ${this.Options.Host}:${this.Options.Port}`);
+            console.log(`[BambuMonitorClient] Connected to ${this.Options.Host}:${this.Options.Port}`);
             this.IsConnected.value = true;
             this._keepAlive = window.setInterval(()=>this._socket?.send(JSON.stringify({Type: "KeepAlive"})), this._keepAliveInterval);
 
@@ -60,18 +61,18 @@ export class X1Client implements IX1Client
         
             switch (msg.Type)
             {
-                case "Status":                  this.updateStatus(msg.Status as Status);                   break;
-                case "PrinterConnectionStatus": this.IsPrinterConnected.value = msg.IsConnected;           break;
-                case "PrinterLogLevel":         this.LogLevel.value           = msg.Level as LogLevel;     break;
-                case "MessageLogged":           this.Log.value.push (msg.Message);                         break;
-                case "CurrentJob":              this.UpdateCurrentJob (msg.Job);                           break;
-                case "JobHistory":              this.UpdateJobHistory (msg.Jobs);                          break;
+                case BambuMonitorClientMessage.Status:                  this.updateStatus(msg.Status as Status);                   break;
+                case BambuMonitorClientMessage.PrinterConnectionStatus: this.IsPrinterConnected.value = msg.IsConnected;           break;
+                case BambuMonitorClientMessage.PrinterLogLevel:         this.LogLevel.value           = msg.Level as LogLevel;     break;
+                case BambuMonitorClientMessage.MessageLogged:           this.Log.value.push (msg.Message);                         break;
+                case BambuMonitorClientMessage.CurrentJob:              this.UpdateCurrentJob (msg.Job);                           break;
+                case BambuMonitorClientMessage.JobHistory:              this.UpdateJobHistory (msg.Jobs);                          break;
             }
         });
 
         this._socket.onclose = error =>
         {
-            console.log("[X1Client] Connection closed.", error);
+            console.log("[BambuMonitorClient] Connection closed.", error);
             this.IsConnected.value = false;
             if (this._keepAlive != null) window.clearInterval(this._keepAlive);
             window.setTimeout(()=>this.Connect(connectHandler), 1000);
@@ -110,7 +111,7 @@ export class X1Client implements IX1Client
     {
         this._socket?.send(JSON.stringify(
         {
-            Type: "GetState"
+            Type: BambuMonitorServerMessage.GetState
         }));
     }
 
@@ -118,7 +119,7 @@ export class X1Client implements IX1Client
     {
         this._socket?.send(JSON.stringify(
         {
-            Type: "SetPrinterLogLevel",
+            Type: BambuMonitorServerMessage.SetPrinterLogLevel,
             Level: level
         }));
     }
@@ -128,7 +129,7 @@ export class X1Client implements IX1Client
         this.Log.value = [];
         this._socket?.send(JSON.stringify(
         {
-            Type: "RequestJobHistory"
+            Type: BambuMonitorServerMessage.RequestJobHistory
         }));
     }
 
@@ -137,7 +138,7 @@ export class X1Client implements IX1Client
         this.Log.value = [];
         this._socket?.send(JSON.stringify(
         {
-            Type: "RequestFullLog"
+            Type: BambuMonitorServerMessage.RequestFullLog
         }));
     }
 }

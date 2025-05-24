@@ -8,8 +8,8 @@ export class DatabaseOptions
   Logger?  : Logger;
   Host     : string = "localhost";
   Port     : number = 27017;
-  Database : string = "X1CMonitor";
-  UserName : string = "x1cmonitor";
+  Database : string = "BambuMonitor";
+  UserName : string = "bambumonitor";
   Password : string = "";
 }
 

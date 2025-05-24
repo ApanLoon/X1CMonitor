@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { inject, computed } from 'vue';
-import type { IX1Client } from '@/plugins/IX1Client';
-import { Stage } from "../../../server/src/shared/X1Messages";
+import type { IBambuMonitorClient } from '@/plugins/IBambuMonitorClient';
+import { Stage } from "../../../server/src/shared/BambuMessages";
 
-const x1Client = inject<IX1Client>("x1Client");
-if (x1Client === undefined)
+const bambuMonitorClient = inject<IBambuMonitorClient>("BambuMonitorClient");
+if (bambuMonitorClient === undefined)
 {
-  throw new Error ("[Ams] Setup: No x1Client plugin found.");
+  throw new Error ("[Ams] Setup: No BambuMonitorClient plugin found.");
 }
 
-const StartTime = computed(()=>x1Client.Status.value.gcode_start_time === undefined || x1Client.Status.value.gcode_start_time === "0"
+const StartTime = computed(()=>bambuMonitorClient.Status.value.gcode_start_time === undefined || bambuMonitorClient.Status.value.gcode_start_time === "0"
   ? "Unknown"
-  : new Date(Number(x1Client.Status.value.gcode_start_time) * 1000).toLocaleString("sv-SE"));
+  : new Date(Number(bambuMonitorClient.Status.value.gcode_start_time) * 1000).toLocaleString("sv-SE"));
 
-const StageString   = computed<string>(() => Stage[x1Client.Status.value.stg_cur]);
+const StageString   = computed<string>(() => Stage[bambuMonitorClient.Status.value.stg_cur]);
 
 const RemainingTime = computed<string>(() =>
 {
-    let minutes = x1Client.Status.value.mc_remaining_time;
+    let minutes = bambuMonitorClient.Status.value.mc_remaining_time;
     let hours = Math.floor(minutes / 60);
     minutes -= hours * 60;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
@@ -25,15 +25,15 @@ const RemainingTime = computed<string>(() =>
 
 const EndTime = computed(()=>
 {
-  if (x1Client.Status.value.gcode_start_time === undefined || x1Client.Status.value.gcode_start_time === "0")
+  if (bambuMonitorClient.Status.value.gcode_start_time === undefined || bambuMonitorClient.Status.value.gcode_start_time === "0")
   {
     return "Unknown";
   }
 
-  let seconds = Number(x1Client.Status.value.gcode_start_time) % 60;
+  let seconds = Number(bambuMonitorClient.Status.value.gcode_start_time) % 60;
   let endTime  = new Date();
   endTime.setSeconds(seconds);
-  endTime.setMinutes(endTime.getMinutes() + x1Client.Status.value.mc_remaining_time);
+  endTime.setMinutes(endTime.getMinutes() + bambuMonitorClient.Status.value.mc_remaining_time);
   return endTime.toLocaleString("sv-SE");
 });
 
@@ -42,16 +42,16 @@ const EndTime = computed(()=>
 <template>
     <local-job>
         <local-logo>Job</local-logo>
-        <local-info><span>Sub task:</span><span>{{ x1Client.Status.value.subtask_name }}</span></local-info>
+        <local-info><span>Sub task:</span><span>{{ bambuMonitorClient.Status.value.subtask_name }}</span></local-info>
         <local-info><span>Stage:</span><span>{{ StageString }}</span></local-info>
         
         <local-info><span>Start time: {{ StartTime }}</span><span>End time: {{ EndTime }}</span></local-info>
-        <local-info><span>Layer: {{ x1Client.Status.value.layer_num }}/{{ x1Client.Status.value.total_layer_num }}</span><span>{{x1Client.Status.value.mc_percent}}%</span><span>Remaining: {{ RemainingTime }}</span></local-info>
-        <div><progress :value="x1Client.Status.value.mc_percent" min="0" max="100"></progress></div>
+        <local-info><span>Layer: {{ bambuMonitorClient.Status.value.layer_num }}/{{ bambuMonitorClient.Status.value.total_layer_num }}</span><span>{{bambuMonitorClient.Status.value.mc_percent}}%</span><span>Remaining: {{ RemainingTime }}</span></local-info>
+        <div><progress :value="bambuMonitorClient.Status.value.mc_percent" min="0" max="100"></progress></div>
 
-        <div>gcode: {{ x1Client.Status.value.gcode_state }} {{ x1Client.Status.value.gcode_file }} {{ x1Client.Status.value.gcode_start_time }}</div>
-        <div>mc_print_sub_stage: {{x1Client.Status.value.mc_print_sub_stage}}</div>
-        <div>print_real_action: {{x1Client.Status.value.print_real_action}}</div>
+        <div>gcode: {{ bambuMonitorClient.Status.value.gcode_state }} {{ bambuMonitorClient.Status.value.gcode_file }} {{ bambuMonitorClient.Status.value.gcode_start_time }}</div>
+        <div>mc_print_sub_stage: {{bambuMonitorClient.Status.value.mc_print_sub_stage}}</div>
+        <div>print_real_action: {{bambuMonitorClient.Status.value.print_real_action}}</div>
     </local-job>
 </template>
 

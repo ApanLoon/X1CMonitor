@@ -1,25 +1,25 @@
 <script lang="ts" setup>
 import { inject } from "vue";
-import type { IX1Client } from "../../plugins/IX1Client";
+import type { IBambuMonitorClient } from "../../plugins/IBambuMonitorClient";
 
-const x1Client = inject<IX1Client>("x1Client");
-if (x1Client === undefined)
+const bambuMonitorClient = inject<IBambuMonitorClient>("BambuMonitorClient");
+if (bambuMonitorClient === undefined)
 {
-  throw new Error ("[StatusPage] Setup: No x1Client plugin found.");
+  throw new Error ("[StatusPage] Setup: No BambuMonitorClient plugin found.");
 }
 </script>
 
 <template>
   <local-container>
-    <template v-if="x1Client.IsConnected.value && x1Client.IsPrinterConnected.value && x1Client.Status.value !== undefined && x1Client.CurrentJob.value != null && x1Client.CurrentJob.value.Project != null ">
-        <img :src="x1Client.CurrentJob.value.Project?.ThumbnailFile" alt="Project Image" />
+    <template v-if="bambuMonitorClient.IsConnected.value && bambuMonitorClient.IsPrinterConnected.value && bambuMonitorClient.Status.value !== undefined && bambuMonitorClient.CurrentJob.value != null && bambuMonitorClient.CurrentJob.value.Project != null ">
+        <img :src="bambuMonitorClient.CurrentJob.value.Project?.ThumbnailFile" alt="Project Image" />
         <local-itemised-list>
-          <local-item-name>Plate</local-item-name> <local-item-value>{{ x1Client.CurrentJob.value.Project.PlateName }} (Index: {{ x1Client.CurrentJob.value.Project.PlateIndex }})</local-item-value>
-          <local-item-name>Profile</local-item-name> <local-item-value>{{ x1Client.CurrentJob.value.Project.SettingsName }}</local-item-value>
-          <local-item-name>Total filament weight</local-item-name> <local-item-value>{{ x1Client.CurrentJob.value.Project.TotalWeight }}g</local-item-value>
+          <local-item-name>Plate</local-item-name> <local-item-value>{{ bambuMonitorClient.CurrentJob.value.Project.PlateName }} (Index: {{ bambuMonitorClient.CurrentJob.value.Project.PlateIndex }})</local-item-value>
+          <local-item-name>Profile</local-item-name> <local-item-value>{{ bambuMonitorClient.CurrentJob.value.Project.SettingsName }}</local-item-value>
+          <local-item-name>Total filament weight</local-item-name> <local-item-value>{{ bambuMonitorClient.CurrentJob.value.Project.TotalWeight }}g</local-item-value>
         </local-itemised-list>
 
-        <div v-for="filament in x1Client.CurrentJob.value.Project.Filaments">
+        <div v-for="filament in bambuMonitorClient.CurrentJob.value.Project.Filaments">
           <local-filament :style="{'background-color': filament.Colour}">
             <local-filament-text>
               <div>{{ filament.Type }}</div>

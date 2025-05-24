@@ -1,8 +1,8 @@
 import { Database } from "../Database/Database.js";
 import { Job, JobState } from "../shared/Job.js";
 import { Project } from "../shared/Project.js";
-import { GCodeState } from "../shared/X1Messages.js";
-import { type Change } from "../X1Client/CompareObjects.js"
+import { GCodeState } from "../shared/BambuMessages.js";
+import { type Change } from "../BambuClient/CompareObjects.js"
 import { EventEmitter } from "node:events";
 
 export class JobManagerOptions

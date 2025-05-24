@@ -3,8 +3,8 @@ import decompress from "decompress";
 import { Client as FtpClient } from "basic-ftp";
 import fs, { readFileSync } from "fs";
 import Path from "path";
-import { Project, Filament } from "../shared/Project.js"
-import { X1Options } from "./X1Client.js";
+import { Project } from "../shared/Project.js"
+import { BambuClientOptions } from "./BambuClient.js";
 
 export class BambuFtpOptions
 {
@@ -14,10 +14,10 @@ export class BambuFtpOptions
 
 export class BambuFtpClient
 {
-    private _options : X1Options;
+    private _options : BambuClientOptions;
     private _ftpClient : FtpClient = new FtpClient();
     
-    public constructor(options : X1Options)
+    public constructor(options : BambuClientOptions)
     {
         this._options = options;
         try

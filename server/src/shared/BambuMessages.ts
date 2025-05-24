@@ -1,4 +1,4 @@
-import { Ams, Tray } from "./AmsTypes.js";
+import { Ams, Tray } from "./BambuAmsTypes.js";
 
 export class NozzleInfo
 {

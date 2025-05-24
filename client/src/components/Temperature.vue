@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { inject } from "vue";
-import type { IX1Client } from "@/plugins/IX1Client";
+import type { IBambuMonitorClient } from "@/plugins/IBambuMonitorClient";
 import Thermometer from "./generic/Thermometer.vue"
 
-const x1Client = inject<IX1Client>("x1Client");
-if (x1Client === undefined)
+const bambuMonitorClient = inject<IBambuMonitorClient>("BambuMonitorClient");
+if (bambuMonitorClient === undefined)
 {
-  throw new Error ("[App] Setup: No x1Client plugin found.");
+  throw new Error ("[App] Setup: No BambuMonitorClient plugin found.");
 }
 </script>
 
@@ -18,15 +18,15 @@ if (x1Client === undefined)
         </div> -->
         <div>
             <h2>Nozzle</h2>
-            <Thermometer :currentValue="Number(x1Client.Status.value.nozzle_temper)" :targetValue="Number(x1Client.Status.value.nozzle_target_temper)" :valueMin="0" :valueMax="300"></Thermometer>
+            <Thermometer :currentValue="Number(bambuMonitorClient.Status.value.nozzle_temper)" :targetValue="Number(bambuMonitorClient.Status.value.nozzle_target_temper)" :valueMin="0" :valueMax="300"></Thermometer>
         </div>
         <div>
             <h2>Bed</h2>
-            <Thermometer :currentValue="Number(x1Client.Status.value.bed_temper)" :targetValue="Number(x1Client.Status.value.bed_target_temper)" :valueMin="0" :valueMax="250"></Thermometer>
+            <Thermometer :currentValue="Number(bambuMonitorClient.Status.value.bed_temper)" :targetValue="Number(bambuMonitorClient.Status.value.bed_target_temper)" :valueMin="0" :valueMax="250"></Thermometer>
         </div>
         <div>
             <h2>Chamber</h2>
-            <Thermometer :currentValue="Number(x1Client.Status.value.chamber_temper)" :valueMin="0" :valueMax="60"></Thermometer>
+            <Thermometer :currentValue="Number(bambuMonitorClient.Status.value.chamber_temper)" :valueMin="0" :valueMax="60"></Thermometer>
         </div>
     </local-temperature>
 </template>

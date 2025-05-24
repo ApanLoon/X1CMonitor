@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-const props = defineProps({
+const props = defineProps(
+{
   bits:     { type: Number,  required: true },
   lsbFirst: { type: Boolean, required: false, default: false },
   minBits:  { type: Number,  required: false, default: 0     },

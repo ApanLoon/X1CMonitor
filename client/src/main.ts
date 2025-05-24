@@ -4,7 +4,7 @@ import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import App from './App.vue';
 
-import X1ClientPlugin from './plugins/X1ClientPlugin'
+import BambuMonitorClientPlugin from './plugins/BambuMonitorClientPlugin'
 
 import StatusPage from "./components/pages/StatusPage.vue";
 import CameraPage from "./components/pages/CameraPage.vue";
@@ -41,7 +41,7 @@ fetch ("config.json")
         );
         
         const app = createApp(App);
-        app.use(X1ClientPlugin, config);
+        app.use(BambuMonitorClientPlugin, config);
         app.use(router);
         app.mount("#app");
     })
