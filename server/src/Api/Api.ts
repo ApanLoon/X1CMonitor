@@ -5,6 +5,7 @@ import { Logger } from "../Logger/Logger.js";
 import { LogLevel } from "../shared/LogLevel.js";
 import { Project } from "../shared/Project.js";
 import { Job } from "../shared/Job.js";
+import { X1MonitorClientMessage, X1MonitorServerMessage } from "../shared/X1CMonitorApi.js";
 
 export class ApiOptions
 {
@@ -45,12 +46,12 @@ export class Api extends EventEmitter
                 const msg = JSON.parse(data);
                 switch (msg.Type)
                 {
-                    case "GetState":           this.emit(ApiEvent.GetState);                       break;
-                    case "SetLight":           this.emit(ApiEvent.SetLight, msg.isOn);             break;
-                    case "GetPrinterLogLevel": this.emit(ApiEvent.GetPrinterLogLevel);             break;
-                    case "SetPrinterLogLevel": this.emit(ApiEvent.SetPrinterLogLevel, msg.Level);  break;
-                    case "RequestFullLog":     this.emit(ApiEvent.RequestFullLog);                 break;
-                    case "RequestJobHistory":  this.emit(ApiEvent.RequestJobHistory);              break;
+                    case X1MonitorServerMessage.GetState:           this.emit(ApiEvent.GetState);                       break;
+                    case X1MonitorServerMessage.SetLight:           this.emit(ApiEvent.SetLight, msg.isOn);             break;
+                    case X1MonitorServerMessage.GetPrinterLogLevel: this.emit(ApiEvent.GetPrinterLogLevel);             break;
+                    case X1MonitorServerMessage.SetPrinterLogLevel: this.emit(ApiEvent.SetPrinterLogLevel, msg.Level);  break;
+                    case X1MonitorServerMessage.RequestFullLog:     this.emit(ApiEvent.RequestFullLog);                 break;
+                    case X1MonitorServerMessage.RequestJobHistory:  this.emit(ApiEvent.RequestJobHistory);              break;
                 }
             },
             (_event: any, connection: Connection) =>
@@ -74,7 +75,7 @@ export class Api extends EventEmitter
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            Type: "Status",
+            Type: X1MonitorClientMessage.Status,
             Status: status
         }));
     }
@@ -83,7 +84,7 @@ export class Api extends EventEmitter
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            Type: "PrinterConnectionStatus",
+            Type: X1MonitorClientMessage.PrinterConnectionStatus,
             IsConnected: isConnected
         }));
     }
@@ -92,7 +93,7 @@ export class Api extends EventEmitter
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            Type: "PrinterLogLevel",
+            Type: X1MonitorClientMessage.PrinterLogLevel,
             Level: level
         }));
     }
@@ -101,7 +102,7 @@ export class Api extends EventEmitter
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            Type: "MessageLogged",
+            Type: X1MonitorClientMessage.MessageLogged,
             Message: message
         }));    
     }
@@ -110,7 +111,7 @@ export class Api extends EventEmitter
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            Type: "CurrentJob",
+            Type: X1MonitorClientMessage.CurrentJob,
             Job: job
         }));                
     }
@@ -119,7 +120,7 @@ export class Api extends EventEmitter
     {
         this.connections.sendToAll(JSON.stringify(
         {
-            Type: "JobHistory",
+            Type: X1MonitorClientMessage.JobHistory,
             Jobs: jobs ?? []
         }));                
     }

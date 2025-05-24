@@ -2,6 +2,7 @@
 import { ref, type Ref } from "vue";
 import { type IX1Client, LogLevel } from "./IX1Client";
 import { Job } from "../../../server/src/shared/Job";
+import { X1MonitorClientMessage, X1MonitorServerMessage } from "../../../server/src/shared/X1CMonitorApi";
 import { HomeFlag, SdCardState, Status } from "../../../server/src/shared/X1Messages";
 
 export class X1ClientOptions
@@ -60,12 +61,12 @@ export class X1Client implements IX1Client
         
             switch (msg.Type)
             {
-                case "Status":                  this.updateStatus(msg.Status as Status);                   break;
-                case "PrinterConnectionStatus": this.IsPrinterConnected.value = msg.IsConnected;           break;
-                case "PrinterLogLevel":         this.LogLevel.value           = msg.Level as LogLevel;     break;
-                case "MessageLogged":           this.Log.value.push (msg.Message);                         break;
-                case "CurrentJob":              this.UpdateCurrentJob (msg.Job);                           break;
-                case "JobHistory":              this.UpdateJobHistory (msg.Jobs);                          break;
+                case X1MonitorClientMessage.Status:                  this.updateStatus(msg.Status as Status);                   break;
+                case X1MonitorClientMessage.PrinterConnectionStatus: this.IsPrinterConnected.value = msg.IsConnected;           break;
+                case X1MonitorClientMessage.PrinterLogLevel:         this.LogLevel.value           = msg.Level as LogLevel;     break;
+                case X1MonitorClientMessage.MessageLogged:           this.Log.value.push (msg.Message);                         break;
+                case X1MonitorClientMessage.CurrentJob:              this.UpdateCurrentJob (msg.Job);                           break;
+                case X1MonitorClientMessage.JobHistory:              this.UpdateJobHistory (msg.Jobs);                          break;
             }
         });
 
@@ -110,7 +111,7 @@ export class X1Client implements IX1Client
     {
         this._socket?.send(JSON.stringify(
         {
-            Type: "GetState"
+            Type: X1MonitorServerMessage.GetState
         }));
     }
 
@@ -118,7 +119,7 @@ export class X1Client implements IX1Client
     {
         this._socket?.send(JSON.stringify(
         {
-            Type: "SetPrinterLogLevel",
+            Type: X1MonitorServerMessage.SetPrinterLogLevel,
             Level: level
         }));
     }
@@ -128,7 +129,7 @@ export class X1Client implements IX1Client
         this.Log.value = [];
         this._socket?.send(JSON.stringify(
         {
-            Type: "RequestJobHistory"
+            Type: X1MonitorServerMessage.RequestJobHistory
         }));
     }
 
@@ -137,7 +138,7 @@ export class X1Client implements IX1Client
         this.Log.value = [];
         this._socket?.send(JSON.stringify(
         {
-            Type: "RequestFullLog"
+            Type: X1MonitorServerMessage.RequestFullLog
         }));
     }
 }
