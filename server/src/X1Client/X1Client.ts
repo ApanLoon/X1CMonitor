@@ -79,9 +79,19 @@ export class X1Client extends EventEmitter
     this._cameraFeed = new CameraFeed({ X1Client: this, Port: this._options.CameraFeedPort, UserName: this._options.UserName, Password: this._options.Password }); // TODO: Should this even be in the X1Client? The RtspProxy should probably be in X1Client/ but the camera feed might be its own thing.
   }
   
+  private Pad(n : number) : string
+  {
+    return ("0" + n).slice(-2);
+  }
+  
+  private DateToPrefix(date : Date) : string
+  {
+    return `${date.getFullYear()}${this.Pad(date.getMonth() + 1)}${this.Pad(date.getDate())}-${this.Pad(date.getUTCHours())}${this.Pad(date.getUTCMinutes())}${this.Pad(date.getUTCSeconds())}`;
+  }
+
   public async LoadProject(job : Job)
   {
-    const project = await this._ftpClient.DownloadProject(`${job.Name}.gcode.3mf`);
+    const project = await this._ftpClient.DownloadProject(`${job.Name}.gcode.3mf`, this.DateToPrefix(job.StartTime));
 
     // Add in extra information from AMS:
     project?.Filaments.forEach(filament => 
