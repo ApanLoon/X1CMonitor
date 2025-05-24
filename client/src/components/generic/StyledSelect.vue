@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { onMounted, ref, type Ref } from "vue";
+import { ref, type Ref } from "vue";
 
 const props = defineProps(
 {

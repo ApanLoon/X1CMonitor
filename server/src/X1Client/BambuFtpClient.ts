@@ -3,7 +3,7 @@ import decompress from "decompress";
 import { Client as FtpClient } from "basic-ftp";
 import fs, { readFileSync } from "fs";
 import Path from "path";
-import { Project, Filament } from "../shared/Project.js"
+import { Project } from "../shared/Project.js"
 import { X1Options } from "./X1Client.js";
 
 export class BambuFtpOptions

@@ -3,7 +3,6 @@ import { EventEmitter } from "node:events";
 import { Connection, ConnectionCollection, ConnectionEvent } from "./ConnectionCollection.js";
 import { Logger } from "../Logger/Logger.js";
 import { LogLevel } from "../shared/LogLevel.js";
-import { Project } from "../shared/Project.js";
 import { Job } from "../shared/Job.js";
 import { X1MonitorClientMessage, X1MonitorServerMessage } from "../shared/X1CMonitorApi.js";
 

@@ -2,13 +2,12 @@ import { MqttClient, connectAsync } from "mqtt";
 import { EventEmitter } from "node:events";
 import { Logger } from "../Logger/Logger.js";
 import { IMessage as IMessage } from "./IMessage.js";
-import { type Change, CompareObjects } from "./CompareObjects.js"
-import { HomeFlag, SdCardState, type Status } from "../shared/X1Messages.js"
+import { CompareObjects } from "./CompareObjects.js"
+import { type Status } from "../shared/X1Messages.js"
 import { LogLevel } from "../shared/LogLevel.js";
-import { AmsStatus2Main, AmsStatus2String, AmsStatus2Sub, AmsTrayBrandFamily, AmsTrayBrandFamilyId, AmsTrayBrandId, AmsTrayIsBbl, AmsTrayUuid } from "../shared/AmsTypes.js";
+import { AmsStatus2String, AmsTrayBrandFamily, AmsTrayBrandFamilyId, AmsTrayBrandId, AmsTrayIsBbl, AmsTrayUuid } from "../shared/AmsTypes.js";
 import { BambuFtpClient, BambuFtpOptions } from "./BambuFtpClient.js";
 import { Job } from "../shared/Job.js";
-import { RtspProxy } from "../RtspProxy/RtspProxy.js";
 import { CameraFeed } from "../RtspProxy/CameraFeed.js";
 
 export class X1Options
