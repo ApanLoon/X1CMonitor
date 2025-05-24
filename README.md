@@ -13,7 +13,7 @@ The client is a stand-alone vue typescript application that communicates with th
 The server can also start an external ffmpeg process that converts and relays the video stream of the printer camera in a format that the client can consume.
 
 ## Folders
-```bash
+```
 +---client
 |   +---public
 |   \---src
