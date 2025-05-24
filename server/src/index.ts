@@ -100,7 +100,7 @@ x1Client.connect();
 
 // Express web server:
 //
-const port = process.env.WEB_PORT || 3000;
+const webPort = Number(process.env.WEB_PORT) || 3000;
 
 const __filename = fileURLToPath(import.meta.url); // NOTE: This is the path to the folder where index.js is. I.e. dist/server/src and not dist as I was hoping.
 let __dirname = path.dirname(__filename); // TODO: __dirname will be "dist/server/src" int prod and "D:\GIT\ApanLoon\X1CMonitor\server\src\" in dev.
@@ -114,12 +114,21 @@ if (process.env.IS_DEVELOPMENT)
   wwwroot = path.join("dist", wwwroot);
 }
 
+app.get("/config.json", (request, response) =>
+{
+  response.setHeader("Content-Type", "application/json");
+  response.end(JSON.stringify(
+    {
+      Host:        process.env.API_HOST  || "localhost",
+      Port: Number(process.env.API_PORT) || 4000
+    }
+  ))
+});
 app.use("/",               express.static(path.join(__dirname, wwwroot)));
 app.use("/projectArchive", express.static(path.join(__dirname, projectArchive)));
 
-
-app.listen(port, () => {
-  logger.Log(`[Web] Server is running at http://localhost:${port}`);
+app.listen(webPort, () => {
+  logger.Log(`[Web] Server is running at http://localhost:${webPort}`);
 });
 
 function sendState()
