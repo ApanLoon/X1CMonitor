@@ -1,7 +1,7 @@
 import WebSocket, { WebSocketServer } from "ws";
 import { EventEmitter } from "node:events";
 import { Connection, ConnectionCollection, ConnectionEvent } from "../Api/ConnectionCollection.js";
-import { X1Client } from "../X1Client/X1Client.js";
+import { X1Client } from "../BambuClient/X1Client.js";
 import { RtspProxy } from "./RtspProxy.js";
 
 export class CameraFeedOptions

@@ -1,7 +1,7 @@
 import fs from "fs";
 import rd from "readline";
 import Path from "path";
-import { type Change } from "../X1Client/CompareObjects.js"
+import { type Change } from "../BambuClient/CompareObjects.js"
 import { EventEmitter } from "node:events";
 import { Job } from "../shared/Job.js";
 

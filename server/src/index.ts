@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import { Api, ApiEvent } from "./Api/Api.js";
-import { X1Client, X1ClientEvent } from "./X1Client/X1Client.js";
-import { type Change } from "./X1Client/CompareObjects.js"
+import { X1Client, X1ClientEvent } from "./BambuClient/X1Client.js";
+import { type Change } from "./BambuClient/CompareObjects.js"
 import { JobEvent, JobManager } from "./JobManager/JobManager.js";
 import { Logger, LoggerEvent } from "./Logger/Logger.js";
 import { LogLevel } from "./shared/LogLevel.js";
