@@ -43,7 +43,7 @@ export class BambuFtpClient
         }
     }
 
-    public async DownloadProject (srcPath : string) : Promise<Project | null>
+    public async DownloadProject (srcPath : string, prefix : string) : Promise<Project | null>
     {
         this._options.Logger?.Log(`BambuFtpClient: Trying to get file ftps://${this._options.UserName}@${this._options.Host}:${this._options.FtpOptions.Port}/${srcPath}`);
         try
@@ -61,13 +61,14 @@ export class BambuFtpClient
                 }
             });
 
-            let projectFile = `${this._options.FtpOptions.LocalFilePath}/${srcPath}`; // TODO: Danger! You need to make sure that the resulting path is safe!
-            await  this._ftpClient.downloadTo(projectFile, srcPath);
+            const projectFile = `${prefix}-${srcPath.replace(/(\.gcode)(?!.*\1)/, "")}`;
+            const projectPath = `${this._options.FtpOptions.LocalFilePath}/${projectFile}`; // TODO: Danger! You need to make sure that the resulting path is safe!
+            await  this._ftpClient.downloadTo(projectPath, srcPath);
 
             // Unzip 3mf file:
-            let p = Path.parse(projectFile);
-            let dstFolder = Path.join(p.dir, p.name);
-            await decompress(projectFile, dstFolder);
+            let p = Path.parse(projectPath);
+            let dstFolder = Path.join(p.dir, p.name); // Remove extension 3mf
+            await decompress(projectPath, dstFolder);
 
             let project : Project = new Project();
 
